@@ -1,6 +1,5 @@
-import { Button } from '@/components/ui/button'
 import React from 'react'
-import ModeToggle from './modeToggle'
+import ModeToggle from './mode-toggle'
 import {
   NavigationMenu,
   // NavigationMenuContent,
@@ -11,7 +10,7 @@ import {
   // NavigationMenuTrigger,
   // NavigationMenuViewport,
 } from "@/components/ui/navigation-menu"
-import SigninBtn from '@/components/signinBtn'
+import SigninBtn from '@/components/signin-btn'
 
 export default function Index() {
   return (
@@ -19,13 +18,14 @@ export default function Index() {
       <NavigationMenu>
         <NavigationMenuList className="gap-x-4">
           <ModeToggle />
+          
           <NavigationMenuItem>
+            
             <SigninBtn />
+
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
-
-
     </header>
   )
 }

@@ -11,9 +11,10 @@ export default function SigninBtn() {
     return (
 
         <>
-            <Button asChild onClick={() => setOpenModal(true)}>
+            <Button onClick={() => setOpenModal(true)}>
                 Sign In
             </Button>
+
             <ResponsiveDialog
                 title='Sign In'
                 isOpen={openModal}
