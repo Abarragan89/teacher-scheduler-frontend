@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-// import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -23,12 +22,14 @@ export function ResponsiveDialog({
     setIsOpen,
     title,
     description,
+    hideDescription = false
 }: {
     children: React.ReactNode;
     isOpen: boolean;
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
     title: string;
     description?: string;
+    hideDescription?: boolean;
 }) {
     const isDesktop = useMediaQuery('(min-width: 575px)');
 
@@ -40,7 +41,7 @@ export function ResponsiveDialog({
                     <DialogHeader>
                         <DialogTitle>{title}</DialogTitle>
                         {description && (
-                            <DialogDescription className="sr-only">{description}</DialogDescription>
+                            <DialogDescription className={hideDescription ? "sr-only" : ""}>{description}</DialogDescription>
                         )}
                     </DialogHeader>
                     {children}
@@ -54,7 +55,7 @@ export function ResponsiveDialog({
             <DrawerContent tabIndex={0} className='px-8 pb-10'>
                 <DrawerHeader className="text-left">
                     <DrawerTitle>{title}</DrawerTitle>
-                    {description && <DialogDescription>{description}</DialogDescription>}
+                    {description && <DialogDescription className={hideDescription ? "sr-only" : ""}>{description}</DialogDescription>}
                 </DrawerHeader>
                 {children}
             </DrawerContent>

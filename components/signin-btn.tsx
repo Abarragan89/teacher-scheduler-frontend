@@ -3,6 +3,7 @@ import React from 'react'
 import { useState } from 'react'
 import { Button } from './ui/button'
 import { ResponsiveDialog } from './responsive-dialog'
+import SigninForm from './forms/sign-in-form';
 
 export default function SigninBtn() {
 
@@ -14,13 +15,14 @@ export default function SigninBtn() {
             <Button onClick={() => setOpenModal(true)}>
                 Sign In
             </Button>
-
             <ResponsiveDialog
                 title='Sign In'
                 isOpen={openModal}
                 setIsOpen={setOpenModal}
+                description={"Join Teacher Scheduler for free!"}
+                hideDescription={true}
             >
-                <p>Sign in form here...</p>
+                <SigninForm />
             </ResponsiveDialog>
         </>
     )

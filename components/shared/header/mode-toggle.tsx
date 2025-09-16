@@ -1,13 +1,9 @@
 "use client";
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button';
 import { SunMedium, MoonIcon } from 'lucide-react';
-import {
-    // NavigationMenuContent,
-    NavigationMenuItem,
-    // NavigationMenuTrigger
-} from '@/components/ui/navigation-menu';
+import { NavigationMenuItem } from '@/components/ui/navigation-menu';
 import {
     Popover,
     PopoverContent,
@@ -20,13 +16,27 @@ export default function ModeToggle() {
 
     function renderThemeIcon() {
         switch (theme) {
-            case 'dark':
-                return <MoonIcon />
             case 'light':
                 return <SunMedium />
             default:
-                return <SunMedium />
+                return <MoonIcon />
+
         }
+    }
+
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => setMounted(true), []);
+
+    if (!mounted) {
+        // Avoids SSR/CSR mismatch by rendering a placeholder
+        return (
+            <NavigationMenuItem>
+                <Button variant="outline" disabled>
+                    <MoonIcon />
+                </Button>
+            </NavigationMenuItem>
+        );
     }
 
     return (
