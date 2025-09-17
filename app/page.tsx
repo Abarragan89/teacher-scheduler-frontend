@@ -1,41 +1,23 @@
-"use client";
-import { Button } from '@/components/ui/button'
-import apiFetch from '@/lib/api-wrapper';
-import React, { useState } from 'react'
+import Header from '@/components/shared/header';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-type User = {
-  id: string
-  email: string
-  username: string
-}
+export default async function Home() {
 
-export default function Dashboard() {
+  const cookieData = await cookies();
+  const refreshCookie = cookieData.get("refresh_token")
 
-  const [users, setUsers] = useState<User[]>([])
-
-  async function getUsers(): Promise<void> {
-    try {
-      const response = await apiFetch("users/allUsers")
-      console.log('response ', response)
-      const users = await response.json();
-      setUsers(users)
-    } catch (err) {
-        console.error('error getting users ', err);
-    }
+  if (refreshCookie) {
+    redirect("/dashboard")
   }
+
 
   return (
     <>
-      <Button onClick={getUsers}>
-        Get User
-      </Button>
-      <p>layout</p>
-
-      {users && users.length > 0 && users.map((user: User) => (
-        <div key={user.id}>
-          <p>{user.email}</p>
-        </div>
-      ))}
+      <Header />
+      <main className="min-h-screen wrapper bg-gradient-to-br p-6">
+        <p className="jumbotron text-center mt-10">This is the Jumbotron</p>
+      </main>
     </>
-  )
+  );
 }

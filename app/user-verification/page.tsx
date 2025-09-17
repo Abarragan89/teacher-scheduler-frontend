@@ -1,9 +1,8 @@
 "use client";
 import React, { useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
 import { useCsrf } from '@/providers/csrf-provider';
-import { Button } from '@/components/ui/button';
-import { Link } from 'lucide-react';
+import SigninBtn from '@/components/signin-btn';
 
 export default function UserVerification() {
 
@@ -14,7 +13,7 @@ export default function UserVerification() {
     const [error, setError] = useState<string>("");
 
 
-    async function verifyToken() {
+    async function verifyToken(): Promise<void> {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/magic-link-verify`, {
                 method: "POST",
@@ -30,9 +29,10 @@ export default function UserVerification() {
             }
 
             // Set the csrfToken in context
-            const { csrf } = await response.json();
-            setCsrfToken(csrf)
+            const { csrfToken } = await response.json();
+            setCsrfToken(csrfToken)
         } catch (error) {
+            console.error('erro validating ', error)
             setError("Validation Token is Expired")
         }
     }
@@ -41,25 +41,36 @@ export default function UserVerification() {
         if (token) verifyToken();
     }, [token])
 
-    if (error) {
-        return (
-            <main className='wrapper text-center'>
-                <h2 className='h3-bold text-destructive'>Oops, something went wrong</h2>
-                <p className='text-xl mt-3'>{error}</p>
-            </main>
-        )
-    }
+    useEffect(() => {
+        if (csrfToken) {
+            setTimeout(() => {
+                redirect('/dashboard')
+            }, 1000);
+        }
+    }, [csrfToken])
 
-    if (csrfToken) {
-        return (
+    return(
             <main className='wrapper'>
-                <p>Verification Successful!</p>
-                <Button asChild>
-                    <Link href="/teacher/dashboard">
-                        Login
-                    </Link>
-                </Button>
+
+                {!csrfToken && !error && (
+                    <h3 className='text-center h3-bold'>Verifying User...</h3>
+                )}
+
+                {csrfToken && (
+                    <div className='text-center'>
+                        <h3 className='h3-bold text-ring'>Verification Successful!</h3>
+                        <p className='mt-3 text-xl'>Redirecting to Dashboard...</p>
+                    </div>
+                )}
+
+                {error && (
+                    <div className="text-center">
+                        <h3 className='h3-bold text-destructive'>Verification Unsuccessfull </h3>
+                        <p className='my-3'>Magic Link expired. Please sign in again.</p>
+                        <SigninBtn />
+                    </div>
+                )}
             </main>
-        )
-    }
+
+    )
 }

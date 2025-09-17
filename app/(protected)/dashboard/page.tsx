@@ -1,13 +1,8 @@
 "use client";
 import { Button } from '@/components/ui/button'
-import apiFetch from '@/lib/api-wrapper';
+import { getAllUsers } from '@/services/userService';
+import { User } from '@/types/user';
 import React, { useState } from 'react'
-
-type User = {
-  id: string
-  email: string
-  username: string
-}
 
 export default function Dashboard() {
 
@@ -15,10 +10,8 @@ export default function Dashboard() {
 
   async function getUsers(): Promise<void> {
     try {
-      const response = await apiFetch("users/allUsers")
-      console.log('response ', response)
-      const users = await response.json();
-      setUsers(users)
+      const allUsers = await getAllUsers();
+      setUsers(allUsers)
     } catch (err) {
         console.error('error getting users ', err);
     }
