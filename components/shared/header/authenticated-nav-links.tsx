@@ -1,17 +1,34 @@
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from '@/components/ui/navigation-menu'
 import React from 'react'
 import ModeToggle from './mode-toggle'
-import { Button } from '@/components/ui/button'
+import UserActionMenu from './user-action-menu'
+import Link from 'next/link'
 
-export default function AuthenticatedNavLinks() {
-  return (
-      <NavigationMenu>
-        <NavigationMenuList className="gap-x-4">
-          <ModeToggle />
-          <NavigationMenuItem>
-           <Button>Logout</Button>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
-  )
+export default function AuthenticatedNavLinks({ username }: { username: string }) {
+    return (
+        <NavigationMenu>
+            <NavigationMenuList className="gap-x-4">
+                <NavigationMenuItem>
+                    <Link href="/dashboard">
+                        Dashboard
+                    </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                    <Link href="/profile">
+                        Profile
+                    </Link>
+                </NavigationMenuItem>
+
+                <ModeToggle />
+
+                <NavigationMenuItem>
+
+                    <UserActionMenu
+                        username={username}
+                    />
+
+                </NavigationMenuItem>
+            </NavigationMenuList>
+        </NavigationMenu>
+    )
 }

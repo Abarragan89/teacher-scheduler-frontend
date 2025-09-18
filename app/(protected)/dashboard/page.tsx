@@ -1,33 +1,24 @@
-"use client";
-import { Button } from '@/components/ui/button'
-import { getAllUsers } from '@/services/userService';
-import { User } from '@/types/user';
-import React, { useState } from 'react'
+import DailyScheduleAccordion from '@/components/shared/daily-schedule-accordion'
+import React from 'react'
 
 export default function Dashboard() {
 
-  const [users, setUsers] = useState<User[]>([])
+  // const [users, setUsers] = useState<User[]>([])
 
-  async function getUsers(): Promise<void> {
-    try {
-      const allUsers = await getAllUsers();
-      setUsers(allUsers)
-    } catch (err) {
-        console.error('error getting users ', err);
-    }
-  }
+  // async function getUsers(): Promise<void> {
+  //   try {
+  //     const allUsers = await getAllUsers();
+  //     setUsers(allUsers)
+  //   } catch (err) {
+  //       console.error('error getting users ', err);
+  //   }
+  // }
 
   return (
-    <>
-      <Button onClick={getUsers}>
-        Get User
-      </Button>
+    <main className='wrapper'>
+      <h1 className='h1-bold'>Today's Schedule</h1>
+      <DailyScheduleAccordion />
 
-      {users && users.length > 0 && users.map((user: User) => (
-        <div key={user.id}>
-          <p>{user.email}</p>
-        </div>
-      ))}
-    </>
+    </main>
   )
 }

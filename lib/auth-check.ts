@@ -21,7 +21,7 @@ export const checkSession = async () => {
         });
 
         if (!refreshRes.ok) {
-            return false;
+            
         }
 
         // Retry session check after refresh

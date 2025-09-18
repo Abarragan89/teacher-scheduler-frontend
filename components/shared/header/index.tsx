@@ -1,26 +1,17 @@
 import React from 'react'
-import ModeToggle from './mode-toggle'
 import Image from 'next/image'
-import {
-  NavigationMenu,
-  // NavigationMenuContent,
-  // NavigationMenuIndicator,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  // NavigationMenuTrigger,
-  // NavigationMenuViewport,
-} from "@/components/ui/navigation-menu"
-import SigninBtn from '@/components/signin-btn'
 import Link from 'next/link'
 import AuthenticatedNavLinks from './authenticated-nav-links'
 import GuestNavLinks from './guest-nav-links'
 
-export default function Index({
-  isAuthenticated = false
+export default function Header({
+  isAuthenticated = false,
+  username
 }: {
   isAuthenticated?: boolean
+  username?: string
 }) {
+
   return (
     <header className="p-6 flex-between">
       <Link
@@ -29,8 +20,8 @@ export default function Index({
       >
         <Image
           src={'/images/logo.png'}
-          height={50}
-          width={50}
+          height={45}
+          width={45}
           alt="Company Logo"
           priority
         />
@@ -42,7 +33,9 @@ export default function Index({
 
       {/* Navigation Link */}
       {isAuthenticated ? (
-        <AuthenticatedNavLinks />
+        <AuthenticatedNavLinks
+          username={username || ''}
+        />
       ) : (
         <GuestNavLinks />
       )}

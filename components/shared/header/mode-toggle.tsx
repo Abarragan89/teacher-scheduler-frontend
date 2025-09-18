@@ -43,7 +43,7 @@ export default function ModeToggle() {
         <NavigationMenuItem>
             <Popover>
                 <PopoverTrigger asChild>
-                    <Button variant="ghost">{renderThemeIcon()}</Button>
+                    <Button className='hover:cursor-pointer' variant="ghost">{renderThemeIcon()}</Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-fit">
                     <ul>

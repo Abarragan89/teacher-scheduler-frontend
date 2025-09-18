@@ -5,14 +5,18 @@ import { Button } from './ui/button'
 import { ResponsiveDialog } from './responsive-dialog'
 import SigninForm from './forms/sign-in-form';
 
-export default function SigninBtn() {
+export default function SigninBtn({
+    variant = 'default'
+}: {
+    variant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined
+}) {
 
     const [openModal, setOpenModal] = useState<boolean>(false)
 
     return (
 
         <>
-            <Button onClick={() => setOpenModal(true)}>
+            <Button variant={variant} onClick={() => setOpenModal(true)}>
                 Sign In
             </Button>
             <ResponsiveDialog
