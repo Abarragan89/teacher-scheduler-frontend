@@ -42,7 +42,13 @@ export default function DailyScheduleAccordion() {
         setTasks(prev =>
             prev.map(task =>
                 task.id === taskId
-                    ? { ...task, completed: !task.completed }
+                    ? { ...task, 
+                        completed: !task.completed,
+                        outlineItems: task.outlineItems.map(item => ({
+                            ...item,
+                            completed: !task.completed ? true : item.completed
+                        })) 
+                    }
                     : task
             )
         )
@@ -263,8 +269,8 @@ export default function DailyScheduleAccordion() {
                 onValueChange={setOpenAccordions}
             >
                 {tasks.map(task => (
-                    <AccordionItem key={task.id} value={task.id} className="">
-                        <div className="flex items-center justify-center gap-3 px-4 py-2">
+                    <AccordionItem key={task.id} value={task.id} className="border-none">
+                        <div className="flex items-center justify-center gap-3 px-4 py-2 bg-muted rounded-lg">
                             <Checkbox
                                 checked={task.completed}
                                 onCheckedChange={() => toggleTaskCompletion(task.id)}
@@ -339,13 +345,15 @@ export default function DailyScheduleAccordion() {
                 ))}
             </Accordion>
 
-            <button
-                onClick={addNewTask}
-                className="w-full mt-4 p-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2"
-            >
-                <span className="text-lg">+</span>
-                <span>Add Task</span>
-            </button>
+            {isEditable && (
+                <button
+                    onClick={addNewTask}
+                    className="w-full mt-4 p-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                    <span className="text-lg">+</span>
+                    <span>Add Task</span>
+                </button>
+            )}
         </div>
     )
 }
