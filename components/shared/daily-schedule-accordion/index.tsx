@@ -203,6 +203,10 @@ export default function DailyScheduleAccordion() {
         )
     }
 
+    const closeAllAccordions = () => {
+        setOpenAccordions([])
+    }
+
     const handleOutlineKeyDown = (e: KeyboardEvent<HTMLInputElement>, taskId: string, itemId: string) => {
         const task = tasks.find(t => t.id === taskId)
         const item = task?.outlineItems.find(i => i.id === itemId)
@@ -320,6 +324,7 @@ export default function DailyScheduleAccordion() {
                                 onOutlineBlur={handleOutlineBlur}
                                 onAddOutlineItem={addOutlineItem}
                                 onReorderOutlineItems={reorderOutlineItems}
+                                onCloseAllAccordions={closeAllAccordions}
                             />
                         ))}
                     </SortableContext>

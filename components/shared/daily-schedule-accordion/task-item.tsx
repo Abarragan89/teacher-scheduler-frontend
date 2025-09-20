@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/accordion"
 import { BareInput } from "@/components/ui/bare-bones-input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { X, GripVertical } from 'lucide-react'
+import { GripVertical, Trash } from 'lucide-react'
 import { OutlineItem, TaskItemProps } from '@/types/tasks'
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from "@dnd-kit/utilities"
@@ -58,7 +58,7 @@ function SortableOutlineItem({
                 <div
                     {...attributes}
                     {...listeners}
-                    className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded text-muted-foreground"
+                    className="cursor-grab active:cursor-grabbing p-1 hover:bg-accent rounded text-muted-foreground"
                     style={{ marginLeft: `${item.indentLevel * 24}px` }}
                 >
                     <GripVertical className="w-3 h-3" />
@@ -109,6 +109,7 @@ export default function TaskItem({
     onOutlineBlur,
     onAddOutlineItem,
     onReorderOutlineItems,
+    onCloseAllAccordions,
 }: TaskItemProps) {
 
     // Task-level sortable (for dragging entire tasks)
@@ -164,7 +165,8 @@ export default function TaskItem({
                     <div
                         {...taskAttributes}
                         {...taskListeners}
-                        className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded text-muted-foreground"
+                        className="cursor-grab active:cursor-grabbing p-1 hover:bg-accent rounded text-muted-foreground"
+                        onMouseDown={() => onCloseAllAccordions()}
                     >
                         <GripVertical className="w-4 h-4" />
                     </div>
@@ -189,7 +191,7 @@ export default function TaskItem({
                 />
 
                 {tasksLength > 1 && isEditable && (
-                    <X
+                    <Trash
                         onClick={() => onDelete(task.id)}
                         className="w-6 h-6 p-1 text-destructive hover:border rounded cursor-pointer"
                     />

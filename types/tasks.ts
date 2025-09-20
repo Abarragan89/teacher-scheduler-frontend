@@ -14,6 +14,7 @@ export interface TaskItemProps {
     onOutlineBlur: (taskId: string, itemId: string, text: string) => void
     onAddOutlineItem: (taskId: string) => void
     onReorderOutlineItems: (taskId: string, reorderedItems: OutlineItem[]) => void
+    onCloseAllAccordions: () => void
 }
 
 export interface OutlineItem {
