@@ -1,4 +1,3 @@
-"use client";
 type ApiFetchOptions = {
     method?: string
     headers?: HeadersInit
@@ -13,25 +12,20 @@ export default async function apiFetch(
     retried: boolean = false
 ): Promise<Response> {
     try {
+
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${url}`, {
             method,
             headers,
-            body: body ? JSON.stringify(body) : undefined,
+            body: body ? body : undefined,
             credentials: "include",
         });
 
-        console.log("response first one ", response)
-
-        
         if (response.status === 401 && !retried) {
             // Try refresh
             const refreshRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
                 method: "POST",
                 credentials: "include",
             });
-
-            const refreshData = await refreshRes.json();
-            console.log('refresh data ', refreshData)
 
             if (!refreshRes.ok) {
                 return response; // Refresh failed → return 401

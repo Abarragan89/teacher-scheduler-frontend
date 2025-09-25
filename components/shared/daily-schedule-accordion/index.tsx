@@ -6,8 +6,9 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { Task, OutlineItem } from '@/types/tasks'
 import TaskItem from './task-item'
-import { closestCorners, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, useDroppable, DragStartEvent, DragEndEvent, pointerWithin, DragOverlay } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { Trash2 } from 'lucide-react'
 
 
 export default function DailyScheduleAccordion() {
@@ -34,6 +35,9 @@ export default function DailyScheduleAccordion() {
 
     const [openAccordions, setOpenAccordions] = useState<string[]>(['0'])
     const [isEditable, setIsEditable] = useState<boolean>(true)
+    const [isDragging, setIsDragging] = useState<boolean>(false)
+    const [draggedItemType, setDraggedItemType] = useState<'task' | 'outline' | null>(null)
+    const [activeItem, setActiveItem] = useState<Task | OutlineItem | null>(null)
 
     const toggleTaskCompletion = (taskId: string) => {
         setTasks(prev =>
@@ -265,18 +269,92 @@ export default function DailyScheduleAccordion() {
 
     const getTaskIndex = (id: string) => tasks.findIndex(task => task.id === id)
 
-    function handleDragEnd(event: { active: any; over: any }) {
-        const { active, over } = event;
+    function handleDragStart(event: DragStartEvent) {
+        setIsDragging(true)
 
+        // Determine if it's a task or outline item being dragged
+        const draggedId = event.active.id as string
+        if (tasks.some(task => task.id === draggedId)) {
+            setDraggedItemType('task')
+            const task = tasks.find(t => t.id === draggedId)
+            setActiveItem(task || null)
+            // Only close accordions when dragging a task, not outline items
+            closeAllAccordions()
+        } else {
+            setDraggedItemType('outline')
+            // Find the outline item
+            for (const task of tasks) {
+                const outlineItem = task.outlineItems.find(item => item.id === draggedId)
+                if (outlineItem) {
+                    setActiveItem(outlineItem)
+                    break
+                }
+            }
+        }
+    }
+
+    function handleDragEnd(event: DragEndEvent) {
+        const { active, over } = event;
+        setIsDragging(false)
+        setDraggedItemType(null)
+        setActiveItem(null)
+
+        if (!over) return;
+
+        // Handle deletion if dropped on trash
+        if (over.id === 'trash-zone') {
+            const draggedId = active.id as string
+
+            if (draggedItemType === 'task') {
+                // Delete task
+                deleteTask(draggedId)
+            } else if (draggedItemType === 'outline') {
+                // Find and delete outline item
+                for (const task of tasks) {
+                    const outlineItem = task.outlineItems.find(item => item.id === draggedId)
+                    if (outlineItem) {
+                        deleteOutlineItem(task.id, draggedId)
+                        break
+                    }
+                }
+            }
+            return
+        }
+
+        // Handle reordering (existing logic)
         if (active.id === over.id) return;
 
-        setTasks((tasks) => {
-            const originalPos = getTaskIndex(active.id);
-            const newPos = getTaskIndex(over.id);
+        if (draggedItemType === 'task') {
+            // Handle task reordering
+            setTasks((tasks) => {
+                const originalPos = getTaskIndex(active.id as string);
+                const newPos = getTaskIndex(over.id as string);
 
-            return arrayMove(tasks, originalPos, newPos)
-        })
+                return arrayMove(tasks, originalPos, newPos)
+            })
+        } else if (draggedItemType === 'outline') {
+            // Handle outline item reordering within the same task
+            const draggedId = active.id as string
+            const droppedId = over.id as string
 
+            // Find which task contains the dragged item
+            for (const task of tasks) {
+                const draggedItemIndex = task.outlineItems.findIndex(item => item.id === draggedId)
+
+                if (draggedItemIndex !== -1) {
+                    // Check if the drop target is also an outline item in the same task
+                    const droppedItemIndex = task.outlineItems.findIndex(item => item.id === droppedId)
+
+                    if (droppedItemIndex !== -1) {
+                        // Both items are in the same task, reorder them
+                        const reorderedItems = arrayMove(task.outlineItems, draggedItemIndex, droppedItemIndex)
+                        reorderOutlineItems(task.id, reorderedItems)
+                    }
+                    // If dropped on something else, ignore the reordering
+                    break
+                }
+            }
+        }
     }
 
     const sensors = useSensors(
@@ -288,6 +366,28 @@ export default function DailyScheduleAccordion() {
         useSensor(KeyboardSensor)
     )
 
+    // Circular Trash Drop Zone Component - Fixed position at top center
+    function TrashDropZone() {
+        const { setNodeRef, isOver } = useDroppable({
+            id: 'trash-zone',
+        })
+
+        return (
+            <div
+                ref={setNodeRef}
+                className={`fixed top-10 left-1/2 transform -translate-x-1/2 z-50 w-16 h-16 rounded-full border-2 border-dashed transition-all duration-200 flex items-center justify-center shadow-lg ${isOver
+                    ? 'bg-destructive/20 border-destructive scale-110 shadow-destructive/50'
+                    : 'bg-muted/90 border-muted-foreground/60 hover:border-destructive hover:bg-destructive/10'
+                    }`}
+                style={{ backdropFilter: 'blur(8px)' }}
+            >
+                <Trash2
+                    className={`w-6 h-6 transition-colors ${isOver ? 'text-destructive' : 'text-muted-foreground'
+                        }`}
+                />
+            </div>
+        )
+    }
 
     return (
         <div>
@@ -300,46 +400,58 @@ export default function DailyScheduleAccordion() {
                 <span>Edit</span>
             </div>
 
-            <Accordion
-                type="multiple"
-                className="w-full space-y-2"
-                value={openAccordions}
-                onValueChange={setOpenAccordions}
+            <DndContext
+                sensors={sensors}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                collisionDetection={pointerWithin}
             >
-                <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCorners}>
-                    <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
+                <SortableContext
+                    items={tasks.map(task => task.id)}
+                    strategy={verticalListSortingStrategy}
+                >
+                    <Accordion
+                        type="multiple"
+                        className="w-full space-y-2"
+                        value={openAccordions}
+                        onValueChange={setOpenAccordions}
+                    >
                         {tasks.map(task => (
                             <TaskItem
                                 key={task.id}
                                 task={task}
                                 tasksLength={tasks.length}
                                 isEditable={isEditable}
+                                isDragging={isDragging}
                                 onToggleCompletion={toggleTaskCompletion}
                                 onUpdateTitle={updateTaskTitle}
-                                onDelete={deleteTask}
                                 onTitleKeyDown={handleTaskTitleKeyDown}
                                 onToggleOutlineCompletion={toggleOutlineItemCompletion}
                                 onUpdateOutlineItem={updateOutlineItem}
                                 onOutlineKeyDown={handleOutlineKeyDown}
                                 onOutlineBlur={handleOutlineBlur}
                                 onAddOutlineItem={addOutlineItem}
-                                onReorderOutlineItems={reorderOutlineItems}
                                 onCloseAllAccordions={closeAllAccordions}
                             />
                         ))}
-                    </SortableContext>
-                </DndContext>
-            </Accordion>
+                    </Accordion>
+                </SortableContext>
 
-            {isEditable && (
-                <button
-                    onClick={addNewTask}
-                    className="w-full mt-4 p-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 hover:bg-border hover:text-background"
-                >
-                    <span className="text-lg">+</span>
-                    <span>Add Task</span>
-                </button>
-            )}
+                {/* Fixed position circular trash icon */}
+                {isDragging && isEditable && <TrashDropZone />}
+
+                {isEditable && (
+                    <button
+                        onClick={addNewTask}
+                        className="w-full mt-4 p-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 hover:bg-border hover:text-ring"
+                    >
+                        <span className="text-lg">+</span>
+                        <span>Add Task</span>
+                    </button>
+                )}
+            </DndContext>
+
+
         </div>
     )
 }

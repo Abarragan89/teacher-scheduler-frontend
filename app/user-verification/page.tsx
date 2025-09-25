@@ -11,6 +11,7 @@ export default function UserVerification() {
     const { setCsrfToken, csrfToken } = useCsrf()
 
     const [error, setError] = useState<string>("");
+    const [isLoading, setIsLoading] = useState<boolean>(true)
 
 
     async function verifyToken(): Promise<void> {
@@ -28,9 +29,7 @@ export default function UserVerification() {
                 setError("Validation Token is Expired")
             }
 
-            // Set the csrfToken in context
-            const { csrfToken } = await response.json();
-            setCsrfToken(csrfToken)
+            setIsLoading(false)
         } catch (error) {
             console.error('erro validating ', error)
             setError("Validation Token is Expired")
@@ -42,35 +41,35 @@ export default function UserVerification() {
     }, [token])
 
     useEffect(() => {
-        if (csrfToken) {
+        if (!isLoading) {
             setTimeout(() => {
                 redirect('/dashboard')
             }, 1000);
         }
-    }, [csrfToken])
+    }, [isLoading])
 
-    return(
-            <main className='wrapper'>
+    return (
+        <main className='wrapper'>
 
-                {!csrfToken && !error && (
-                    <h3 className='text-center h3-bold'>Verifying User...</h3>
-                )}
+            {!csrfToken && !error && (
+                <h3 className='text-center h3-bold'>Verifying User...</h3>
+            )}
 
-                {csrfToken && (
-                    <div className='text-center'>
-                        <h3 className='h3-bold text-ring'>Verification Successful!</h3>
-                        <p className='mt-3 text-xl'>Redirecting to Dashboard...</p>
-                    </div>
-                )}
+            {csrfToken && (
+                <div className='text-center'>
+                    <h3 className='h3-bold text-ring'>Verification Successful!</h3>
+                    <p className='mt-3 text-xl'>Redirecting to Dashboard...</p>
+                </div>
+            )}
 
-                {error && (
-                    <div className="text-center">
-                        <h3 className='h3-bold text-destructive'>Verification Unsuccessfull </h3>
-                        <p className='my-3'>Magic Link expired. Please sign in again.</p>
-                        <SigninBtn />
-                    </div>
-                )}
-            </main>
+            {error && (
+                <div className="text-center">
+                    <h3 className='h3-bold text-destructive'>Verification Unsuccessfull </h3>
+                    <p className='my-3'>Magic Link expired. Please sign in again.</p>
+                    <SigninBtn />
+                </div>
+            )}
+        </main>
 
     )
 }
