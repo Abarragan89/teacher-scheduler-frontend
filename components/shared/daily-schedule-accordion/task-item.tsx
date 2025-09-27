@@ -52,7 +52,7 @@ export default function TaskItem({
             value={task.id}
             className="border-none"
         >
-            <div className="flex items-center gap-3 px-4 py-2 bg-muted rounded-lg">
+            <div className="flex items-center gap-3 px-4 py-3 bg-muted rounded-lg">
                 {/* Task Drag Handle */}
                 <div
                     {...taskAttributes}

@@ -1,6 +1,6 @@
 import React from 'react'
-import DailyScheduleAccordion from '@/components/shared/daily-schedule-accordion'
 import { getServerSession } from '@/lib/auth/auth-service'
+import DailyScheduleAccordion from '@/components/shared/daily-schedule-accordion';
 
 export default async function Dashboard() {
   const authResult = await getServerSession();
@@ -8,8 +8,6 @@ export default async function Dashboard() {
   if (!authResult.authenticated) {
     throw new Error("You Must Log In")
   }
-
-  
 
   return (
     <main className='wrapper'>

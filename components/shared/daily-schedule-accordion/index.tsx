@@ -3,10 +3,24 @@ import React, { useState, KeyboardEvent } from 'react'
 import { Accordion } from "@/components/ui/accordion"
 import { Switch } from "@/components/ui/switch"
 import { Task, OutlineItem } from '@/types/tasks'
-import TaskItem from './task-item'
+import dynamic from 'next/dynamic'
+import { Skeleton } from "@/components/ui/skeleton"
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, useDroppable, DragStartEvent, DragEndEvent, pointerWithin, DragOverlay } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Trash2 } from 'lucide-react'
+
+// Make TaskItem dynamic since it uses useSortable hooks
+const DynamicTaskItem = dynamic(() => import('./task-item'), {
+    ssr: false,
+    loading: () => (
+        <div className="border rounded-lg p-4 space-y-3">
+            <div className="flex items-center gap-3">
+                <Skeleton className="h-3 w-3 rounded" />
+                <Skeleton className="h-3 flex-1" />
+            </div>
+        </div>
+    )
+})
 
 
 export default function DailyScheduleAccordion() {
@@ -415,7 +429,7 @@ export default function DailyScheduleAccordion() {
                         onValueChange={setOpenAccordions}
                     >
                         {tasks.map(task => (
-                            <TaskItem
+                            <DynamicTaskItem
                                 key={task.id}
                                 task={task}
                                 tasksLength={tasks.length}
