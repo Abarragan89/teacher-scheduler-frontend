@@ -5,6 +5,12 @@ import { getServerSession } from '@/lib/auth/auth-service'
 export default async function Dashboard() {
   const authResult = await getServerSession();
 
+  if (!authResult.authenticated) {
+    throw new Error("You Must Log In")
+  }
+
+  
+
   return (
     <main className='wrapper'>
       <h1 className='h1-bold'>
