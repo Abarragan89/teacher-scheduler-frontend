@@ -1,12 +1,16 @@
 "use client";
 import { Button } from '@/components/ui/button';
 import React from 'react'
-import { useCsrf } from "@/providers/csrf-provider";
+// import { useCsrf } from "@/providers/csrf-provider";
 import apiFetch from '@/lib/api-wrapper';
 
 export default function Profile() {
 
-    const { csrfToken } = useCsrf();
+    // const { csrfToken } = useCsrf();
+    function getCsrfFromCookie() {
+        const m = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+        return m ? decodeURIComponent(m[1]) : "";
+    }
 
     async function createDayHandler() {
         try {
@@ -14,7 +18,7 @@ export default function Profile() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-XSRF-TOKEN": csrfToken || "",
+                    "X-XSRF-TOKEN": getCsrfFromCookie() || "",
                 },
                 body: JSON.stringify({
                     dayDate: "2025-03-12"

@@ -1,8 +1,6 @@
 'use client'
 import React, { useState, KeyboardEvent } from 'react'
-import {
-    Accordion,
-} from "@/components/ui/accordion"
+import { Accordion } from "@/components/ui/accordion"
 import { Switch } from "@/components/ui/switch"
 import { Task, OutlineItem } from '@/types/tasks'
 import TaskItem from './task-item'
@@ -439,6 +437,31 @@ export default function DailyScheduleAccordion() {
 
                 {/* Fixed position circular trash icon */}
                 {isDragging && isEditable && <TrashDropZone />}
+
+                {/* DragOverlay for smooth drag preview outside accordion */}
+                <DragOverlay>
+                    {activeItem ? (
+                        <div className="bg-background border rounded-lg p-3 shadow-lg opacity-90 max-w-md">
+                            {'title' in activeItem ? (
+                                // Task preview
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-muted-foreground" />
+                                    <div className="font-medium text-foreground">
+                                        {activeItem.title || 'Untitled Task'}
+                                    </div>
+                                </div>
+                            ) : (
+                                // Outline item preview
+                                <div className="flex items-center gap-3 text-sm">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
+                                    <div className="text-muted-foreground">
+                                        {activeItem.text || 'Empty note'}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ) : null}
+                </DragOverlay>
 
                 {isEditable && (
                     <button

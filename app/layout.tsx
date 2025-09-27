@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
-import { CsrfProvider } from "@/providers/csrf-provider"
+// import { CsrfProvider } from "@/providers/csrf-provider"
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -25,9 +25,9 @@ export default function RootLayout({
         className={`${roboto.variable} antialiased`}
       >
         <ThemeProvider attribute="class">
-          <CsrfProvider>
+          {/* <CsrfProvider> */}
             {children}
-          </CsrfProvider>
+          {/* </CsrfProvider> */}
         </ThemeProvider>
       </body>
     </html>

@@ -32,14 +32,17 @@ export default function TaskItem({
         listeners: taskListeners,
         setNodeRef: setTaskNodeRef,
         transform: taskTransform,
-        transition: taskTransition
+        transition: taskTransition,
+        isDragging: isTaskDragging
     } = useSortable({
         id: task.id,
+        disabled: !isEditable
     })
 
     const taskStyle = {
         transition: taskTransition,
-        transform: CSS.Transform.toString(taskTransform)
+        transform: CSS.Transform.toString(taskTransform),
+        opacity: isTaskDragging ? 0 : 1
     }
 
     return (

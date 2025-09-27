@@ -1,14 +1,12 @@
 "use client";
 import React, { useEffect, useState } from 'react'
 import { redirect, useSearchParams } from 'next/navigation';
-import { useCsrf } from '@/providers/csrf-provider';
 import SigninBtn from '@/components/signin-btn';
 
 export default function UserVerification() {
 
     const searchParams = useSearchParams();
     const token = searchParams.get('token')
-    const { setCsrfToken, csrfToken } = useCsrf()
 
     const [error, setError] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -51,11 +49,11 @@ export default function UserVerification() {
     return (
         <main className='wrapper'>
 
-            {!csrfToken && !error && (
+            {isLoading && !error && (
                 <h3 className='text-center h3-bold'>Verifying User...</h3>
             )}
 
-            {csrfToken && (
+            {!isLoading && !error && (
                 <div className='text-center'>
                     <h3 className='h3-bold text-ring'>Verification Successful!</h3>
                     <p className='mt-3 text-xl'>Redirecting to Dashboard...</p>

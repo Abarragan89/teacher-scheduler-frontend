@@ -34,12 +34,13 @@ export default function SortableOutlineItem({
         isDragging
     } = useSortable({
         id: item.id,
+        disabled: !isEditable
     })
 
     const style = {
         transition,
         transform: CSS.Transform.toString(transform),
-        opacity: isDragging ? 0.5 : 1
+        opacity: isDragging ? 0 : 1
     }
 
     return (

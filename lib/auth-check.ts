@@ -1,14 +1,10 @@
 // Check if user is logged in
 export const checkSession = async () => {
 
-
-    const csrfReq = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/csrf/get-token`, {
-        credentials: "include"
-    })
-
-    const { token: csrfToken } = await csrfReq.json();
-
-    console.log("token in auth-check", csrfToken)
+    const cookies = Object.fromEntries(
+        document.cookie.split("; ").map(c => c.split("="))
+    );
+    const csrfToken = cookies["XSRF-TOKEN"];
 
     // First attempt: session check
     let res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/session`, {
