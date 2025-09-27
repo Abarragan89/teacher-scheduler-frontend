@@ -24,7 +24,7 @@ export default function UserActionMenu({ username }: { username: string }) {
                 router.replace("/")
             }
         } catch (error) {
-            console.log('error logging out', error)
+            console.error('error logging out', error)
         }
     }
     return (

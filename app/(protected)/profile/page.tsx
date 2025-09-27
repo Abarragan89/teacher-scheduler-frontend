@@ -26,8 +26,8 @@ export default function Profile() {
             })
 
             const data = await response.json();
-
             console.log('data ', data)
+
 
         } catch (error) {
             console.error("error ", error)
@@ -35,7 +35,6 @@ export default function Profile() {
     }
     async function getDaysHandler() {
         try {
-            // console.log('crsefa foke ', csrfToken)
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/days/get-all-days`, {
                 credentials: "include"
             })

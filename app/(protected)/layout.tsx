@@ -1,42 +1,25 @@
-"use client";
 import Header from '@/components/shared/header';
-import { checkSession } from '@/lib/auth-check';
-import { User } from '@/types/user';
-import { useEffect, useState } from 'react';
+import { getServerSession } from '@/lib/auth/auth-service';
+import { redirect } from 'next/navigation';
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({
+  children
+}: {
+  children: React.ReactNode
+}) {
+  const authResult = await getServerSession();
 
-  const [userData, setUserData] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const getSession = async () => {
-      const userData = await checkSession();
-      setUserData(userData);
-      setLoading(false);
-    };
-    getSession();
-  }, []);
-
-  if (loading) return null;
-
-  if (userData?.authenticated === false) {
-    // 👇 thrown during render, caught by error.tsx
-    throw new Error("You need to be logged in");
+  if (!authResult.authenticated) {
+    throw new Error("You Must Log In")
   }
 
   return (
     <>
-      {userData && (
-        <>
-          <Header
-            isAuthenticated={userData?.authenticated}
-            username={userData?.email}
-          />
-          {children}
-        </>
-      )}
+      <Header
+        isAuthenticated={authResult.authenticated}
+        username={authResult.user?.email}
+      />
+      {children}
     </>
-
-  )
+  );
 }
