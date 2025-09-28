@@ -403,7 +403,7 @@ export default function DailyScheduleAccordion() {
 
     return (
         <div>
-            <div className="flex text-sm items-center justify-end my-5 gap-x-2">
+            <div className="flex text-sm items-start justify-end mt-7 mb-5 gap-x-2">
                 <span>View</span>
                 <Switch
                     checked={isEditable}
