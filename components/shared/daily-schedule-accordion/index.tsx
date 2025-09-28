@@ -9,7 +9,7 @@ import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, useDr
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Trash2 } from 'lucide-react'
 
-// Make TaskItem dynamic since it uses useSortable hooks
+// Make TaskItem dynamic since it uses useSortable hooks and causes hydration errors
 const DynamicTaskItem = dynamic(() => import('./task-item'), {
     ssr: false,
     loading: () => (

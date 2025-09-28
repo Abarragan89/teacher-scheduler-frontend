@@ -1,43 +1,25 @@
 "use client";
 import { Button } from '@/components/ui/button';
 import React from 'react'
-// import { useCsrf } from "@/providers/csrf-provider";
-import apiFetch from '@/lib/api-wrapper';
+import { callJavaAPI } from '@/lib/auth/utils';
 
 export default function Profile() {
 
-    // const { csrfToken } = useCsrf();
-    function getCsrfFromCookie() {
-        const m = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
-        return m ? decodeURIComponent(m[1]) : "";
-    }
 
     async function createDayHandler() {
-        try {
-            const response = await apiFetch(`days/find-or-create`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-XSRF-TOKEN": getCsrfFromCookie() || "",
-                },
-                body: JSON.stringify({
-                    dayDate: "2025-03-12"
-                })
-            })
 
+        try {
+            const response = await callJavaAPI('/days/find-or-create', 'POST', { dayDate: "2025-03-12" })
             const data = await response.json();
             console.log('data ', data)
-
-
         } catch (error) {
             console.error("error ", error)
         }
     }
+
     async function getDaysHandler() {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/days/get-all-days`, {
-                credentials: "include"
-            })
+            const response = await callJavaAPI('/days/get-all-days', 'GET')
 
             const data = await response.json();
 

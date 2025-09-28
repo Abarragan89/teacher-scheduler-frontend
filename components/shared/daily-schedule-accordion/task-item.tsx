@@ -23,7 +23,6 @@ export default function TaskItem({
     onOutlineKeyDown,
     onOutlineBlur,
     onAddOutlineItem,
-    onCloseAllAccordions,
 }: TaskItemProps) {
 
     // Task-level sortable (for dragging entire tasks)
@@ -84,7 +83,7 @@ export default function TaskItem({
             </div>
 
             <AccordionContent className="px-4 pb-4" data-task-id={task.id}>
-                <div className="space-y-2 mt-2 ml-7">
+                <div className="space-y-2 mt-2 ml-2">
                     {/* Outline Items with their own SortableContext */}
                     <SortableContext
                         items={task.outlineItems.map(item => item.id)}

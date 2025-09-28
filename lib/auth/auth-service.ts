@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-import { getCsrfToken, cookiesToHeader, callJavaAPI, updateCookieHeader } from './utils';
+import { callJavaAPI } from './utils';
 
 export interface AuthResponse {
     authenticated: boolean;
@@ -12,45 +11,18 @@ export interface AuthResponse {
  */
 export async function getServerSession(): Promise<AuthResponse> {
     try {
-        const cookieStore = await cookies();
-        const cookieHeader = cookiesToHeader(cookieStore.getAll());
-        const csrfToken = getCsrfToken(cookieHeader);
-
-        // Try session first
-        let sessionRes = await callJavaAPI('/auth/session', cookieHeader, csrfToken, 'POST');
-
+        // Use callJavaAPI which now handles refresh automatically
+        const sessionRes = await callJavaAPI('/auth/session', 'GET')
 
         if (sessionRes.ok) {
-            const data = await sessionRes.json();
-            return { authenticated: true, user: data };
+            const data = await sessionRes.json()
+            return { authenticated: true, user: data }
         }
+        return { authenticated: false, error: 'Session expired' }
 
-        // If session fails with 401, try refresh
-        if (sessionRes.status === 401) {
-            const refreshRes = await callJavaAPI('/auth/refresh', cookieHeader, csrfToken, 'POST');
-
-            if (refreshRes.ok) {
-                // Get updated cookies from refresh response
-                const setCookieHeaders = refreshRes.headers.getSetCookie();
-
-                // Update cookie header with new cookies (including new access_token)
-                const updatedCookieHeader = updateCookieHeader(cookieHeader, setCookieHeaders);
-                const newCsrfToken = getCsrfToken(updatedCookieHeader);
-
-                // Retry session with updated cookies
-                const retryRes = await callJavaAPI('/auth/session', updatedCookieHeader, newCsrfToken, 'POST');
-
-                if (retryRes.ok) {
-                    const data = await retryRes.json();
-                    return { authenticated: true, user: data };
-                }
-            }
-        }
-
-        return { authenticated: false, error: 'Session expired' };
     } catch (error) {
-        console.error('Server session check failed:', error);
-        return { authenticated: false, error: 'Network error' };
+        console.error('Server session error:', error)
+        return { authenticated: false, error: 'Network error' }
     }
 }
 
@@ -58,25 +30,60 @@ export async function getServerSession(): Promise<AuthResponse> {
  * Client-side session check via API route
  */
 export async function getClientSession(): Promise<AuthResponse> {
-    try {
-        const response = await fetch('/api/session', {
-            method: 'GET',
-            credentials: 'include',
-            cache: 'no-store'
+    const cookies = Object.fromEntries(
+        document.cookie.split("; ").map(c => c.split("="))
+    );
+    const csrfToken = cookies["XSRF-TOKEN"];
+
+    // First attempt: session check
+    let res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/session`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "X-XSRF-TOKEN": csrfToken || ""
+        }
+    });
+
+    // return
+    if (res.ok) {
+        const userData = await res.json()
+        userData.csrfToken = csrfToken;
+        return userData
+    }
+
+    if (res.status === 401) {
+        // Try refreshing access token if session is unauthorized
+        const refreshRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "X-XSRF-TOKEN": csrfToken || ""
+            }
         });
 
-        if (response.ok) {
-            const data = await response.json();
-            return { authenticated: true, user: data };
+        if (!refreshRes.ok) {
+            // handle refresh failure
         }
 
-        if (response.status === 401) {
-            return { authenticated: false, error: 'Not authenticated' };
-        }
+        // Retry session check after refresh
+        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/session`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "X-XSRF-TOKEN": csrfToken || ""
+            }
+        });
 
-        return { authenticated: false, error: 'Session check failed' };
-    } catch (error) {
-        console.error('Client session check failed:', error);
-        return { authenticated: false, error: 'Network error' };
+        if (res.ok) {
+            const userData = await res.json()
+            userData.csrfToken = csrfToken;
+
+            return userData
+        }
     }
+
+    const userData = await res.json()
+    userData.csrfToken = csrfToken;
+
+    return userData
 }
