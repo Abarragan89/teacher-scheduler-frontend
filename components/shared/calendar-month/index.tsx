@@ -119,7 +119,7 @@ export default function CalendarMonth() {
                flex flex-col items-end h-20 pr-1 border-b border-r
               ${!isCurrentMonth(date) ? 'text-muted-foreground' : ''}
               ${isToday(date) ? 'bg-accent' : ''}
-              hover:shadow-md
+              hover:shadow-xl shadow-ring hover:scale-[1.02] transition-all
             `}
                     >
                         <div className="text-xs md:text-sm">

@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, useDroppable, DragStartEvent, DragEndEvent, pointerWithin, DragOverlay } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Trash2 } from 'lucide-react'
+import { callJavaAPI } from '@/lib/auth/utils'
 
 // Make TaskItem dynamic since it uses useSortable hooks and causes hydration errors
 const DynamicTaskItem = dynamic(() => import('./task-item'), {
@@ -50,6 +51,32 @@ export default function DailyScheduleAccordion() {
     const [isDragging, setIsDragging] = useState<boolean>(false)
     const [draggedItemType, setDraggedItemType] = useState<'task' | 'outline' | null>(null)
     const [activeItem, setActiveItem] = useState<Task | OutlineItem | null>(null)
+
+
+    // Add autosave functions
+    const saveTask = async (taskId: string, taskData: Partial<Task>) => {
+        try {
+            const response = await callJavaAPI(`/tasks/${taskId}`, 'PUT', taskData)
+            if (!response.ok) {
+                console.error('Failed to save task')
+                // Optionally show toast notification
+            }
+        } catch (error) {
+            console.error('Error saving task:', error)
+        }
+    }
+
+    const saveOutlineItem = async (taskId: string, itemId: string, itemData: Partial<OutlineItem>) => {
+        try {
+            const response = await callJavaAPI(`/tasks/${taskId}/outline-items/${itemId}`, 'PUT', itemData)
+            if (!response.ok) {
+                console.error('Failed to save outline item')
+                // Optionally show toast notification
+            }
+        } catch (error) {
+            console.error('Error saving outline item:', error)
+        }
+    }
 
     const toggleTaskCompletion = (taskId: string) => {
         setTasks(prev =>

@@ -22,14 +22,14 @@ export default async function page({ params }: pageProps) {
         throw new Error('Error loading day. Try again.');
     }
 
-    const dayData = await response.json();
-    console.log('Day data:', dayData);
+    const { dayDate } = await response.json();
+    console.log('Day data:', dayDate);
 
     return (
         <main className='wrapper'>
             <Tabs defaultValue="schedule" className="w-full">
                 <div className="flex justify-between items-end flex-wrap gap-y-4">
-                    <h1 className='h1-bold mr-5'>{formatDateDisplay(new Date(dateString))}</h1>
+                    <h1 className='h1-bold mr-5'>{formatDateDisplay(new Date(dayDate.replace(/-/g, "/") ))}</h1>
                     <TabsList className='mb-1'>
                         <TabsTrigger value="schedule">Schedule</TabsTrigger>
                         <TabsTrigger value="reminders">Reminders</TabsTrigger>

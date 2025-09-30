@@ -43,7 +43,7 @@ export function cookiesToHeader(cookies: any[]): string {
  */
 export async function callJavaAPI(
     path: string,
-    method: 'GET' | 'POST' = 'GET',
+    method: 'GET' | 'POST' | 'PUT' = 'GET',
     body?: any,
     cookieHeader?: string, 
     csrfToken?: string     
@@ -87,7 +87,7 @@ export async function callJavaAPI(
             headers.Cookie = cookies;
         }
 
-        if (method === 'POST') {
+        if (method !== 'GET' && body) {
             config.body = JSON.stringify(body);
         }
 
