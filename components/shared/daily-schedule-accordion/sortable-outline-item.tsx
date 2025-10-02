@@ -72,7 +72,7 @@ export default function SortableOutlineItem({
 
                 <BareInput
                     className={`flex-1 text-sm ${item.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
-                    placeholder="Add a note..."
+                    placeholder="Add an outline item..."
                     value={item.text}
                     onChange={(e) => onUpdateOutlineItem(taskId, item.id, e.target.value)}
                     onKeyDown={(e) => onOutlineKeyDown(e, taskId, item.id)}

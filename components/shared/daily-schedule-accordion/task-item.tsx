@@ -22,6 +22,7 @@ export default function TaskItem({
     onUpdateOutlineItem,
     onOutlineKeyDown,
     onOutlineBlur,
+    onTaskBlur,
     onAddOutlineItem,
 }: TaskItemProps) {
 
@@ -72,6 +73,7 @@ export default function TaskItem({
                     placeholder="Task title..."
                     value={task.title}
                     onChange={(e) => onUpdateTitle(task.id, e.target.value)}
+                    onBlur={() => onTaskBlur(task.id, task.title)}
                     onKeyDown={(e) => onTitleKeyDown(e, task.id)}
                     disabled={!isEditable}
                     readOnly={!isEditable}

@@ -1,9 +1,9 @@
 import DailyScheduleAccordion from '@/components/shared/daily-schedule-accordion';
-import { Button } from '@/components/ui/button';
 import { callJavaAPI } from '@/lib/auth/utils';
 import { formatDateDisplay } from '@/lib/utils';
 import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { DayData } from '@/types/day';
 
 
 interface pageProps {
@@ -22,14 +22,13 @@ export default async function page({ params }: pageProps) {
         throw new Error('Error loading day. Try again.');
     }
 
-    const { dayDate } = await response.json();
-    console.log('Day data:', dayDate);
+    const currentDay: DayData = await response.json();
 
     return (
         <main className='wrapper'>
             <Tabs defaultValue="schedule" className="w-full">
                 <div className="flex justify-between items-end flex-wrap gap-y-4">
-                    <h1 className='h1-bold mr-5'>{formatDateDisplay(new Date(dayDate.replace(/-/g, "/") ))}</h1>
+                    <h1 className='h1-bold mr-5'>{formatDateDisplay(new Date(currentDay.dayDate.replace(/-/g, "/") ))}</h1>
                     <TabsList className='mb-1'>
                         <TabsTrigger value="schedule">Schedule</TabsTrigger>
                         <TabsTrigger value="reminders">Reminders</TabsTrigger>
@@ -40,7 +39,9 @@ export default async function page({ params }: pageProps) {
 
 
                 <TabsContent value="schedule">
-                    <DailyScheduleAccordion />
+                    <DailyScheduleAccordion
+                        scheduleId={currentDay.schedules[0]?.id || ''}
+                    />
                 </TabsContent>
                 <TabsContent value="reminders">
                     <p>These are the Reminders</p>

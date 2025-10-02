@@ -24,27 +24,12 @@ const DynamicTaskItem = dynamic(() => import('./task-item'), {
 })
 
 
-export default function DailyScheduleAccordion() {
-    const [tasks, setTasks] = useState<Task[]>([
-        {
-            id: '1',
-            title: 'Math',
-            completed: false,
-            outlineItems: [{ id: '1-1', text: '', completed: false, indentLevel: 0 }]
-        },
-        {
-            id: '2',
-            title: 'CKLA',
-            completed: false,
-            outlineItems: [{ id: '2-1', text: '', completed: false, indentLevel: 0 }]
-        },
-        {
-            id: '3',
-            title: 'Social Studies',
-            completed: false,
-            outlineItems: [{ id: '3-1', text: '', completed: false, indentLevel: 0 }]
-        }
-    ])
+export default function DailyScheduleAccordion({
+    scheduleId
+}: {
+    scheduleId: string
+}) {
+    const [tasks, setTasks] = useState<Task[]>([])
 
     const [openAccordions, setOpenAccordions] = useState<string[]>(['0'])
     const [isEditable, setIsEditable] = useState<boolean>(true)
@@ -52,31 +37,6 @@ export default function DailyScheduleAccordion() {
     const [draggedItemType, setDraggedItemType] = useState<'task' | 'outline' | null>(null)
     const [activeItem, setActiveItem] = useState<Task | OutlineItem | null>(null)
 
-
-    // Add autosave functions
-    const saveTask = async (taskId: string, taskData: Partial<Task>) => {
-        try {
-            const response = await callJavaAPI(`/tasks/${taskId}`, 'PUT', taskData)
-            if (!response.ok) {
-                console.error('Failed to save task')
-                // Optionally show toast notification
-            }
-        } catch (error) {
-            console.error('Error saving task:', error)
-        }
-    }
-
-    const saveOutlineItem = async (taskId: string, itemId: string, itemData: Partial<OutlineItem>) => {
-        try {
-            const response = await callJavaAPI(`/tasks/${taskId}/outline-items/${itemId}`, 'PUT', itemData)
-            if (!response.ok) {
-                console.error('Failed to save outline item')
-                // Optionally show toast notification
-            }
-        } catch (error) {
-            console.error('Error saving outline item:', error)
-        }
-    }
 
     const toggleTaskCompletion = (taskId: string) => {
         setTasks(prev =>
@@ -202,6 +162,54 @@ export default function DailyScheduleAccordion() {
             }
         }
     }
+    const handleTaskBlur = async (taskId: string, title: string) => {
+        if (title.trim() === '') return // Don't save empty tasks
+
+        const isTemporary = taskId.startsWith('temp-')
+
+        if (isTemporary) {
+            // Create new task in backend
+            try {
+                const response = await callJavaAPI('/task/create', 'POST', {
+                    scheduleId,
+                    title: title.trim(),
+                    position: tasks.length
+                })
+
+                if (response.ok) {
+                    const newTask = await response.json()
+
+                    console.log('new task ', newTask);
+
+                    // Replace temporary task with real task
+                    setTasks(prev =>
+                        prev.map(task =>
+                            task.id === taskId
+                                ? { ...task, id: newTask.id } // Update with real ID
+                                : task
+                        )
+                    )
+                    console.log('✅ Task created:', newTask)
+                }
+            } catch (error) {
+                console.error('❌ Failed to create task:', error)
+                // Optionally show error toast
+            }
+        } else {
+            // Update existing task
+            try {
+                const response = await callJavaAPI(`/tasks/${taskId}`, 'PUT', {
+                    title: title.trim()
+                })
+
+                if (response.ok) {
+                    console.log('✅ Task updated')
+                }
+            } catch (error) {
+                console.error('❌ Failed to update task:', error)
+            }
+        }
+    }
 
     const handleTaskTitleKeyDown = (e: KeyboardEvent<HTMLInputElement>, taskId: string) => {
         if (e.key === 'Enter') {
@@ -221,19 +229,20 @@ export default function DailyScheduleAccordion() {
     }
 
     const addNewTask = () => {
-        const newTaskId = Date.now().toString()
+        const tempId = `temp-${Date.now()}`  // Temporary ID
         const newTask: Task = {
-            id: newTaskId,
+            id: tempId,  // Mark as temporary
             title: '',
             completed: false,
             outlineItems: [{
-                id: `${newTaskId}-1`,
+                id: `${tempId}-1`,
                 text: '',
                 completed: false,
                 indentLevel: 0
             }]
         }
         setTasks(prev => [...prev, newTask])
+        // No API call here - instant UI response! ✨
     }
 
     const reorderOutlineItems = (taskId: string, reorderedItems: OutlineItem[]) => {
@@ -468,7 +477,10 @@ export default function DailyScheduleAccordion() {
                                 onToggleOutlineCompletion={toggleOutlineItemCompletion}
                                 onUpdateOutlineItem={updateOutlineItem}
                                 onOutlineKeyDown={handleOutlineKeyDown}
+
                                 onOutlineBlur={handleOutlineBlur}
+                                onTaskBlur={handleTaskBlur}
+
                                 onAddOutlineItem={addOutlineItem}
                                 onCloseAllAccordions={closeAllAccordions}
                             />
