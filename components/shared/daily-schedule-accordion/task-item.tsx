@@ -88,10 +88,10 @@ export default function TaskItem({
                 <div className="space-y-2 mt-2 ml-2">
                     {/* Outline Items with their own SortableContext */}
                     <SortableContext
-                        items={task.outlineItems.map(item => item.id)}
+                        items={task?.outlineItems?.length > 0 ? task.outlineItems.map(item => item.id) : []}
                         strategy={verticalListSortingStrategy}
                     >
-                        {task.outlineItems.map(item => (
+                        {task?.outlineItems?.length > 0 && task.outlineItems.map(item => (
                             <SortableOutlineItem
                                 key={item.id}
                                 item={item}
@@ -108,8 +108,8 @@ export default function TaskItem({
                     {isEditable && (
                         <button
                             onClick={() => onAddOutlineItem(task.id)}
-                            disabled={task.outlineItems.some(item => item.text.trim() === '')}
-                            className={`flex items-center gap-3 text-sm ml-7 text-muted-foreground ${task.outlineItems.some(item => item.text.trim() === '')
+                            disabled={task?.outlineItems?.length > 0 && task?.outlineItems?.some(item => item.text.trim() === '')}
+                            className={`flex items-center gap-3 text-sm ml-7 text-muted-foreground ${task?.outlineItems?.some(item => item.text.trim() === '')
                                 ? 'cursor-not-allowed'
                                 : 'hover:text-foreground'
                                 }`}
@@ -119,6 +119,8 @@ export default function TaskItem({
                     )}
                 </div>
             </AccordionContent>
+
+            
         </AccordionItem>
 
     )

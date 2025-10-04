@@ -3,7 +3,7 @@ import { callJavaAPI } from '@/lib/auth/utils';
 import { formatDateDisplay } from '@/lib/utils';
 import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DayData } from '@/types/day';
+import { DayData, Schedule } from '@/types/day';
 
 
 interface pageProps {
@@ -18,17 +18,27 @@ export default async function page({ params }: pageProps) {
 
     const response = await callJavaAPI('/days/find-or-create', 'POST', { dayDate: dateString })
 
+    // console.log('response ', await response.json())
+
     if (!response.ok) {
         throw new Error('Error loading day. Try again.');
     }
 
     const currentDay: DayData = await response.json();
+    console.log('response ', currentDay)
+
+    // const responseSchedule = await callJavaAPI(`/schedule/${currentDay.schedules[0].id}`, 'GET')
+
+    // if (!responseSchedule.ok) {
+    //     throw new Error('Error loading schedule. Try again.');
+    // }
+    // const scheduleData: Schedule = await responseSchedule.json();
 
     return (
         <main className='wrapper'>
             <Tabs defaultValue="schedule" className="w-full">
                 <div className="flex justify-between items-end flex-wrap gap-y-4">
-                    <h1 className='h1-bold mr-5'>{formatDateDisplay(new Date(currentDay.dayDate.replace(/-/g, "/") ))}</h1>
+                    <h1 className='h1-bold mr-5'>{formatDateDisplay(new Date(currentDay.dayDate.replace(/-/g, "/")))}</h1>
                     <TabsList className='mb-1'>
                         <TabsTrigger value="schedule">Schedule</TabsTrigger>
                         <TabsTrigger value="reminders">Reminders</TabsTrigger>
@@ -40,7 +50,7 @@ export default async function page({ params }: pageProps) {
 
                 <TabsContent value="schedule">
                     <DailyScheduleAccordion
-                        scheduleId={currentDay.schedules[0]?.id || ''}
+                        scheduleData={currentDay.schedules[0]}
                     />
                 </TabsContent>
                 <TabsContent value="reminders">

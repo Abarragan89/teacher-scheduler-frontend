@@ -11,7 +11,7 @@ export interface TaskItemProps {
     onToggleOutlineCompletion: (taskId: string, itemId: string) => void
     onUpdateOutlineItem: (taskId: string, itemId: string, text: string) => void
     onOutlineKeyDown: (e: KeyboardEvent<HTMLInputElement>, taskId: string, itemId: string) => void
-    onOutlineBlur: (taskId: string, itemId: string, text: string) => void
+    onOutlineBlur: (taskId: string, itemId: string, text: string, position: number, indentation: number) => void
     onTaskBlur: (taskId: string, text: string) => void
     onAddOutlineItem: (taskId: string) => void
     onCloseAllAccordions: () => void

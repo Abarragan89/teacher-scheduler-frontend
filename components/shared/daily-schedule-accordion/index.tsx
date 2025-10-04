@@ -9,6 +9,7 @@ import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, useDr
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Trash2 } from 'lucide-react'
 import { callJavaAPI } from '@/lib/auth/utils'
+import { Schedule } from '@/types/day'
 
 // Make TaskItem dynamic since it uses useSortable hooks and causes hydration errors
 const DynamicTaskItem = dynamic(() => import('./task-item'), {
@@ -25,11 +26,11 @@ const DynamicTaskItem = dynamic(() => import('./task-item'), {
 
 
 export default function DailyScheduleAccordion({
-    scheduleId
+    scheduleData
 }: {
-    scheduleId: string
+    scheduleData: Schedule
 }) {
-    const [tasks, setTasks] = useState<Task[]>([])
+    const [tasks, setTasks] = useState<Task[]>(scheduleData?.tasks || [])
 
     const [openAccordions, setOpenAccordions] = useState<string[]>(['0'])
     const [isEditable, setIsEditable] = useState<boolean>(true)
@@ -104,18 +105,18 @@ export default function DailyScheduleAccordion({
             prev.map(task => {
                 if (task.id === taskId) {
                     // Check if there's already an empty outline item (prevent creating multiple empty items)
-                    const hasEmptyItem = task.outlineItems.some(item => item.text.trim() === '')
+                    const hasEmptyItem = task?.outlineItems?.some(item => item.text.trim() === '')
                     if (hasEmptyItem) return task
 
                     const newItem: OutlineItem = {
-                        id: `${Date.now()}`,
+                        id: `temp-${Date.now()}`,
                         text: '',
                         completed: false,
                         indentLevel: 0
                     }
 
                     if (afterItemId) {
-                        const index = task.outlineItems.findIndex(item => item.id === afterItemId)
+                        const index = task?.outlineItems?.findIndex(item => item.id === afterItemId)
                         const newItems = [...task.outlineItems]
                         newItems.splice(index + 1, 0, newItem)
                         return { ...task, outlineItems: newItems }
@@ -153,12 +154,72 @@ export default function DailyScheduleAccordion({
         )
     }
 
-    const handleOutlineBlur = (taskId: string, itemId: string, text: string) => {
+    const handleOutlineBlur = async (
+        taskId: string,
+        itemId: string,
+        text: string,
+        position: number,
+        indentation: number
+    ) => {
         // Delete empty outline items when they lose focus
         if (text.trim() === '') {
             const task = tasks.find(t => t.id === taskId)
             if (task && task.outlineItems.length > 1) {
                 deleteOutlineItem(taskId, itemId)
+            }
+        }
+        if (text.trim() === '') return // Don't save empty tasks
+
+        const isTemporary = itemId.startsWith('temp-')
+        console.log('isTemporary ', isTemporary)
+        
+        console.log('task id ', taskId)
+        console.log('item id ', itemId)
+        console.log('text ', text)
+        console.log('position ', position)
+        console.log('indentation ', indentation)
+        console.log('schedule id ', scheduleData.id)
+
+        if (isTemporary) {
+            // Create new task in backend
+            try {
+                console.log('Creating new outline item...')
+                const response = await callJavaAPI('/task-outline-item/create', 'POST', {
+                    taskId: taskId,
+                    text: text.trim(),
+                    position: position,
+                    indentLevel: indentation
+                })
+
+                if (response.ok) {
+                    const newTask = await response.json()
+
+                    // Replace temporary task with real task
+                    setTasks(prev =>
+                        prev.map(task =>
+                            task.id === taskId
+                                ? { ...task, id: newTask.id } // Update with real ID
+                                : task
+                        )
+                    )
+                    console.log('✅ Task created:', newTask)
+                }
+            } catch (error) {
+                console.error('❌ Failed to create task:', error)
+                // Optionally show error toast
+            }
+        } else {
+            // Update existing task
+            try {
+                const response = await callJavaAPI(`/tasks/${taskId}`, 'PUT', {
+                    title: text.trim()
+                })
+
+                if (response.ok) {
+                    console.log('✅ Task updated')
+                }
+            } catch (error) {
+                console.error('❌ Failed to update task:', error)
             }
         }
     }
@@ -171,15 +232,13 @@ export default function DailyScheduleAccordion({
             // Create new task in backend
             try {
                 const response = await callJavaAPI('/task/create', 'POST', {
-                    scheduleId,
+                    scheduleId: scheduleData.id,
                     title: title.trim(),
                     position: tasks.length
                 })
 
                 if (response.ok) {
                     const newTask = await response.json()
-
-                    console.log('new task ', newTask);
 
                     // Replace temporary task with real task
                     setTasks(prev =>
@@ -211,6 +270,7 @@ export default function DailyScheduleAccordion({
         }
     }
 
+    // Handle pressing the enter button on the task to open the subtasks
     const handleTaskTitleKeyDown = (e: KeyboardEvent<HTMLInputElement>, taskId: string) => {
         if (e.key === 'Enter') {
             e.preventDefault()
@@ -235,7 +295,7 @@ export default function DailyScheduleAccordion({
             title: '',
             completed: false,
             outlineItems: [{
-                id: `${tempId}-1`,
+                id: `$temp-outline-{tempId}`,
                 text: '',
                 completed: false,
                 indentLevel: 0
