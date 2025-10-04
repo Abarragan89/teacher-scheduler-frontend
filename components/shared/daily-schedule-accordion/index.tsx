@@ -170,9 +170,10 @@ export default function DailyScheduleAccordion({
         }
         if (text.trim() === '') return // Don't save empty tasks
 
+        console.log('temp id', itemId)
         const isTemporary = itemId.startsWith('temp-')
         console.log('isTemporary ', isTemporary)
-        
+
         console.log('task id ', taskId)
         console.log('item id ', itemId)
         console.log('text ', text)

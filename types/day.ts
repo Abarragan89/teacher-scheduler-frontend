@@ -1,7 +1,7 @@
 export interface DayData {
     dayDate: string;
     id: string;
-    schedules: Schedule[]
+    schedule: Schedule
 }
 
 export interface Schedule {

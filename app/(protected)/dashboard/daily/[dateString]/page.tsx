@@ -50,7 +50,7 @@ export default async function page({ params }: pageProps) {
 
                 <TabsContent value="schedule">
                     <DailyScheduleAccordion
-                        scheduleData={currentDay.schedules[0]}
+                        scheduleData={currentDay.schedule}
                     />
                 </TabsContent>
                 <TabsContent value="reminders">
