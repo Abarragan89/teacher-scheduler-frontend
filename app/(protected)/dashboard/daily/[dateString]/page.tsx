@@ -3,8 +3,7 @@ import { callJavaAPI } from '@/lib/auth/utils';
 import { formatDateDisplay } from '@/lib/utils';
 import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DayData, Schedule } from '@/types/day';
-
+import { DayData } from '@/types/day';
 
 interface pageProps {
     params: {
@@ -18,21 +17,11 @@ export default async function page({ params }: pageProps) {
 
     const response = await callJavaAPI('/days/find-or-create', 'POST', { dayDate: dateString })
 
-    // console.log('response ', await response.json())
-
     if (!response.ok) {
         throw new Error('Error loading day. Try again.');
     }
 
     const currentDay: DayData = await response.json();
-    console.log('response ', currentDay)
-
-    // const responseSchedule = await callJavaAPI(`/schedule/${currentDay.schedules[0].id}`, 'GET')
-
-    // if (!responseSchedule.ok) {
-    //     throw new Error('Error loading schedule. Try again.');
-    // }
-    // const scheduleData: Schedule = await responseSchedule.json();
 
     return (
         <main className='wrapper'>
@@ -53,16 +42,18 @@ export default async function page({ params }: pageProps) {
                         scheduleData={currentDay.schedule}
                     />
                 </TabsContent>
+
                 <TabsContent value="reminders">
                     <p>These are the Reminders</p>
                 </TabsContent>
+
                 <TabsContent value="todos">
                     <p>These are the Todos</p>
                 </TabsContent>
+
                 <TabsContent value="notes">
                     <p>These are the Notes</p>
                 </TabsContent>
-
             </Tabs>
         </main>
     )

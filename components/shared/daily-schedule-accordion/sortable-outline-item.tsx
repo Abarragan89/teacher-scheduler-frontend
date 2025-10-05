@@ -54,7 +54,7 @@ export default function SortableOutlineItem({
                 {...attributes}
                 {...listeners}
                 className="cursor-grab active:cursor-grabbing p-1 hover:bg-accent rounded text-muted-foreground"
-                style={{ marginLeft: `${item.indentLevel * 24}px` }}
+                style={{ marginLeft: `${item.indentLevel * 20}px` }}
             >
                 <GripVertical className="w-3 h-3" />
             </div>
@@ -62,10 +62,10 @@ export default function SortableOutlineItem({
             {/* Regular content - not draggable */}
             <div
                 className="flex items-center gap-3 flex-1"
-                style={{ marginLeft: !isEditable ? `${item.indentLevel * 24}px` : '0px' }}
+                style={{ marginLeft: !isEditable ? `${item.indentLevel * 20}px` : '0px' }}
             >
                 <Checkbox
-                    className='w-[15px] h-[16px]'
+                    className='w-[15px] h-[16px] rounded-full'
                     checked={item.completed}
                     onCheckedChange={() => onToggleOutlineCompletion(taskId, item.id)}
                 />

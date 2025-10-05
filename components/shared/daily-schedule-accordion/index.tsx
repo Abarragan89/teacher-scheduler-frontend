@@ -101,6 +101,8 @@ export default function DailyScheduleAccordion({
     }
 
     const addOutlineItem = (taskId: string, afterItemId?: string) => {
+        const tempId = `temp-outline-${Date.now()}`
+
         setTasks(prev =>
             prev.map(task => {
                 if (task.id === taskId) {
@@ -127,6 +129,13 @@ export default function DailyScheduleAccordion({
                 return task
             })
         )
+        // Focus the new input after a short delay
+        setTimeout(() => {
+            const newInput = document.querySelector(`[data-outline-id="${tempId}"] input`)
+            if (newInput instanceof HTMLInputElement) {
+                newInput.focus()
+            }
+        }, 100)
     }
 
     const deleteTask = (taskId: string) => {
@@ -170,21 +179,11 @@ export default function DailyScheduleAccordion({
         }
         if (text.trim() === '') return // Don't save empty tasks
 
-        console.log('temp id', itemId)
         const isTemporary = itemId.startsWith('temp-')
-        console.log('isTemporary ', isTemporary)
-
-        console.log('task id ', taskId)
-        console.log('item id ', itemId)
-        console.log('text ', text)
-        console.log('position ', position)
-        console.log('indentation ', indentation)
-        console.log('schedule id ', scheduleData.id)
 
         if (isTemporary) {
             // Create new task in backend
             try {
-                console.log('Creating new outline item...')
                 const response = await callJavaAPI('/task-outline-item/create', 'POST', {
                     taskId: taskId,
                     text: text.trim(),
@@ -193,21 +192,34 @@ export default function DailyScheduleAccordion({
                 })
 
                 if (response.ok) {
-                    const newTask = await response.json()
+                    const newItem = await response.json()
 
-                    // Replace temporary task with real task
+                    // Update the item ID but preserve accordion state
                     setTasks(prev =>
-                        prev.map(task =>
-                            task.id === taskId
-                                ? { ...task, id: newTask.id } // Update with real ID
-                                : task
-                        )
+                        prev.map(task => {
+                            if (task.id === taskId) {
+                                return {
+                                    ...task,
+                                    outlineItems: task.outlineItems.map(item =>
+                                        item.id === itemId
+                                            ? { ...item, id: newItem.id } // Update item ID, not task ID
+                                            : item
+                                    )
+                                }
+                            }
+                            return task
+                        })
                     )
-                    console.log('✅ Task created:', newTask)
+
+                    // Preserve accordion open state by updating with new task ID if needed
+                    if (taskId.startsWith('temp-') && newItem.taskId) {
+                        setOpenAccordions(prev =>
+                            prev.map(id => id === taskId ? newItem.taskId : id)
+                        )
+                    }
                 }
             } catch (error) {
-                console.error('❌ Failed to create task:', error)
-                // Optionally show error toast
+                console.error('Failed to create task')
             }
         } else {
             // Update existing task
@@ -303,7 +315,6 @@ export default function DailyScheduleAccordion({
             }]
         }
         setTasks(prev => [...prev, newTask])
-        // No API call here - instant UI response! ✨
     }
 
     const reorderOutlineItems = (taskId: string, reorderedItems: OutlineItem[]) => {
@@ -320,6 +331,7 @@ export default function DailyScheduleAccordion({
         setOpenAccordions([])
     }
 
+    // Handle TAB key for indentation
     const handleOutlineKeyDown = (e: KeyboardEvent<HTMLInputElement>, taskId: string, itemId: string) => {
         const task = tasks.find(t => t.id === taskId)
         const item = task?.outlineItems.find(i => i.id === itemId)
@@ -354,7 +366,7 @@ export default function DailyScheduleAccordion({
 
         if (e.key === 'Tab') {
             e.preventDefault()
-            const maxIndent = 2
+            const maxIndent = 1
             const newIndentLevel = e.shiftKey
                 ? Math.max(0, item.indentLevel - 1)
                 : Math.min(maxIndent, item.indentLevel + 1)

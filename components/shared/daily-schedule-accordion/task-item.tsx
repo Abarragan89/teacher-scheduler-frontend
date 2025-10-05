@@ -65,7 +65,7 @@ export default function TaskItem({
                 <Checkbox
                     checked={task.completed}
                     onCheckedChange={() => onToggleCompletion(task.id)}
-                    className='w-[22px] h-[22px]'
+                    className='w-[20px] h-[20px]'
                 />
 
                 <BareInput
@@ -85,7 +85,7 @@ export default function TaskItem({
             </div>
 
             <AccordionContent className="px-4 pb-4" data-task-id={task.id}>
-                <div className="space-y-2 mt-2 ml-2">
+                <div className="space-y-2 mt-2 ml-4">
                     {/* Outline Items with their own SortableContext */}
                     <SortableContext
                         items={task?.outlineItems?.length > 0 ? task.outlineItems.map(item => item.id) : []}
@@ -106,6 +106,7 @@ export default function TaskItem({
                     </SortableContext>
 
                     {isEditable && (
+                        
                         <button
                             onClick={() => onAddOutlineItem(task.id)}
                             disabled={task?.outlineItems?.length > 0 && task?.outlineItems?.some(item => item.text.trim() === '')}
