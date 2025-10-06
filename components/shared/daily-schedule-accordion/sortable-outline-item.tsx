@@ -13,7 +13,7 @@ interface SortableOutlineItemProps {
     onToggleOutlineCompletion: (taskId: string, itemId: string) => void
     onUpdateOutlineItem: (taskId: string, itemId: string, text: string) => void
     onOutlineKeyDown: (e: React.KeyboardEvent<HTMLInputElement>, taskId: string, itemId: string) => void
-    onOutlineBlur: (taskId: string, itemId: string, text: string, position: number, indentation: number) => void
+    onOutlineBlur: (taskId: string, itemId: string, text: string, position: number, indentation: number, completed: boolean) => void
 }
 
 export default function SortableOutlineItem({
@@ -76,7 +76,7 @@ export default function SortableOutlineItem({
                     value={item.text}
                     onChange={(e) => onUpdateOutlineItem(taskId, item.id, e.target.value)}
                     onKeyDown={(e) => onOutlineKeyDown(e, taskId, item.id)}
-                    onBlur={() => onOutlineBlur(taskId, item.id, item.text, 0, item.indentLevel)}
+                    onBlur={() => onOutlineBlur(taskId, item.id, item.text, 0, item.indentLevel, item.completed)}
                     data-item-id={item.id}
                     disabled={!isEditable}
                     readOnly={!isEditable}

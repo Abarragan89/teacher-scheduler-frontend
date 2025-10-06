@@ -23,10 +23,12 @@ export default async function page({ params }: pageProps) {
 
     const currentDay: DayData = await response.json();
 
+    console.log('currentDay ', currentDay)
+
     return (
         <main className='wrapper'>
             <Tabs defaultValue="schedule" className="w-full">
-                <div className="flex justify-between items-end flex-wrap gap-y-4">
+                <div className="flex justify-center xs:justify-between items-end flex-wrap gap-y-4">
                     <h1 className='h1-bold mr-5'>{formatDateDisplay(new Date(currentDay.dayDate.replace(/-/g, "/")))}</h1>
                     <TabsList className='mb-1'>
                         <TabsTrigger value="schedule">Schedule</TabsTrigger>

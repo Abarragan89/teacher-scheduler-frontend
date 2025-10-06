@@ -10,12 +10,12 @@ export default function AuthenticatedNavLinks({ username }: { username: string }
             <NavigationMenuList className="gap-x-4">
                 <NavigationMenuItem>
                     <Link href="/dashboard">
-                        Dashboard
+                        D
                     </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                     <Link href="/profile">
-                        Profile
+                        P
                     </Link>
                 </NavigationMenuItem>
 

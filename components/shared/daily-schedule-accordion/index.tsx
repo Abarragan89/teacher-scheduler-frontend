@@ -30,7 +30,17 @@ export default function DailyScheduleAccordion({
 }: {
     scheduleData: Schedule
 }) {
-    const [tasks, setTasks] = useState<Task[]>(scheduleData?.tasks || [])
+
+    const [tasks, setTasks] = useState<Task[]>(
+        scheduleData?.tasks?.map(task => ({
+            ...task,
+            clientKey: `client-${task.id}`
+
+        })) || []
+    )
+    console.log('scheduleData ', scheduleData)
+
+    console.log('tasks ', tasks)
 
     const [openAccordions, setOpenAccordions] = useState<string[]>(['0'])
     const [isEditable, setIsEditable] = useState<boolean>(true)
@@ -168,7 +178,8 @@ export default function DailyScheduleAccordion({
         itemId: string,
         text: string,
         position: number,
-        indentation: number
+        indentation: number,
+        completed: boolean
     ) => {
         // Delete empty outline items when they lose focus
         if (text.trim() === '') {
@@ -177,7 +188,8 @@ export default function DailyScheduleAccordion({
                 deleteOutlineItem(taskId, itemId)
             }
         }
-        if (text.trim() === '') return // Don't save empty tasks
+        // Don't save empty tasks or continue if task is not there
+        if (text.trim() === '') return
 
         const isTemporary = itemId.startsWith('temp-')
 
@@ -188,7 +200,8 @@ export default function DailyScheduleAccordion({
                     taskId: taskId,
                     text: text.trim(),
                     position: position,
-                    indentLevel: indentation
+                    indentLevel: indentation,
+                    completed: completed
                 })
 
                 if (response.ok) {
@@ -224,8 +237,12 @@ export default function DailyScheduleAccordion({
         } else {
             // Update existing task
             try {
-                const response = await callJavaAPI(`/tasks/${taskId}`, 'PUT', {
-                    title: text.trim()
+                const response = await callJavaAPI(`/task-outline-item/update-item`, 'PUT', {
+                    id: itemId,
+                    text: text.trim(),
+                    position: position,
+                    indentLevel: indentation,
+                    completed: completed
                 })
 
                 if (response.ok) {
@@ -240,6 +257,8 @@ export default function DailyScheduleAccordion({
         if (title.trim() === '') return // Don't save empty tasks
 
         const isTemporary = taskId.startsWith('temp-')
+        const task: Task | null = tasks.find(t => t.id === taskId) || null;
+        if (!task) return;
 
         if (isTemporary) {
             // Create new task in backend
@@ -247,12 +266,12 @@ export default function DailyScheduleAccordion({
                 const response = await callJavaAPI('/task/create', 'POST', {
                     scheduleId: scheduleData.id,
                     title: title.trim(),
-                    position: tasks.length
+                    position: tasks.length,
+                    completed: task.completed
                 })
 
                 if (response.ok) {
                     const newTask = await response.json()
-
                     // Replace temporary task with real task
                     setTasks(prev =>
                         prev.map(task =>
@@ -261,24 +280,24 @@ export default function DailyScheduleAccordion({
                                 : task
                         )
                     )
-                    console.log('✅ Task created:', newTask)
+                    setOpenAccordions(prev =>
+                        prev.map(openId => openId === taskId ? newTask.id : openId)
+                    )
                 }
             } catch (error) {
-                console.error('❌ Failed to create task:', error)
-                // Optionally show error toast
+                console.error('Failed to create task')
             }
         } else {
             // Update existing task
             try {
-                const response = await callJavaAPI(`/tasks/${taskId}`, 'PUT', {
-                    title: title.trim()
+                const response = await callJavaAPI(`/task/update-task`, 'PUT', {
+                    id: taskId,
+                    title: title.trim(),
+                    position: task.position,
+                    completed: task.completed
                 })
-
-                if (response.ok) {
-                    console.log('✅ Task updated')
-                }
             } catch (error) {
-                console.error('❌ Failed to update task:', error)
+                console.error('Failed to update task:')
             }
         }
     }
@@ -306,6 +325,8 @@ export default function DailyScheduleAccordion({
         const newTask: Task = {
             id: tempId,  // Mark as temporary
             title: '',
+            clientKey: `client-${tempId}`,
+            position: tasks.length,
             completed: false,
             outlineItems: [{
                 id: `$temp-outline-{tempId}`,
@@ -315,6 +336,7 @@ export default function DailyScheduleAccordion({
             }]
         }
         setTasks(prev => [...prev, newTask])
+        setOpenAccordions(prev => [...prev, tempId])
     }
 
     const reorderOutlineItems = (taskId: string, reorderedItems: OutlineItem[]) => {
@@ -539,7 +561,7 @@ export default function DailyScheduleAccordion({
                     >
                         {tasks.map(task => (
                             <DynamicTaskItem
-                                key={task.id}
+                                key={task.clientKey}
                                 task={task}
                                 tasksLength={tasks.length}
                                 isEditable={isEditable}
@@ -550,10 +572,8 @@ export default function DailyScheduleAccordion({
                                 onToggleOutlineCompletion={toggleOutlineItemCompletion}
                                 onUpdateOutlineItem={updateOutlineItem}
                                 onOutlineKeyDown={handleOutlineKeyDown}
-
                                 onOutlineBlur={handleOutlineBlur}
                                 onTaskBlur={handleTaskBlur}
-
                                 onAddOutlineItem={addOutlineItem}
                                 onCloseAllAccordions={closeAllAccordions}
                             />
