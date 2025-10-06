@@ -363,7 +363,7 @@ export default function DailyScheduleAccordion({
             position: tasks.length,
             completed: false,
             outlineItems: [{
-                id: `temp-outline-{tempId}`,
+                id: `temp-outline-${tempId}`,
                 text: '',
                 completed: false,
                 indentLevel: 0,
