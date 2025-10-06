@@ -46,21 +46,39 @@ export default function DailyScheduleAccordion({
     const [activeItem, setActiveItem] = useState<Task | OutlineItem | null>(null)
     const [focusedText, setFocusedText] = useState<string>('')
 
-    const toggleTaskCompletion = (taskId: string) => {
+    const toggleTaskCompletion = async (taskId: string) => {
+        const task = tasks.find(t => t.id === taskId)
+        if (!task) return
+
+        const newCompleted = !task.completed
+
+        // Update UI immediately (optimistic update)
         setTasks(prev =>
             prev.map(task =>
                 task.id === taskId
                     ? {
                         ...task,
-                        completed: !task.completed,
+                        completed: newCompleted,
                         outlineItems: task.outlineItems.map(item => ({
                             ...item,
-                            completed: !task.completed ? true : item.completed
+                            completed: newCompleted ? true : item.completed
                         }))
                     }
                     : task
             )
         )
+
+        // Update backend
+        try {
+            await callJavaAPI(`/task/update-task`, 'PUT', {
+                id: taskId,
+                title: task.title,
+                position: task.position,
+                completed: newCompleted
+            })
+        } catch (error) {
+            console.error('Failed to update task completion:', error)
+        }
     }
 
     const updateTaskTitle = (taskId: string, title: string) => {
@@ -73,7 +91,14 @@ export default function DailyScheduleAccordion({
         )
     }
 
-    const toggleOutlineItemCompletion = (taskId: string, itemId: string) => {
+    const toggleOutlineItemCompletion = async (taskId: string, itemId: string) => {
+        const task = tasks.find(t => t.id === taskId)
+        const item = task?.outlineItems.find(i => i.id === itemId)
+        if (!task || !item) return
+
+        const newCompleted = !item.completed
+
+        // Update UI immediately (optimistic update)
         setTasks(prev =>
             prev.map(task =>
                 task.id === taskId
@@ -81,13 +106,26 @@ export default function DailyScheduleAccordion({
                         ...task,
                         outlineItems: task.outlineItems.map(item =>
                             item.id === itemId
-                                ? { ...item, completed: !item.completed }
+                                ? { ...item, completed: newCompleted }
                                 : item
                         )
                     }
                     : task
             )
         )
+
+        // Update backend
+        try {
+            await callJavaAPI(`/task-outline-item/update-item`, 'PUT', {
+                id: itemId,
+                text: item.text,
+                position: item.position,
+                indentLevel: item.indentLevel,
+                completed: newCompleted
+            })
+        } catch (error) {
+            console.error('Failed to update outline item completion:', error)
+        }
     }
 
     const updateOutlineItem = (taskId: string, itemId: string, text: string) => {
@@ -384,6 +422,49 @@ export default function DailyScheduleAccordion({
         setOpenAccordions(prev => [...prev, tempId])
     }
 
+    const updateTaskPositions = async (reorderedTasks: Task[]) => {
+        try {
+            // Update all task positions in batch
+            const updates = reorderedTasks.map((task, index) => ({
+                id: task.id,
+                title: task.title,
+                position: index,
+                completed: task.completed
+            }))
+
+            // Send individual requests for each task
+            await Promise.all(
+                updates.map(update =>
+                    callJavaAPI(`/task/update-task`, 'PUT', update)
+                )
+            )
+        } catch (error) {
+            console.error('Failed to update task positions:', error)
+        }
+    }
+
+    const updateOutlineItemPositions = async (taskId: string, reorderedItems: OutlineItem[]) => {
+        try {
+            // Update all outline item positions
+            const updates = reorderedItems.map((item, index) => ({
+                id: item.id,
+                text: item.text,
+                position: index,
+                indentLevel: item.indentLevel,
+                completed: item.completed
+            }))
+
+            // Send individual requests for each outline item
+            await Promise.all(
+                updates.map(update =>
+                    callJavaAPI(`/task-outline-item/update-item`, 'PUT', update)
+                )
+            )
+        } catch (error) {
+            console.error('Failed to update outline item positions:', error)
+        }
+    }
+
     const reorderOutlineItems = (taskId: string, reorderedItems: OutlineItem[]) => {
         setTasks(prev =>
             prev.map(task =>
@@ -392,6 +473,9 @@ export default function DailyScheduleAccordion({
                     : task
             )
         )
+
+        // Update backend positions
+        updateOutlineItemPositions(taskId, reorderedItems)
     }
 
     const closeAllAccordions = () => {
@@ -538,11 +622,15 @@ export default function DailyScheduleAccordion({
 
         if (draggedItemType === 'task') {
             // Handle task reordering
-            setTasks((tasks) => {
+            setTasks((currentTasks) => {
                 const originalPos = getTaskIndex(active.id as string);
                 const newPos = getTaskIndex(over.id as string);
+                const reorderedTasks = arrayMove(currentTasks, originalPos, newPos)
 
-                return arrayMove(tasks, originalPos, newPos)
+                // Update backend positions
+                updateTaskPositions(reorderedTasks)
+
+                return reorderedTasks
             })
         } else if (draggedItemType === 'outline') {
             // Handle outline item reordering within the same task
