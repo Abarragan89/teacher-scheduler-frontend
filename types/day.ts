@@ -1,3 +1,5 @@
+import { OutlineItem } from './outline-item';
+
 export interface DayData {
     dayDate: string;
     id: string;
@@ -15,11 +17,4 @@ export interface Task {
     completed: boolean;
     position: number;
     outlineItems: OutlineItem[];
-}
-
-export interface OutlineItem {
-    id: string;
-    text: string;
-    completed: boolean;
-    indentLevel: number;
 }

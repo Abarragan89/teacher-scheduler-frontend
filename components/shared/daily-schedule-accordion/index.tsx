@@ -2,7 +2,8 @@
 import React, { useState, KeyboardEvent } from 'react'
 import { Accordion } from "@/components/ui/accordion"
 import { Switch } from "@/components/ui/switch"
-import { Task, OutlineItem } from '@/types/tasks'
+import { Task } from '@/types/tasks'
+import { OutlineItem } from '@/types/outline-item'
 import dynamic from 'next/dynamic'
 import { Skeleton } from "@/components/ui/skeleton"
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, useDroppable, DragStartEvent, DragEndEvent, pointerWithin, DragOverlay } from '@dnd-kit/core'
@@ -36,18 +37,14 @@ export default function DailyScheduleAccordion({
             ...task,
             clientKey: `client-${task.id}`
 
-        })) || []
-    )
-    console.log('scheduleData ', scheduleData)
-
-    console.log('tasks ', tasks)
+        })) || [])
 
     const [openAccordions, setOpenAccordions] = useState<string[]>(['0'])
     const [isEditable, setIsEditable] = useState<boolean>(true)
     const [isDragging, setIsDragging] = useState<boolean>(false)
     const [draggedItemType, setDraggedItemType] = useState<'task' | 'outline' | null>(null)
     const [activeItem, setActiveItem] = useState<Task | OutlineItem | null>(null)
-
+    const [focusedText, setFocusedText] = useState<string>('')
 
     const toggleTaskCompletion = (taskId: string) => {
         setTasks(prev =>
@@ -124,7 +121,8 @@ export default function DailyScheduleAccordion({
                         id: `temp-${Date.now()}`,
                         text: '',
                         completed: false,
-                        indentLevel: 0
+                        indentLevel: 0,
+                        position: task.outlineItems.length
                     }
 
                     if (afterItemId) {
@@ -163,7 +161,8 @@ export default function DailyScheduleAccordion({
                             id: `${taskId}-${Date.now()}`,
                             text: '',
                             completed: false,
-                            indentLevel: 0
+                            indentLevel: 0,
+                            position: 0,
                         })
                     }
                     return { ...task, outlineItems: newOutlineItems }
@@ -181,16 +180,20 @@ export default function DailyScheduleAccordion({
         indentation: number,
         completed: boolean
     ) => {
+        if (focusedText === text.trim()) {
+            return // No change, skip API call
+        }
+        const task = tasks.find(t => t.id === taskId)
         // Delete empty outline items when they lose focus
         if (text.trim() === '') {
-            const task = tasks.find(t => t.id === taskId)
             if (task && task.outlineItems.length > 1) {
                 deleteOutlineItem(taskId, itemId)
             }
         }
+
+    
         // Don't save empty tasks or continue if task is not there
         if (text.trim() === '') return
-
         const isTemporary = itemId.startsWith('temp-')
 
         if (isTemporary) {
@@ -207,7 +210,7 @@ export default function DailyScheduleAccordion({
                 if (response.ok) {
                     const newItem = await response.json()
 
-                    // Update the item ID but preserve accordion state
+                    // Update the item ID but preserve accordion state 
                     setTasks(prev =>
                         prev.map(task => {
                             if (task.id === taskId) {
@@ -223,13 +226,6 @@ export default function DailyScheduleAccordion({
                             return task
                         })
                     )
-
-                    // Preserve accordion open state by updating with new task ID if needed
-                    if (taskId.startsWith('temp-') && newItem.taskId) {
-                        setOpenAccordions(prev =>
-                            prev.map(id => id === taskId ? newItem.taskId : id)
-                        )
-                    }
                 }
             } catch (error) {
                 console.error('Failed to create task')
@@ -237,27 +233,31 @@ export default function DailyScheduleAccordion({
         } else {
             // Update existing task
             try {
-                const response = await callJavaAPI(`/task-outline-item/update-item`, 'PUT', {
+
+
+                // else, update the item
+                await callJavaAPI(`/task-outline-item/update-item`, 'PUT', {
                     id: itemId,
                     text: text.trim(),
                     position: position,
                     indentLevel: indentation,
                     completed: completed
                 })
-
-                if (response.ok) {
-                    console.log('✅ Task updated')
-                }
             } catch (error) {
                 console.error('❌ Failed to update task:', error)
             }
         }
     }
+
     const handleTaskBlur = async (taskId: string, title: string) => {
         if (title.trim() === '') return // Don't save empty tasks
+        const task: Task | null = tasks.find(t => t.id === taskId) || null;
+
+        if (focusedText === task?.title.trim()) {
+            return // No change, skip API call
+        }
 
         const isTemporary = taskId.startsWith('temp-')
-        const task: Task | null = tasks.find(t => t.id === taskId) || null;
         if (!task) return;
 
         if (isTemporary) {
@@ -280,6 +280,8 @@ export default function DailyScheduleAccordion({
                                 : task
                         )
                     )
+
+                    // Maintain open accordions state
                     setOpenAccordions(prev =>
                         prev.map(openId => openId === taskId ? newTask.id : openId)
                     )
@@ -290,19 +292,35 @@ export default function DailyScheduleAccordion({
         } else {
             // Update existing task
             try {
-                const response = await callJavaAPI(`/task/update-task`, 'PUT', {
+                await callJavaAPI(`/task/update-task`, 'PUT', {
                     id: taskId,
                     title: title.trim(),
                     position: task.position,
                     completed: task.completed
                 })
             } catch (error) {
-                console.error('Failed to update task:')
+                console.error('Failed to update task')
             }
         }
     }
 
-    // Handle pressing the enter button on the task to open the subtasks
+    // On focus - capture the current text
+    const handleOutlineFocus = (taskId: string, itemId: string) => {
+        const task = tasks.find(t => t.id === taskId)
+        const item = task?.outlineItems.find(i => i.id === itemId)
+        if (item) {
+            setFocusedText(item.text) // Just store the text
+        }
+    }
+
+    const handleTaskFocus = (taskId: string) => {
+        const task = tasks.find(t => t.id === taskId)
+        if (task) {
+            setFocusedText(task.title) // Just store the title
+        }
+    }
+
+    // Handle pressing the ENTER button on the task to open the subtasks
     const handleTaskTitleKeyDown = (e: KeyboardEvent<HTMLInputElement>, taskId: string) => {
         if (e.key === 'Enter') {
             e.preventDefault()
@@ -315,6 +333,7 @@ export default function DailyScheduleAccordion({
                 const firstSubtaskInput = document.querySelector(`[data-task-id="${taskId}"] input[data-item-id]`) as HTMLInputElement
                 if (firstSubtaskInput) {
                     firstSubtaskInput.focus()
+                    firstSubtaskInput.select()
                 }
             }, 100)
         }
@@ -332,7 +351,8 @@ export default function DailyScheduleAccordion({
                 id: `$temp-outline-{tempId}`,
                 text: '',
                 completed: false,
-                indentLevel: 0
+                indentLevel: 0,
+                position: 0,
             }]
         }
         setTasks(prev => [...prev, newTask])
@@ -353,7 +373,7 @@ export default function DailyScheduleAccordion({
         setOpenAccordions([])
     }
 
-    // Handle TAB key for indentation
+    // Handle TAB and ENTER key for indentation (Outline Items)
     const handleOutlineKeyDown = (e: KeyboardEvent<HTMLInputElement>, taskId: string, itemId: string) => {
         const task = tasks.find(t => t.id === taskId)
         const item = task?.outlineItems.find(i => i.id === itemId)
@@ -361,28 +381,36 @@ export default function DailyScheduleAccordion({
         if (!task || !item) return
 
         if (e.key === 'Enter') {
-            e.preventDefault()
-            // Only add new item if current item has text
+            e.preventDefault();
+            // Only proceed if current item has text
             if (item.text.trim() !== '') {
-                addOutlineItem(taskId, itemId)
-                // Focus the new input after a brief delay
-                setTimeout(() => {
-                    const inputs = document.querySelectorAll(`[data-task-id="${taskId}"] input[data-item-id]`)
-                    const currentIndex = Array.from(inputs).findIndex(input =>
-                        input.getAttribute('data-item-id') === itemId
-                    )
-                    if (inputs[currentIndex + 1]) {
-                        (inputs[currentIndex + 1] as HTMLInputElement).focus()
-                    }
-                }, 10)
-            }
-        }
+                // Find current item index
+                const currentIndex = task.outlineItems.findIndex(i => i.id === itemId)
+                const nextIndex = currentIndex + 1
 
-        if (e.key === 'Backspace' && item.text === '') {
-            // Delete current outline item if it's empty and there are multiple items
-            if (task.outlineItems.length > 1) {
-                e.preventDefault()
-                deleteOutlineItem(taskId, itemId)
+                // Check if there's already an outline item below
+                if (nextIndex < task.outlineItems.length) {
+                    // Focus the next existing input and select all text
+                    setTimeout(() => {
+                        const inputs = document.querySelectorAll(`[data-task-id="${taskId}"] input[data-item-id]`)
+                        const nextInput = inputs[nextIndex] as HTMLInputElement
+                        if (nextInput) {
+                            nextInput.focus()
+                            nextInput.select() // This highlights/selects all text
+                        }
+                    }, 10)
+                } else {
+                    // No input below, create a new one
+                    addOutlineItem(taskId, itemId)
+                    // Focus the new input after a brief delay
+                    setTimeout(() => {
+                        const inputs = document.querySelectorAll(`[data-task-id="${taskId}"] input[data-item-id]`)
+                        const newInput = inputs[inputs.length - 1] as HTMLInputElement
+                        if (newInput) {
+                            newInput.focus()
+                        }
+                    }, 10)
+                }
             }
         }
 
@@ -570,6 +598,8 @@ export default function DailyScheduleAccordion({
                                 onUpdateTitle={updateTaskTitle}
                                 onTitleKeyDown={handleTaskTitleKeyDown}
                                 onToggleOutlineCompletion={toggleOutlineItemCompletion}
+                                onFocusTask={handleTaskFocus}
+                                onFocusOutline={handleOutlineFocus}
                                 onUpdateOutlineItem={updateOutlineItem}
                                 onOutlineKeyDown={handleOutlineKeyDown}
                                 onOutlineBlur={handleOutlineBlur}

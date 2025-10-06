@@ -22,6 +22,8 @@ export default function TaskItem({
     onUpdateOutlineItem,
     onOutlineKeyDown,
     onOutlineBlur,
+    onFocusOutline,
+    onFocusTask,
     onTaskBlur,
     onAddOutlineItem,
 }: TaskItemProps) {
@@ -70,10 +72,11 @@ export default function TaskItem({
 
                 <BareInput
                     className={`flex-1 text-base tracking-wide font-bold ${task.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
-                    placeholder="Task title..."
+                    placeholder="Subject or Period..."
                     value={task.title}
                     onChange={(e) => onUpdateTitle(task.id, e.target.value)}
                     onBlur={() => onTaskBlur(task.id, task.title)}
+                    onFocus={() => onFocusTask(task.id)}
                     onKeyDown={(e) => onTitleKeyDown(e, task.id)}
                     disabled={!isEditable}
                     readOnly={!isEditable}
@@ -97,6 +100,7 @@ export default function TaskItem({
                                 item={item}
                                 taskId={task.id}
                                 isEditable={isEditable}
+                                onFocusOutline={onFocusOutline}
                                 onToggleOutlineCompletion={onToggleOutlineCompletion}
                                 onUpdateOutlineItem={onUpdateOutlineItem}
                                 onOutlineKeyDown={onOutlineKeyDown}

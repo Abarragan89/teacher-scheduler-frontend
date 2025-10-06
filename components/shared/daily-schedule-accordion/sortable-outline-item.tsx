@@ -2,7 +2,7 @@
 import { BareInput } from "@/components/ui/bare-bones-input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { GripVertical } from 'lucide-react'
-import { OutlineItem } from '@/types/tasks'
+import { OutlineItem } from '@/types/outline-item'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from "@dnd-kit/utilities"
 
@@ -13,6 +13,7 @@ interface SortableOutlineItemProps {
     onToggleOutlineCompletion: (taskId: string, itemId: string) => void
     onUpdateOutlineItem: (taskId: string, itemId: string, text: string) => void
     onOutlineKeyDown: (e: React.KeyboardEvent<HTMLInputElement>, taskId: string, itemId: string) => void
+    onFocusOutline: (taskId: string, itemId: string) => void
     onOutlineBlur: (taskId: string, itemId: string, text: string, position: number, indentation: number, completed: boolean) => void
 }
 
@@ -23,6 +24,7 @@ export default function SortableOutlineItem({
     onToggleOutlineCompletion,
     onUpdateOutlineItem,
     onOutlineKeyDown,
+    onFocusOutline,
     onOutlineBlur
 }: SortableOutlineItemProps) {
     const {
@@ -72,12 +74,13 @@ export default function SortableOutlineItem({
 
                 <BareInput
                     className={`flex-1 text-sm ${item.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
-                    placeholder="Add an outline item..."
+                    placeholder="Add Talking Point..."
                     value={item.text}
                     onChange={(e) => onUpdateOutlineItem(taskId, item.id, e.target.value)}
                     onKeyDown={(e) => onOutlineKeyDown(e, taskId, item.id)}
                     onBlur={() => onOutlineBlur(taskId, item.id, item.text, 0, item.indentLevel, item.completed)}
                     data-item-id={item.id}
+                    onFocus={() => onFocusOutline(taskId, item.id)}
                     disabled={!isEditable}
                     readOnly={!isEditable}
                     onPointerDown={(e) => e.stopPropagation()}
