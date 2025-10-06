@@ -146,18 +146,6 @@ export default function DailyScheduleAccordion({
         }, 100)
     }
 
-    const deleteTask = async (taskId: string) => {
-        try {
-            const response = await callJavaAPI(`/task/delete/${taskId}`, 'DELETE');
-
-            if (response.ok) {
-                setTasks(prev => prev.filter(task => task.id !== taskId))
-            }
-        } catch (error) {
-            console.log('error deleting ', error)
-        }
-    }
-
     const deleteOutlineItem = (taskId: string, itemId: string) => {
         setTasks(prev =>
             prev.map(task => {
