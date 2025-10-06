@@ -180,6 +180,28 @@ export default function DailyScheduleAccordion({
         )
     }
 
+    const handleTaskDelete = async (taskId: string) => {
+        try {
+            const response = await callJavaAPI(`/task/delete/${taskId}`, 'DELETE');
+            if (!response.ok) {
+                console.log('Failed to delete task from server');
+            }
+        } catch (error) {
+            console.log('Error deleting task:', error);
+        }
+    };
+
+    const handleOutlineItemDelete = async (taskId: string, itemId: string) => {
+        try {
+            const response = await callJavaAPI(`/task-outline-item/delete/${itemId}`, 'DELETE');
+            if (!response.ok) {
+                console.log('Failed to delete outline item from server');
+            }
+        } catch (error) {
+            console.log('Error deleting outline item:', error);
+        }
+    };
+
     const handleOutlineBlur = async (
         taskId: string,
         itemId: string,
@@ -492,19 +514,35 @@ export default function DailyScheduleAccordion({
             const draggedId = active.id as string
 
             if (draggedItemType === 'task') {
-                // Delete task
-                deleteTask(draggedId)
+                // 🎯 IMMEDIATELY remove from UI (optimistic update)
+                setTasks(prev => prev.filter(task => task.id !== draggedId))
+
+                // Then handle API call in background
+                handleTaskDelete(draggedId)
             } else if (draggedItemType === 'outline') {
-                // Find and delete outline item
-                for (const task of tasks) {
-                    const outlineItem = task.outlineItems.find(item => item.id === draggedId)
-                    if (outlineItem) {
-                        deleteOutlineItem(task.id, draggedId)
-                        break
-                    }
+                // Find and immediately remove outline item from UI
+                let taskIdToUpdate = ''
+
+                setTasks(prev =>
+                    prev.map(task => {
+                        const outlineItem = task.outlineItems.find(item => item.id === draggedId)
+                        if (outlineItem) {
+                            taskIdToUpdate = task.id
+                            return {
+                                ...task,
+                                outlineItems: task.outlineItems.filter(item => item.id !== draggedId)
+                            }
+                        }
+                        return task
+                    })
+                )
+
+                // Handle API call in background
+                if (taskIdToUpdate) {
+                    handleOutlineItemDelete(taskIdToUpdate, draggedId)
                 }
             }
-            return
+            return // Exit early, don't process reordering
         }
 
         // Handle reordering (existing logic)
