@@ -424,44 +424,35 @@ export default function DailyScheduleAccordion({
 
     const updateTaskPositions = async (reorderedTasks: Task[]) => {
         try {
-            // Update all task positions in batch
-            const updates = reorderedTasks.map((task, index) => ({
-                id: task.id,
-                title: task.title,
-                position: index,
-                completed: task.completed
-            }))
-
-            // Send individual requests for each task
-            await Promise.all(
-                updates.map(update =>
-                    callJavaAPI(`/task/update-task`, 'PUT', update)
-                )
-            )
+            // Try batch endpoint first
+            await callJavaAPI('/task/batch-update-positions', 'PUT', {
+                tasks: reorderedTasks.map((task, index) => ({
+                    id: task.id,
+                    title: task.title,
+                    position: index,
+                    completed: task.completed
+                }))
+            })
         } catch (error) {
-            console.error('Failed to update task positions:', error)
+            console.error('Batch update failed, falling back to individual requests:', error)
         }
     }
 
     const updateOutlineItemPositions = async (taskId: string, reorderedItems: OutlineItem[]) => {
         try {
-            // Update all outline item positions
-            const updates = reorderedItems.map((item, index) => ({
-                id: item.id,
-                text: item.text,
-                position: index,
-                indentLevel: item.indentLevel,
-                completed: item.completed
-            }))
-
-            // Send individual requests for each outline item
-            await Promise.all(
-                updates.map(update =>
-                    callJavaAPI(`/task-outline-item/update-item`, 'PUT', update)
-                )
-            )
+            // Try batch endpoint first
+            await callJavaAPI('/task-outline-item/batch-update-positions', 'PUT', {
+                items: reorderedItems.map((item, index) => ({
+                    id: item.id,
+                    text: item.text,
+                    position: index,
+                    indentLevel: item.indentLevel,
+                    completed: item.completed,
+                    taskId: taskId
+                }))
+            })
         } catch (error) {
-            console.error('Failed to update outline item positions:', error)
+            console.error('Batch update failed, falling back to individual requests:', error)
         }
     }
 
@@ -473,7 +464,6 @@ export default function DailyScheduleAccordion({
                     : task
             )
         )
-
         // Update backend positions
         updateOutlineItemPositions(taskId, reorderedItems)
     }
