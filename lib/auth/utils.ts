@@ -43,7 +43,7 @@ export function cookiesToHeader(cookies: any[]): string {
  */
 export async function callJavaAPI(
     path: string,
-    method: 'GET' | 'POST' | 'PUT' = 'GET',
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
     body?: any,
     cookieHeader?: string, 
     csrfToken?: string     

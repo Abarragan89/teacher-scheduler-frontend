@@ -146,8 +146,16 @@ export default function DailyScheduleAccordion({
         }, 100)
     }
 
-    const deleteTask = (taskId: string) => {
-        setTasks(prev => prev.filter(task => task.id !== taskId))
+    const deleteTask = async (taskId: string) => {
+        try {
+            const response = await callJavaAPI(`/task/delete/${taskId}`, 'DELETE');
+
+            if (response.ok) {
+                setTasks(prev => prev.filter(task => task.id !== taskId))
+            }
+        } catch (error) {
+            console.log('error deleting ', error)
+        }
     }
 
     const deleteOutlineItem = (taskId: string, itemId: string) => {
@@ -186,12 +194,21 @@ export default function DailyScheduleAccordion({
         const task = tasks.find(t => t.id === taskId)
         // Delete empty outline items when they lose focus
         if (text.trim() === '') {
-            if (task && task.outlineItems.length > 1) {
-                deleteOutlineItem(taskId, itemId)
+            try {
+                const response = await callJavaAPI(`/task-outline-item/delete/${itemId}`, 'DELETE');
+                if (response.ok) {
+                    if (task && task.outlineItems.length > 1) {
+                        deleteOutlineItem(taskId, itemId)
+                    }
+                }
+            } catch (error) {
+                console.log('error deleting outline item', error);
+            } finally {
+                return
             }
         }
 
-    
+
         // Don't save empty tasks or continue if task is not there
         if (text.trim() === '') return
         const isTemporary = itemId.startsWith('temp-')
@@ -233,8 +250,6 @@ export default function DailyScheduleAccordion({
         } else {
             // Update existing task
             try {
-
-
                 // else, update the item
                 await callJavaAPI(`/task-outline-item/update-item`, 'PUT', {
                     id: itemId,
@@ -348,7 +363,7 @@ export default function DailyScheduleAccordion({
             position: tasks.length,
             completed: false,
             outlineItems: [{
-                id: `$temp-outline-{tempId}`,
+                id: `temp-outline-{tempId}`,
                 text: '',
                 completed: false,
                 indentLevel: 0,
