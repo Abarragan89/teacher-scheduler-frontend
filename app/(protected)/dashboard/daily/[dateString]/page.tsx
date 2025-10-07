@@ -6,9 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DayData } from '@/types/day';
 
 interface pageProps {
-    params: {
+    params: Promise<{
         dateString: string
-    }
+    }>
 }
 
 export default async function page({ params }: pageProps) {
