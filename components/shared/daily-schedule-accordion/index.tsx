@@ -34,11 +34,23 @@ export default function DailyScheduleAccordion({
 }) {
 
     const [tasks, setTasks] = useState<Task[]>(
-        scheduleData?.tasks?.map(task => ({
-            ...task,
-            clientKey: `client-${task.id}`
-
-        })) || [])
+        scheduleData?.tasks?.map(task => {
+            const taskWithClient = {
+                ...task,
+                clientKey: `client-${task.id}`
+            }
+            // Ensure each task has an empty outline item at the end
+            if (taskWithClient.outlineItems.length === 0 || !taskWithClient.outlineItems.some(item => item.text.trim() === '')) {
+                taskWithClient.outlineItems.push({
+                    id: `temp-outline-${task.id}-${Date.now()}`,
+                    text: '',
+                    completed: false,
+                    indentLevel: 0,
+                    position: taskWithClient.outlineItems.length,
+                })
+            }
+            return taskWithClient
+        }) || [])
 
     const [openAccordions, setOpenAccordions] = useState<string[]>(['0'])
     const [isEditable, setIsEditable] = useState<boolean>(true)
@@ -120,80 +132,64 @@ export default function DailyScheduleAccordion({
 
     const updateOutlineItem = (taskId: string, itemId: string, text: string) => {
         setTasks(prev =>
-            prev.map(task =>
-                task.id === taskId
-                    ? {
-                        ...task,
-                        outlineItems: task.outlineItems.map(item =>
-                            item.id === itemId
-                                ? { ...item, text }
-                                : item
-                        )
-                    }
-                    : task
-            )
-        )
-    }
-
-    const addOutlineItem = (taskId: string, afterItemId?: string) => {
-        const tempId = `temp-outline-${Date.now()}`
-
-        setTasks(prev =>
             prev.map(task => {
                 if (task.id === taskId) {
-                    // Check if there's already an empty outline item (prevent creating multiple empty items)
-                    const hasEmptyItem = task?.outlineItems?.some(item => item.text.trim() === '')
-                    if (hasEmptyItem) return task
+                    const updatedOutlineItems = task.outlineItems.map(item =>
+                        item.id === itemId
+                            ? { ...item, text }
+                            : item
+                    )
 
-                    const newItem: OutlineItem = {
-                        id: `temp-${Date.now()}`,
-                        text: '',
-                        completed: false,
-                        indentLevel: 0,
-                        position: task.outlineItems.length
+                    // If user is typing in the last item and it now has text, ensure there's a new empty one at the end
+                    const itemIndex = updatedOutlineItems.findIndex(item => item.id === itemId)
+                    const isLastItem = itemIndex === updatedOutlineItems.length - 1
+                    const hasEmptyItem = updatedOutlineItems.some(item => item.text.trim() === '')
+
+                    if (text.trim() !== '' && isLastItem && !hasEmptyItem) {
+                        updatedOutlineItems.push({
+                            id: `temp-outline-${Date.now()}`,
+                            text: '',
+                            completed: false,
+                            indentLevel: 0,
+                            position: updatedOutlineItems.length,
+                        })
                     }
 
-                    if (afterItemId) {
-                        const index = task?.outlineItems?.findIndex(item => item.id === afterItemId)
-                        const newItems = [...task.outlineItems]
-                        newItems.splice(index + 1, 0, newItem)
-                        return { ...task, outlineItems: newItems }
-                    }
-
-                    return { ...task, outlineItems: [...task.outlineItems, newItem] }
+                    return { ...task, outlineItems: updatedOutlineItems }
                 }
                 return task
             })
         )
-        // Focus the new input after a short delay
-        setTimeout(() => {
-            const newInput = document.querySelector(`[data-outline-id="${tempId}"] input`)
-            if (newInput instanceof HTMLInputElement) {
-                newInput.focus()
-            }
-        }, 100)
     }
+
+
 
     const deleteOutlineItem = (taskId: string, itemId: string) => {
         setTasks(prev =>
             prev.map(task => {
                 if (task.id === taskId) {
                     const newOutlineItems = task.outlineItems.filter(item => item.id !== itemId)
-                    // Ensure at least one outline item exists
-                    if (newOutlineItems.length === 0) {
-                        newOutlineItems.push({
-                            id: `${taskId}-${Date.now()}`,
-                            text: '',
-                            completed: false,
-                            indentLevel: 0,
-                            position: 0,
-                        })
-                    }
+                    // Always ensure there's an empty outline item at the end
+                    ensureEmptyOutlineItem(newOutlineItems)
                     return { ...task, outlineItems: newOutlineItems }
                 }
                 return task
             })
         )
+    }
+
+    // Helper function to ensure there's always an empty outline item at the end
+    const ensureEmptyOutlineItem = (outlineItems: OutlineItem[]) => {
+        const hasEmptyItem = outlineItems.some(item => item.text.trim() === '')
+        if (!hasEmptyItem) {
+            outlineItems.push({
+                id: `temp-outline-${Date.now()}`,
+                text: '',
+                completed: false,
+                indentLevel: 0,
+                position: outlineItems.length,
+            })
+        }
     }
 
     const handleTaskDelete = async (taskId: string) => {
@@ -223,28 +219,52 @@ export default function DailyScheduleAccordion({
         if (focusedText === text.trim()) {
             return // No change, skip API call
         }
+
         const task = tasks.find(t => t.id === taskId)
-        // Delete empty outline items when they lose focus
-        if (text.trim() === '') {
+        if (!task) return
+
+        // If text is empty and this is not a temporary item, delete it
+        if (text.trim() === '' && !itemId.startsWith('temp-')) {
             try {
                 await clientOutlineItems.deleteOutlineItem(itemId);
-                if (task && task.outlineItems.length > 1) {
-                    deleteOutlineItem(taskId, itemId)
-                }
+                // Remove from UI and ensure empty item exists
+                setTasks(prev =>
+                    prev.map(t => {
+                        if (t.id === taskId) {
+                            const newOutlineItems = t.outlineItems.filter(item => item.id !== itemId)
+                            ensureEmptyOutlineItem(newOutlineItems)
+                            return { ...t, outlineItems: newOutlineItems }
+                        }
+                        return t
+                    })
+                )
             } catch (error) {
                 console.error('error deleting outline item', error);
-            } finally {
-                return
             }
+            return
+        }
+
+        // If this was an empty temporary item that got text, ensure there's a new empty one
+        if (text.trim() !== '' && itemId.startsWith('temp-')) {
+            setTasks(prev =>
+                prev.map(t => {
+                    if (t.id === taskId) {
+                        const newOutlineItems = [...t.outlineItems]
+                        ensureEmptyOutlineItem(newOutlineItems)
+                        return { ...t, outlineItems: newOutlineItems }
+                    }
+                    return t
+                })
+            )
         }
 
 
-        // Don't save empty tasks or continue if task is not there
+        // Don't save empty items
         if (text.trim() === '') return
         const isTemporary = itemId.startsWith('temp-')
 
         if (isTemporary) {
-            // Create new task in backend
+            // Create new item in backend
             try {
                 const newItem = await clientOutlineItems.createOutlineItem(
                     taskId,
@@ -271,12 +291,11 @@ export default function DailyScheduleAccordion({
                     })
                 )
             } catch (error) {
-                console.error('Failed to create task')
+                console.error('Failed to create outline item')
             }
         } else {
-            // Update existing task
+            // Update existing item
             try {
-                // else, update the item
                 await clientOutlineItems.updateOutlineItem(
                     itemId,
                     text.trim(),
@@ -285,7 +304,7 @@ export default function DailyScheduleAccordion({
                     completed
                 )
             } catch (error) {
-                console.error('❌ Failed to update task:', error)
+                console.error('❌ Failed to update outline item:', error)
             }
         }
     }
@@ -394,6 +413,15 @@ export default function DailyScheduleAccordion({
         }
         setTasks(prev => [...prev, newTask])
         setOpenAccordions(prev => [...prev, tempId])
+
+        // Focus the new task title input after a short delay
+        setTimeout(() => {
+            const newTaskInput = document.querySelector(`[data-task-id="${tempId}"] .task-title-input`) as HTMLInputElement
+            if (newTaskInput) {
+                newTaskInput.focus()
+                newTaskInput.select()
+            }
+        }, 150) // Slightly longer delay to ensure accordion is open
     }
 
     const updateTaskPositions = async (reorderedTasks: Task[]) => {
@@ -455,35 +483,46 @@ export default function DailyScheduleAccordion({
 
         if (e.key === 'Enter') {
             e.preventDefault();
-            // Only proceed if current item has text
-            if (item.text.trim() !== '') {
-                // Find current item index
-                const currentIndex = task.outlineItems.findIndex(i => i.id === itemId)
-                const nextIndex = currentIndex + 1
 
-                // Check if there's already an outline item below
-                if (nextIndex < task.outlineItems.length) {
-                    // Focus the next existing input and select all text
-                    setTimeout(() => {
-                        const inputs = document.querySelectorAll(`[data-task-id="${taskId}"] input[data-item-id]`)
-                        const nextInput = inputs[nextIndex] as HTMLInputElement
-                        if (nextInput) {
-                            nextInput.focus()
-                            nextInput.select() // This highlights/selects all text
+            // Find current item index
+            const currentIndex = task.outlineItems.findIndex(i => i.id === itemId)
+            const nextIndex = currentIndex + 1
+
+            // If there's text in current item and we're at the last item, add a new empty one
+            if (item.text.trim() !== '' && currentIndex === task.outlineItems.length - 1) {
+                const newTempId = `temp-outline-${Date.now()}`
+                setTasks(prev =>
+                    prev.map(t => {
+                        if (t.id === taskId) {
+                            const newOutlineItems = [...t.outlineItems, {
+                                id: newTempId,
+                                text: '',
+                                completed: false,
+                                indentLevel: 0,
+                                position: t.outlineItems.length,
+                            }]
+                            return { ...t, outlineItems: newOutlineItems }
                         }
-                    }, 10)
-                } else {
-                    // No input below, create a new one
-                    addOutlineItem(taskId, itemId)
-                    // Focus the new input after a brief delay
-                    setTimeout(() => {
-                        const inputs = document.querySelectorAll(`[data-task-id="${taskId}"] input[data-item-id]`)
-                        const newInput = inputs[inputs.length - 1] as HTMLInputElement
-                        if (newInput) {
-                            newInput.focus()
-                        }
-                    }, 10)
-                }
+                        return t
+                    })
+                )
+                // Focus the new input
+                setTimeout(() => {
+                    const newInput = document.querySelector(`input[data-item-id="${newTempId}"]`) as HTMLInputElement
+                    if (newInput) {
+                        newInput.focus()
+                    }
+                }, 50)
+            } else {
+                // Focus the next existing input
+                setTimeout(() => {
+                    const inputs = document.querySelectorAll(`[data-task-id="${taskId}"] input[data-item-id]`)
+                    const nextInput = inputs[nextIndex] as HTMLInputElement
+                    if (nextInput) {
+                        nextInput.focus()
+                        nextInput.select()
+                    }
+                }, 10)
             }
         }
 
@@ -706,7 +745,6 @@ export default function DailyScheduleAccordion({
                                 onOutlineKeyDown={handleOutlineKeyDown}
                                 onOutlineBlur={handleOutlineBlur}
                                 onTaskBlur={handleTaskBlur}
-                                onAddOutlineItem={addOutlineItem}
                                 onCloseAllAccordions={closeAllAccordions}
                             />
                         ))}

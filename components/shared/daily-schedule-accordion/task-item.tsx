@@ -25,7 +25,6 @@ export default function TaskItem({
     onFocusOutline,
     onFocusTask,
     onTaskBlur,
-    onAddOutlineItem,
 }: TaskItemProps) {
 
     // Task-level sortable (for dragging entire tasks)
@@ -53,6 +52,7 @@ export default function TaskItem({
             style={taskStyle}
             value={task.id}
             className="border-none"
+            data-task-id={task.id}
         >
             <div className="flex items-center gap-2 px-3 py-3 bg-muted rounded-lg">
                 {/* Task Drag Handle */}
@@ -78,7 +78,7 @@ export default function TaskItem({
                 />
 
                 <BareInput
-                    className={`flex-1 text-base tracking-wide font-bold ${task.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
+                    className={`task-title-input flex-1 text-base tracking-wide font-bold ${task.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
                     placeholder="Subject or Period..."
                     value={task.title}
                     onChange={(e) => onUpdateTitle(task.id, e.target.value)}
@@ -118,24 +118,8 @@ export default function TaskItem({
                             />
                         ))}
                     </SortableContext>
-
-                    {isEditable && (
-
-                        <button
-                            onClick={() => onAddOutlineItem(task.id)}
-                            disabled={task?.outlineItems?.length > 0 && task?.outlineItems?.some(item => item.text.trim() === '')}
-                            className={`flex items-center gap-3 text-sm ml-7 text-muted-foreground ${task?.outlineItems?.some(item => item.text.trim() === '')
-                                ? 'cursor-not-allowed'
-                                : 'hover:text-foreground'
-                                }`}
-                        >
-                            <span>+ Add note</span>
-                        </button>
-                    )}
                 </div>
             </AccordionContent>
-
-
         </AccordionItem>
 
     )

@@ -20,12 +20,12 @@ export default function Header({
       >
         <Image
           src={'/images/logo.png'}
-          height={45}
-          width={45}
+          height={40}
+          width={40}
           alt="Company Logo"
           priority
         />
-        <div className='text-xs ml-2 mb-1 text-primary tracking-wider'>
+        <div className='text-xs ml-2 mb-1 text-primary tracking-wider invisible sm:visible'>
           <p className='font-bold'>Teacher</p>
           <p>Scheduler</p>
         </div>

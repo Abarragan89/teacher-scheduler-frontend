@@ -3,6 +3,8 @@ import React from 'react'
 import ModeToggle from './mode-toggle'
 import UserActionMenu from './user-action-menu'
 import Link from 'next/link'
+import { Calendar, Calendar1Icon, CalendarDays } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export default function AuthenticatedNavLinks({ username }: { username: string }) {
     return (
@@ -10,12 +12,14 @@ export default function AuthenticatedNavLinks({ username }: { username: string }
             <NavigationMenuList className="gap-x-4">
                 <NavigationMenuItem>
                     <Link href="/dashboard">
-                        D
+                    <Button variant={"ghost"} className='hover:cursor-pointer'>
+                        <CalendarDays />
+                    </Button>
                     </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                    <Link href="/profile">
-                        P
+                    <Link href={`/dashboard/daily/${new Date().toISOString().split('T')[0]}`}>
+                        Today
                     </Link>
                 </NavigationMenuItem>
 

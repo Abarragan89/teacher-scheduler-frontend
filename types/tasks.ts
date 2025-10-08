@@ -14,7 +14,6 @@ export interface TaskItemProps {
     onOutlineKeyDown: (e: KeyboardEvent<HTMLInputElement>, taskId: string, itemId: string) => void;
     onOutlineBlur: (taskId: string, itemId: string, text: string, position: number, indentation: number, compeleted: boolean) => void;
     onTaskBlur: (taskId: string, text: string) => void;
-    onAddOutlineItem: (taskId: string) => void;
     onCloseAllAccordions: () => void;
     onFocusTask: (taskId: string) => void;
     onFocusOutline: (taskId: string, itemId: string) => void;

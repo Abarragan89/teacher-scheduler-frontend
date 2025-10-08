@@ -20,9 +20,10 @@ export default async function page({ params }: pageProps) {
     return (
         <main className='wrapper'>
             <Tabs defaultValue="schedule" className="w-full">
-                <div className="flex justify-center xs:justify-between items-end flex-wrap gap-y-4">
+                {/* <div className="flex justify-center xs:justify-between items-end flex-wrap gap-y-4"> */}
+                <div className="flex flex-col items-start gap-y-2">
                     <h1 className='h1-bold mr-5'>{formatDateDisplay(new Date(currentDay.dayDate.replace(/-/g, "/")))}</h1>
-                    <TabsList className='mb-1'>
+                    <TabsList>
                         <TabsTrigger value="schedule">Schedule</TabsTrigger>
                         <TabsTrigger value="reminders">Reminders</TabsTrigger>
                         <TabsTrigger value="todos">ToDos</TabsTrigger>
