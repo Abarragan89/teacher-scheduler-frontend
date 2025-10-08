@@ -19,6 +19,10 @@ export default async function page({ params }: pageProps) {
     // Get server cookies for authentication
     const { cookieHeader, csrfToken } = await getServerCookies();
 
+    console.log('dateString ', dateString)
+    console.log('cookieHeader ', cookieHeader)
+    console.log('csrfToken ', csrfToken)
+
     // Pass cookies to callJavaAPI
     const response = await callJavaAPI(
         '/days/find-or-create', 
