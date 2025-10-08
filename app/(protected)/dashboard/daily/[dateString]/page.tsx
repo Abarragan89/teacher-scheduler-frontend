@@ -1,6 +1,5 @@
 import DailyScheduleAccordion from '@/components/shared/daily-schedule-accordion';
-import { callJavaAPI } from '@/lib/auth/utils';
-import { getServerCookies } from '@/lib/auth/server-utils'; // ← Add this import
+import { serverDays } from '@/lib/api/services/days';
 import { formatDateDisplay } from '@/lib/utils';
 import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -16,27 +15,7 @@ export default async function page({ params }: pageProps) {
 
     const { dateString } = await params;
 
-    // Get server cookies for authentication
-    const { cookieHeader, csrfToken } = await getServerCookies();
-
-    console.log('dateString ', dateString)
-    console.log('cookieHeader ', cookieHeader)
-    console.log('csrfToken ', csrfToken)
-
-    // Pass cookies to callJavaAPI
-    const response = await callJavaAPI(
-        '/days/find-or-create', 
-        'POST', 
-        { dayDate: dateString },
-        cookieHeader,  // ← Pass cookies
-        csrfToken      // ← Pass CSRF token
-    );
-
-    if (!response.ok) {
-        throw new Error('Error loading day. Try again.');
-    }
-
-    const currentDay: DayData = await response.json();
+    const currentDay: DayData = await serverDays.findOrCreateDay(dateString);
 
     console.log('currentDay ', currentDay)
 

@@ -1,34 +1,17 @@
 import Header from '@/components/shared/header';
-import { callJavaAPI } from '@/lib/auth/utils';
-import { getServerCookies } from '@/lib/auth/server-utils';
+import { serverAuth } from '@/lib/api/services';
 
 export default async function DashboardLayout({
   children
 }: {
   children: React.ReactNode
 }) {
-  
-  // Get cookies using the new server-utils approach
-  const { cookieHeader, csrfToken } = await getServerCookies();
-  
-  let authResult = { authenticated: false, user: '' };
-  
-  try {
-    // Pass cookies explicitly to callJavaAPI
-    const sessionRes = await callJavaAPI(
-      '/auth/session', 
-      'GET', 
-      undefined,
-      cookieHeader,
-      csrfToken
-    );
 
-    if (sessionRes.ok) {
-      const data = await sessionRes.json();
-      authResult = { authenticated: true, user: data };
-    } else {
-      authResult = { authenticated: false, user: '' };
-    }
+  let authResult = { authenticated: false, user: '' };
+
+  try {
+    const user = await serverAuth.getSession();
+    authResult = { authenticated: true, user };
   } catch (error) {
     console.error('Authentication check failed:', error);
     authResult = { authenticated: false, user: '' };

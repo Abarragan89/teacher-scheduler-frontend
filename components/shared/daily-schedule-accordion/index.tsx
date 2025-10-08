@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, useDroppable, DragStartEvent, DragEndEvent, pointerWithin, DragOverlay } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Trash2 } from 'lucide-react'
-import { callJavaAPI } from '@/lib/auth/utils'
+import { clientTasks, clientOutlineItems } from '@/lib/api/services/tasks'
 import { Schedule } from '@/types/day'
 
 // Make TaskItem dynamic since it uses useSortable hooks and causes hydration errors
@@ -70,12 +70,7 @@ export default function DailyScheduleAccordion({
 
         // Update backend
         try {
-            await callJavaAPI(`/task/update-task`, 'PUT', {
-                id: taskId,
-                title: task.title,
-                position: task.position,
-                completed: newCompleted
-            })
+            await clientTasks.updateTask(taskId, task.title, task.position, newCompleted)
         } catch (error) {
             console.error('Failed to update task completion:', error)
         }
@@ -116,13 +111,7 @@ export default function DailyScheduleAccordion({
 
         // Update backend
         try {
-            await callJavaAPI(`/task-outline-item/update-item`, 'PUT', {
-                id: itemId,
-                text: item.text,
-                position: item.position,
-                indentLevel: item.indentLevel,
-                completed: newCompleted
-            })
+            await clientOutlineItems.updateOutlineItem(itemId, item.text, item.position, item.indentLevel, newCompleted)
         } catch (error) {
             console.error('Failed to update outline item completion:', error)
         }
@@ -208,10 +197,7 @@ export default function DailyScheduleAccordion({
 
     const handleTaskDelete = async (taskId: string) => {
         try {
-            const response = await callJavaAPI(`/task/delete/${taskId}`, 'DELETE');
-            if (!response.ok) {
-                console.log('Failed to delete task from server');
-            }
+            await clientTasks.deleteTask(taskId);
         } catch (error) {
             console.log('Error deleting task:', error);
         }
@@ -219,10 +205,7 @@ export default function DailyScheduleAccordion({
 
     const handleOutlineItemDelete = async (taskId: string, itemId: string) => {
         try {
-            const response = await callJavaAPI(`/task-outline-item/delete/${itemId}`, 'DELETE');
-            if (!response.ok) {
-                console.log('Failed to delete outline item from server');
-            }
+            await clientOutlineItems.deleteOutlineItem(itemId);
         } catch (error) {
             console.log('Error deleting outline item:', error);
         }
@@ -243,11 +226,9 @@ export default function DailyScheduleAccordion({
         // Delete empty outline items when they lose focus
         if (text.trim() === '') {
             try {
-                const response = await callJavaAPI(`/task-outline-item/delete/${itemId}`, 'DELETE');
-                if (response.ok) {
-                    if (task && task.outlineItems.length > 1) {
-                        deleteOutlineItem(taskId, itemId)
-                    }
+                await clientOutlineItems.deleteOutlineItem(itemId);
+                if (task && task.outlineItems.length > 1) {
+                    deleteOutlineItem(taskId, itemId)
                 }
             } catch (error) {
                 console.log('error deleting outline item', error);
@@ -264,34 +245,30 @@ export default function DailyScheduleAccordion({
         if (isTemporary) {
             // Create new task in backend
             try {
-                const response = await callJavaAPI('/task-outline-item/create', 'POST', {
-                    taskId: taskId,
-                    text: text.trim(),
-                    position: position,
-                    indentLevel: indentation,
-                    completed: completed
-                })
+                const newItem = await clientOutlineItems.createOutlineItem(
+                    taskId,
+                    text.trim(),
+                    position,
+                    indentation,
+                    completed
+                )
 
-                if (response.ok) {
-                    const newItem = await response.json()
-
-                    // Update the item ID but preserve accordion state 
-                    setTasks(prev =>
-                        prev.map(task => {
-                            if (task.id === taskId) {
-                                return {
-                                    ...task,
-                                    outlineItems: task.outlineItems.map(item =>
-                                        item.id === itemId
-                                            ? { ...item, id: newItem.id } // Update item ID, not task ID
-                                            : item
-                                    )
-                                }
+                // Update the item ID but preserve accordion state 
+                setTasks(prev =>
+                    prev.map(task => {
+                        if (task.id === taskId) {
+                            return {
+                                ...task,
+                                outlineItems: task.outlineItems.map(item =>
+                                    item.id === itemId
+                                        ? { ...item, id: newItem.id } // Update item ID, not task ID
+                                        : item
+                                )
                             }
-                            return task
-                        })
-                    )
-                }
+                        }
+                        return task
+                    })
+                )
             } catch (error) {
                 console.error('Failed to create task')
             }
@@ -299,13 +276,13 @@ export default function DailyScheduleAccordion({
             // Update existing task
             try {
                 // else, update the item
-                await callJavaAPI(`/task-outline-item/update-item`, 'PUT', {
-                    id: itemId,
-                    text: text.trim(),
-                    position: position,
-                    indentLevel: indentation,
-                    completed: completed
-                })
+                await clientOutlineItems.updateOutlineItem(
+                    itemId,
+                    text.trim(),
+                    position,
+                    indentation,
+                    completed
+                )
             } catch (error) {
                 console.error('❌ Failed to update task:', error)
             }
@@ -326,41 +303,37 @@ export default function DailyScheduleAccordion({
         if (isTemporary) {
             // Create new task in backend
             try {
-                const response = await callJavaAPI('/task/create', 'POST', {
-                    scheduleId: scheduleData.id,
-                    title: title.trim(),
-                    position: tasks.length,
-                    completed: task.completed
-                })
-
-                if (response.ok) {
-                    const newTask = await response.json()
-                    // Replace temporary task with real task
-                    setTasks(prev =>
-                        prev.map(task =>
-                            task.id === taskId
-                                ? { ...task, id: newTask.id } // Update with real ID
-                                : task
-                        )
+                const newTask = await clientTasks.createTask(
+                    scheduleData.id,
+                    title.trim(),
+                    tasks.length,
+                    task.completed
+                )
+                // Replace temporary task with real task
+                setTasks(prev =>
+                    prev.map(task =>
+                        task.id === taskId
+                            ? { ...task, id: newTask.id } // Update with real ID
+                            : task
                     )
+                )
 
-                    // Maintain open accordions state
-                    setOpenAccordions(prev =>
-                        prev.map(openId => openId === taskId ? newTask.id : openId)
-                    )
-                }
+                // Maintain open accordions state
+                setOpenAccordions(prev =>
+                    prev.map(openId => openId === taskId ? newTask.id : openId)
+                )
             } catch (error) {
                 console.error('Failed to create task')
             }
         } else {
             // Update existing task
             try {
-                await callJavaAPI(`/task/update-task`, 'PUT', {
-                    id: taskId,
-                    title: title.trim(),
-                    position: task.position,
-                    completed: task.completed
-                })
+                await clientTasks.updateTask(
+                    taskId,
+                    title.trim(),
+                    task.position,
+                    task.completed
+                )
             } catch (error) {
                 console.error('Failed to update task')
             }
@@ -425,14 +398,14 @@ export default function DailyScheduleAccordion({
     const updateTaskPositions = async (reorderedTasks: Task[]) => {
         try {
             // Try batch endpoint first
-            await callJavaAPI('/task/batch-update-positions', 'PUT', {
-                tasks: reorderedTasks.map((task, index) => ({
+            await clientTasks.batchUpdateTaskPositions(
+                reorderedTasks.map((task, index) => ({
                     id: task.id,
                     title: task.title,
                     position: index,
                     completed: task.completed
                 }))
-            })
+            )
         } catch (error) {
             console.error('Batch update failed, falling back to individual requests:', error)
         }
@@ -441,8 +414,8 @@ export default function DailyScheduleAccordion({
     const updateOutlineItemPositions = async (taskId: string, reorderedItems: OutlineItem[]) => {
         try {
             // Try batch endpoint first
-            await callJavaAPI('/task-outline-item/batch-update-positions', 'PUT', {
-                items: reorderedItems.map((item, index) => ({
+            await clientOutlineItems.batchUpdateOutlineItemPositions(
+                reorderedItems.map((item, index) => ({
                     id: item.id,
                     text: item.text,
                     position: index,
@@ -450,7 +423,7 @@ export default function DailyScheduleAccordion({
                     completed: item.completed,
                     taskId: taskId
                 }))
-            })
+            )
         } catch (error) {
             console.error('Batch update failed, falling back to individual requests:', error)
         }

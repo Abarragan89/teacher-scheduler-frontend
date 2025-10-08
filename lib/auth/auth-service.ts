@@ -1,4 +1,4 @@
-import { callJavaAPI } from './utils';
+import { serverAuth } from '../api/services/auth'
 
 export interface AuthResponse {
     authenticated: boolean;
@@ -8,19 +8,8 @@ export interface AuthResponse {
 
 export async function getServerSession(): Promise<AuthResponse> {
     try {
-        // Import server utils dynamically to avoid forcing dynamic rendering
-        const { getServerCookies } = await import('./server-utils')
-        const { cookieHeader, csrfToken } = await getServerCookies()
-
-        // Pass cookies explicitly to callJavaAPI
-        const sessionRes = await callJavaAPI('/auth/session', 'GET', undefined, cookieHeader, csrfToken)
-
-        if (sessionRes.ok) {
-            const data = await sessionRes.json()
-            return { authenticated: true, user: data }
-        }
-        return { authenticated: false, error: 'Session expired' }
-
+        const user = await serverAuth.getSession()
+        return { authenticated: true, user }
     } catch (error) {
         console.error('Server session error:', error)
         return { authenticated: false, error: 'Network error' }
