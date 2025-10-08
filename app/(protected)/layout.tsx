@@ -1,5 +1,5 @@
 import Header from '@/components/shared/header';
-// import { serverAuth } from '@/lib/api/services/auth/server';
+import { serverAuth } from '@/lib/api/services/auth/server';
 
 export default async function DashboardLayout({
   children
@@ -9,17 +9,17 @@ export default async function DashboardLayout({
 
   let authResult = { authenticated: false, user: '' };
 
-  // try {
-  //   const user = await serverAuth.getSession();
-  //   authResult = { authenticated: true, user };
-  // } catch (error) {
-  //   console.error('Authentication check failed:', error);
-  //   authResult = { authenticated: false, user: '' };
-  // }
+  try {
+    const user = await serverAuth.getSession();
+    authResult = { authenticated: true, user };
+  } catch (error) {
+    console.error('Authentication check failed:', error);
+    authResult = { authenticated: false, user: '' };
+  }
 
-  // if (!authResult.authenticated) {
-  //   throw new Error("You Must Log In")
-  // }
+  if (!authResult.authenticated) {
+    throw new Error("You Must Log In")
+  }
 
   return (
     <>
