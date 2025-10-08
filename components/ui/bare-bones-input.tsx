@@ -6,6 +6,7 @@ export function BareInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
         <input
             onClick={(e) => e.stopPropagation()} // prevent accordion toggle on click
             {...props}
+            style={{ fontSize: '16px' }} 
             className={`bg-transparent outline-none border-none focus:ring-0 focus:outline-none w-fit ${props.className ?? ""}`}
         />
     )

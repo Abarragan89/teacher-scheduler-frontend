@@ -11,8 +11,7 @@ const roboto = Roboto({
 export const metadata: Metadata = {
   title: "Teacher Scheduler",
   description: "Teacher scheduler",
-  viewport: "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no", // Add this
-
+  viewport: "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no", 
 };
 
 export default function RootLayout({
