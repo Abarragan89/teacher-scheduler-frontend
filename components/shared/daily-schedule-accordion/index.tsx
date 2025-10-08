@@ -9,7 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, useDroppable, DragStartEvent, DragEndEvent, pointerWithin, DragOverlay } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Trash2 } from 'lucide-react'
-import { clientTasks, clientOutlineItems } from '@/lib/api/services/tasks'
+import { clientOutlineItems } from '@/lib/api/services/tasks/client'
+import { clientTasks } from '@/lib/api/services/tasks/client'
 import { Schedule } from '@/types/day'
 
 // Make TaskItem dynamic since it uses useSortable hooks and causes hydration errors
@@ -199,7 +200,7 @@ export default function DailyScheduleAccordion({
         try {
             await clientTasks.deleteTask(taskId);
         } catch (error) {
-            console.log('Error deleting task:', error);
+            console.error('Error deleting task:', error);
         }
     };
 
@@ -207,7 +208,7 @@ export default function DailyScheduleAccordion({
         try {
             await clientOutlineItems.deleteOutlineItem(itemId);
         } catch (error) {
-            console.log('Error deleting outline item:', error);
+            console.error('Error deleting outline item:', error);
         }
     };
 
@@ -231,7 +232,7 @@ export default function DailyScheduleAccordion({
                     deleteOutlineItem(taskId, itemId)
                 }
             } catch (error) {
-                console.log('error deleting outline item', error);
+                console.error('error deleting outline item', error);
             } finally {
                 return
             }

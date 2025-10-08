@@ -4,7 +4,6 @@ import { cookies } from 'next/headers';
 export async function GET(req: NextRequest) {
     try {
         const cookieStore = await cookies();
-        console.log('Cookies in /api/session:', cookieStore.getAll());
 
         // Get all cookies as header string for server-side requests
         const allCookies = cookieStore.getAll()
@@ -18,10 +17,6 @@ export async function GET(req: NextRequest) {
         // Check if we have access token (for authentication status)
         const accessToken = cookieStore.get('access_token');
         const authenticated = !!accessToken;
-
-        console.log('accessToken:', accessToken);
-        console.log('csrfToken:', csrfToken);
-        console.log('allCookies:', allCookies);
 
         return NextResponse.json({
             cookieHeader: allCookies,

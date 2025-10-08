@@ -1,16 +1,14 @@
 "use client";
 import { Button } from '@/components/ui/button';
 import React from 'react'
-import { clientDays } from '@/lib/api/services/days';
+import { clientDays } from '@/lib/api/services/days/client';
 
 export default function Profile() {
-
 
 
     async function createDayHandler() {
         try {
             const data = await clientDays.createDay("2025-03-12");
-            console.log('data ', data)
         } catch (error) {
             console.error("error ", error)
         }
@@ -19,7 +17,6 @@ export default function Profile() {
     async function getDaysHandler() {
         try {
             const data = await clientDays.getAllDays();
-            console.log('data ', data)
         } catch (error) {
             console.error("error ", error)
         }

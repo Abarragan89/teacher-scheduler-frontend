@@ -1,5 +1,4 @@
-import { clientFetch } from '../client';
-import { serverFetch } from '../server';
+import { clientFetch } from '../../client';
 
 export const clientDays = {
     async createDay(dayDate: string) {
@@ -14,17 +13,6 @@ export const clientDays = {
     async getAllDays() {
         const response = await clientFetch('/days/get-all-days');
         if (!response.ok) throw new Error('Failed to get days');
-        return response.json();
-    },
-};
-
-export const serverDays = {
-    async findOrCreateDay(dayDate: string) {
-        const response = await serverFetch('/days/find-or-create', {
-            method: 'POST',
-            body: JSON.stringify({ dayDate }),
-        });
-        if (!response.ok) throw new Error('Failed to find or create day');
         return response.json();
     },
 };

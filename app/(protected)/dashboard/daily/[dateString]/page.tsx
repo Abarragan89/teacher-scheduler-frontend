@@ -1,5 +1,5 @@
 import DailyScheduleAccordion from '@/components/shared/daily-schedule-accordion';
-import { serverDays } from '@/lib/api/services/days';
+import { serverDays } from '@/lib/api/services/days/server';
 import { formatDateDisplay } from '@/lib/utils';
 import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -16,8 +16,6 @@ export default async function page({ params }: pageProps) {
     const { dateString } = await params;
 
     const currentDay: DayData = await serverDays.findOrCreateDay(dateString);
-
-    console.log('currentDay ', currentDay)
 
     return (
         <main className='wrapper'>

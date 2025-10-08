@@ -1,5 +1,5 @@
 import Header from '@/components/shared/header';
-import { serverAuth } from '@/lib/api/services';
+import { serverAuth } from '@/lib/api/services/auth/server';
 
 export default async function DashboardLayout({
   children

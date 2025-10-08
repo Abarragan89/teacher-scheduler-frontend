@@ -11,19 +11,66 @@ export async function serverFetch(
     endpoint: string,
     options: RequestInit = {}
 ): Promise<Response> {
+    // Initial request attempt
+    const response = await makeServerRequest(endpoint, options);
+
+    // If we get a 401 and this isn't already a refresh request, try to refresh the token
+    if (response.status === 401 && !endpoint.includes('/auth/refresh')) {
+        console.error('Server: 401 detected, attempting token refresh...');
+
+        const refreshResponse = await makeServerRequest('/auth/refresh', {
+            method: 'POST',
+        });
+
+        if (refreshResponse.ok) {
+            // Extract the new access_token from Set-Cookie header
+            const setCookieHeader = refreshResponse.headers.get('set-cookie');
+            let newAccessToken = '';
+
+            if (setCookieHeader) {
+                const accessTokenMatch = setCookieHeader.match(/access_token=([^;]+)/);
+                if (accessTokenMatch) {
+                    newAccessToken = accessTokenMatch[1];
+                }
+            }
+
+            // Retry the original request with the new access token
+            if (newAccessToken) {
+                const retryResponse = await makeServerRequest(endpoint, options, newAccessToken);
+                return retryResponse;
+            }
+        }
+    }
+
+    return response;
+}
+
+async function makeServerRequest(
+    endpoint: string,
+    options: RequestInit = {},
+    newAccessToken?: string
+): Promise<Response> {
     const cookieStore = await cookies();
 
-    const cookieHeader = cookieStore.getAll()
-        .map(cookie => `${cookie.name}=${cookie.value}`)
-        .join('; ');
+    let cookieHeader: string;
+
+    if (newAccessToken) {
+        // Use the new access token, keeping other cookies
+        const otherCookies = cookieStore.getAll()
+            .filter(cookie => cookie.name !== 'access_token')
+            .map(cookie => `${cookie.name}=${cookie.value}`)
+            .join('; ');
+
+        cookieHeader = `${otherCookies}; access_token=${newAccessToken}`;
+    } else {
+        // Use existing cookies
+        cookieHeader = cookieStore.getAll()
+            .map(cookie => `${cookie.name}=${cookie.value}`)
+            .join('; ');
+    }
 
     const csrfToken = getCsrfFromCookies(cookieHeader);
-
     const url = `${API_BASE}${endpoint}`;
-
-    console.log('server fetch url ', url)
-    console.log('server fetch cookieHeader ', cookieHeader)
-    console.log('server fetch csrfToken ', csrfToken)
 
     const config: RequestInit = {
         headers: {
