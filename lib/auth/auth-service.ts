@@ -8,8 +8,12 @@ export interface AuthResponse {
 
 export async function getServerSession(): Promise<AuthResponse> {
     try {
-        // Use callJavaAPI which now handles refresh automatically
-        const sessionRes = await callJavaAPI('/auth/session', 'GET')
+        // Import server utils dynamically to avoid forcing dynamic rendering
+        const { getServerCookies } = await import('./server-utils')
+        const { cookieHeader, csrfToken } = await getServerCookies()
+
+        // Pass cookies explicitly to callJavaAPI
+        const sessionRes = await callJavaAPI('/auth/session', 'GET', undefined, cookieHeader, csrfToken)
 
         if (sessionRes.ok) {
             const data = await sessionRes.json()

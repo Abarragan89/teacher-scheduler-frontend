@@ -1,5 +1,6 @@
 import DailyScheduleAccordion from '@/components/shared/daily-schedule-accordion';
 import { callJavaAPI } from '@/lib/auth/utils';
+import { getServerCookies } from '@/lib/auth/server-utils'; // ← Add this import
 import { formatDateDisplay } from '@/lib/utils';
 import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -15,7 +16,17 @@ export default async function page({ params }: pageProps) {
 
     const { dateString } = await params;
 
-    const response = await callJavaAPI('/days/find-or-create', 'POST', { dayDate: dateString })
+    // Get server cookies for authentication
+    const { cookieHeader, csrfToken } = await getServerCookies();
+
+    // Pass cookies to callJavaAPI
+    const response = await callJavaAPI(
+        '/days/find-or-create', 
+        'POST', 
+        { dayDate: dateString },
+        cookieHeader,  // ← Pass cookies
+        csrfToken      // ← Pass CSRF token
+    );
 
     if (!response.ok) {
         throw new Error('Error loading day. Try again.');
@@ -37,7 +48,6 @@ export default async function page({ params }: pageProps) {
                         <TabsTrigger value="notes">Notes</TabsTrigger>
                     </TabsList>
                 </div>
-
 
                 <TabsContent value="schedule">
                     <DailyScheduleAccordion

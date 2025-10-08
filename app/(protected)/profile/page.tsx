@@ -4,6 +4,7 @@ import React from 'react'
 import { callJavaAPI } from '@/lib/auth/utils';
 
 export default function Profile() {
+    
 
 
     async function createDayHandler() {
