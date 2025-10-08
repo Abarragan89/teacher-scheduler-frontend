@@ -7,6 +7,7 @@ function getCsrfFromCookies(cookieHeader: string): string {
     return match?.[1] ?? '';
 }
 
+
 export async function serverFetch(
     endpoint: string,
     options: RequestInit = {}

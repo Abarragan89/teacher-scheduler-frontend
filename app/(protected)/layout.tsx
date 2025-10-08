@@ -1,11 +1,14 @@
 import Header from '@/components/shared/header';
 import { serverAuth } from '@/lib/api/services/auth/server';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardLayout({
   children
 }: {
   children: React.ReactNode
 }) {
+
 
   let authResult = { authenticated: false, user: '' };
 
