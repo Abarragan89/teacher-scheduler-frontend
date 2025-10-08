@@ -6,7 +6,7 @@ import { Task } from '@/types/tasks'
 import { OutlineItem } from '@/types/outline-item'
 import dynamic from 'next/dynamic'
 import { Skeleton } from "@/components/ui/skeleton"
-import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, useDroppable, DragStartEvent, DragEndEvent, pointerWithin, DragOverlay } from '@dnd-kit/core'
+import { DndContext, KeyboardSensor, TouchSensor, MouseSensor, useSensor, useSensors, useDroppable, DragStartEvent, DragEndEvent, pointerWithin, DragOverlay } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Trash2 } from 'lucide-react'
 import { clientOutlineItems } from '@/lib/api/services/tasks/client'
@@ -515,6 +515,7 @@ export default function DailyScheduleAccordion({
 
     function handleDragStart(event: DragStartEvent) {
         setIsDragging(true)
+        document.body.classList.add('dnd-dragging') // Prevent scrolling
 
         // Determine if it's a task or outline item being dragged
         const draggedId = event.active.id as string
@@ -542,6 +543,7 @@ export default function DailyScheduleAccordion({
         setIsDragging(false)
         setDraggedItemType(null)
         setActiveItem(null)
+        document.body.classList.remove('dnd-dragging') // Re-enable scrolling
 
         if (!over) return;
 
@@ -622,9 +624,16 @@ export default function DailyScheduleAccordion({
     }
 
     const sensors = useSensors(
-        useSensor(PointerSensor, {
+        // Separate mouse and touch sensors for better control
+        useSensor(MouseSensor, {
             activationConstraint: {
-                distance: 8, // Require 8px of movement before dragging starts
+                distance: 8,
+            },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 200,        // Shorter delay - prevents phone lookup
+                tolerance: 8,      // Allow small movements before canceling
             },
         }),
         useSensor(KeyboardSensor)

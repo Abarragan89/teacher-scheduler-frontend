@@ -60,6 +60,13 @@ export default function TaskItem({
                     {...taskAttributes}
                     {...taskListeners}
                     className="cursor-grab active:cursor-grabbing p-1 hover:bg-accent rounded text-muted-foreground"
+                    style={{
+                        touchAction: 'none',           // Prevent scrolling/zooming
+                        userSelect: 'none',            // Prevent text selection
+                        WebkitUserSelect: 'none',      // Safari
+                        WebkitTouchCallout: 'none',    // Prevent iOS context menu
+                        WebkitTapHighlightColor: 'transparent' // Remove tap highlight
+                    }}
                 >
                     <GripVertical className="w-4 h-4" />
                 </div>
@@ -80,8 +87,11 @@ export default function TaskItem({
                     onKeyDown={(e) => onTitleKeyDown(e, task.id)}
                     disabled={!isEditable}
                     readOnly={!isEditable}
+                    // Prevent these events from bubbling up to drag handlers
                     onPointerDown={(e) => e.stopPropagation()}
                     onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}  // Add this
+                    onTouchMove={(e) => e.stopPropagation()}   // Add this
                 />
 
                 <AccordionTrigger className="w-6 h-6 p-0 rounded" />
@@ -110,7 +120,7 @@ export default function TaskItem({
                     </SortableContext>
 
                     {isEditable && (
-                        
+
                         <button
                             onClick={() => onAddOutlineItem(task.id)}
                             disabled={task?.outlineItems?.length > 0 && task?.outlineItems?.some(item => item.text.trim() === '')}
@@ -125,7 +135,7 @@ export default function TaskItem({
                 </div>
             </AccordionContent>
 
-            
+
         </AccordionItem>
 
     )

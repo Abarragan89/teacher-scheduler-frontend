@@ -56,7 +56,14 @@ export default function SortableOutlineItem({
                 {...attributes}
                 {...listeners}
                 className="cursor-grab active:cursor-grabbing p-1 hover:bg-accent rounded text-muted-foreground"
-                style={{ marginLeft: `${item.indentLevel * 20}px` }}
+                style={{
+                    marginLeft: `${item.indentLevel * 20}px`,
+                    touchAction: 'none',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    WebkitTouchCallout: 'none',
+                    WebkitTapHighlightColor: 'transparent'
+                }}
             >
                 <GripVertical className="w-3 h-3" />
             </div>
@@ -83,8 +90,11 @@ export default function SortableOutlineItem({
                     onFocus={() => onFocusOutline(taskId, item.id)}
                     disabled={!isEditable}
                     readOnly={!isEditable}
+                    // Prevent these events from bubbling up to drag handlers
                     onPointerDown={(e) => e.stopPropagation()}
                     onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}  // Add this
+                    onTouchMove={(e) => e.stopPropagation()}   // Add this
                 />
             </div>
         </div>

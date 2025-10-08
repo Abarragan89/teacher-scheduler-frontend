@@ -3,7 +3,6 @@
 @plugin "tailwindcss-animate";
 @import "tw-animate-css";
 
-
 :root {
   --background: oklch(0.1743 0.0227 283.7998);
   --foreground: oklch(0.9185 0.0257 285.8834);
@@ -211,5 +210,29 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Touch-optimized drag and drop styles */
+@layer utilities {
+  /* Prevent text selection during drag */
+  .dnd-dragging {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Better touch targets for drag handles */
+  [data-dnd-kit-drag-handle] {
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 44px; /* iOS recommended touch target size */
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
