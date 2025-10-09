@@ -1,27 +1,18 @@
-console.log('🔧 Service Worker loaded and ready')
-
 self.addEventListener('install', function (event) {
     console.log('⚡ Service Worker installing')
     self.skipWaiting() // Force immediate activation
 })
 
 self.addEventListener('activate', function (event) {
-    console.log('✅ Service Worker activated')
     event.waitUntil(self.clients.claim()) // Take control immediately
 })
 
 self.addEventListener('push', function (event) {
-    console.log('📨 PUSH EVENT RECEIVED!', event)
-    console.log('📨 Event type:', typeof event)
-    console.log('📨 Event data exists:', !!event.data)
 
     if (event.data) {
         try {
             const dataText = event.data.text()
-            console.log('📋 Raw push data:', dataText)
-
             const data = JSON.parse(dataText)
-            console.log('📦 Parsed notification data:', data)
 
             const options = {
                 body: data.body,
@@ -35,9 +26,6 @@ self.addEventListener('push', function (event) {
                     primaryKey: '2',
                 },
             }
-
-            console.log('🔔 About to show notification with title:', data.title)
-            console.log('🔔 Notification options:', options)
 
             const showNotificationPromise = self.registration.showNotification(data.title, options)
 
@@ -66,11 +54,10 @@ self.addEventListener('push', function (event) {
 })
 
 self.addEventListener('notificationclick', function (event) {
-    console.log('👆 Notification clicked!')
     event.notification.close()
 
     event.waitUntil(
-        self.clients.openWindow('https://localhost:3000/dashboard')
+        self.clients.openWindow(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard`)
     )
 })
 
