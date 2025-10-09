@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
         description: 'Teacher Scheduler',
         start_url: '/',
         display: 'standalone',
-        background_color: '#0F0F19',
-        theme_color: '#A197F8',
+        background_color: '#A197F8',
+        theme_color: '#0F0F19',
         icons: [
             {
                 src: '/images/pwaImg.png',
