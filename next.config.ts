@@ -23,7 +23,6 @@ const nextConfig: NextConfig = {
   // External packages for server components
   serverExternalPackages: [],
 
-
   async headers() {
     return [
       {
