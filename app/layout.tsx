@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
@@ -11,7 +11,13 @@ const roboto = Roboto({
 export const metadata: Metadata = {
   title: "Teacher Scheduler",
   description: "Teacher scheduler",
-  viewport: "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no", 
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1.0,
+  maximumScale: 1.0,
+  userScalable: false,
 };
 
 export default function RootLayout({

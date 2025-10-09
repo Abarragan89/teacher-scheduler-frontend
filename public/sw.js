@@ -1,5 +1,4 @@
 self.addEventListener('install', function (event) {
-    console.log('⚡ Service Worker installing')
     self.skipWaiting() // Force immediate activation
 })
 
@@ -30,7 +29,6 @@ self.addEventListener('push', function (event) {
             const showNotificationPromise = self.registration.showNotification(data.title, options)
 
             showNotificationPromise.then(() => {
-                console.log('✅ Notification displayed successfully!')
             }).catch(error => {
                 console.error('❌ Failed to display notification:', error)
             })
@@ -65,5 +63,3 @@ self.addEventListener('notificationclick', function (event) {
 self.addEventListener('error', function (error) {
     console.error('🚨 Service Worker error:', error)
 })
-
-console.log('🎯 Service Worker setup complete')

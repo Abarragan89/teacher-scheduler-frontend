@@ -9,9 +9,7 @@ export default async function Dashboard() {
   // Server action to handle the test button click
   async function handleTestNotification() {
     'use server'
-    console.log('🚀 Test notification scheduled for 10 seconds...')
     await sendDelayedTestNotification()
-    console.log('✅ Test notification sent!')
   }
 
   return (

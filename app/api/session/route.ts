@@ -5,8 +5,6 @@ export async function GET(req: NextRequest) {
     try {
         const cookieStore = await cookies();
 
-        console.log('Cookies in session API:', cookieStore.getAll());
-
         // Get all cookies as header string for server-side requests
         const allCookies = cookieStore.getAll()
             .map(cookie => `${cookie.name}=${cookie.value}`)

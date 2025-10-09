@@ -41,8 +41,6 @@ export default function PushNotificationManager() {
 
     async function subscribeToPush() {
         try {
-            console.log('🚀 Starting subscription process...')
-
             const registration = await navigator.serviceWorker.ready
             const sub = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
@@ -52,13 +50,11 @@ export default function PushNotificationManager() {
             })
 
             setSubscription(sub)
-            console.log('📱 Browser subscription created:', sub)
 
             // Save to database via backend
             const result = await subscribeUser(sub)
 
             if (result.success) {
-                console.log('✅ Successfully subscribed and saved to database')
             } else {
                 console.error('❌ Failed to save subscription:', result.error)
             }
@@ -70,7 +66,6 @@ export default function PushNotificationManager() {
 
     async function unsubscribeFromPush() {
         if (subscription) {
-            console.log('🚫 Unsubscribing from notifications...')
 
             // Unsubscribe from browser
             await subscription.unsubscribe()
@@ -79,7 +74,6 @@ export default function PushNotificationManager() {
             const result = await unsubscribeUser(subscription.endpoint)
 
             if (result.success) {
-                console.log('✅ Successfully unsubscribed and removed from database')
                 setSubscription(null)
             } else {
                 console.error('❌ Failed to remove subscription from database:', result.error)
@@ -89,11 +83,8 @@ export default function PushNotificationManager() {
 
     async function sendTestNotification() {
         if (message.trim()) {
-            console.log('📤 Sending test notification to all users...')
             const result = await sendNotificationToAllUsers(message)
-
             if (result.success) {
-                console.log('✅ Test notification sent successfully')
                 setMessage('')
             } else {
                 console.error('❌ Failed to send test notification:', result.error)
