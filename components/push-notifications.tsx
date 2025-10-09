@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { subscribeUser, unsubscribeUser, sendNotification } from '@/app/actions'
+import { subscribeUser, unsubscribeUser, sendNotificationToAllUsers } from '@/app/actions'
 
 function urlBase64ToUint8Array(base64String: string) {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
@@ -40,28 +40,64 @@ export default function PushNotificationManager() {
     }
 
     async function subscribeToPush() {
-        const registration = await navigator.serviceWorker.ready
-        const sub = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(
-                process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-            ),
-        })
-        setSubscription(sub)
-        const serializedSub = JSON.parse(JSON.stringify(sub))
-        await subscribeUser(serializedSub)
+        try {
+            console.log('🚀 Starting subscription process...')
+
+            const registration = await navigator.serviceWorker.ready
+            const sub = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(
+                    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+                ),
+            })
+
+            setSubscription(sub)
+            console.log('📱 Browser subscription created:', sub)
+
+            // Save to database via backend
+            const result = await subscribeUser(sub)
+
+            if (result.success) {
+                console.log('✅ Successfully subscribed and saved to database')
+            } else {
+                console.error('❌ Failed to save subscription:', result.error)
+            }
+
+        } catch (error) {
+            console.error('❌ Subscription failed:', error)
+        }
     }
 
     async function unsubscribeFromPush() {
-        await subscription?.unsubscribe()
-        setSubscription(null)
-        await unsubscribeUser()
+        if (subscription) {
+            console.log('🚫 Unsubscribing from notifications...')
+
+            // Unsubscribe from browser
+            await subscription.unsubscribe()
+
+            // Remove from database
+            const result = await unsubscribeUser(subscription.endpoint)
+
+            if (result.success) {
+                console.log('✅ Successfully unsubscribed and removed from database')
+                setSubscription(null)
+            } else {
+                console.error('❌ Failed to remove subscription from database:', result.error)
+            }
+        }
     }
 
     async function sendTestNotification() {
-        if (subscription) {
-            await sendNotification(message)
-            setMessage('')
+        if (message.trim()) {
+            console.log('📤 Sending test notification to all users...')
+            const result = await sendNotificationToAllUsers(message)
+
+            if (result.success) {
+                console.log('✅ Test notification sent successfully')
+                setMessage('')
+            } else {
+                console.error('❌ Failed to send test notification:', result.error)
+            }
         }
     }
 
