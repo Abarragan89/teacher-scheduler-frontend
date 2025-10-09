@@ -1,7 +1,7 @@
 'use server'
 
 import webpush from 'web-push'
-import { cookies } from 'next/headers'
+import { serverPushNotifications } from '@/lib/api/services/pushNotifications/server'
 
 console.log('🔑 VAPID Public Key:', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ? 'Set' : 'Missing')
 console.log('🔑 VAPID Private Key:', process.env.VAPID_PRIVATE_KEY ? 'Set' : 'Missing')
@@ -11,13 +11,6 @@ webpush.setVapidDetails(
     process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
     process.env.VAPID_PRIVATE_KEY!
 )
-
-// Helper function to get auth token from cookies
-async function getAuthToken(): Promise<string | undefined> {
-    const cookieStore = await cookies()
-    const accessToken = cookieStore.get('access_token')
-    return accessToken?.value
-}
 
 export async function subscribeUser(sub: PushSubscription) {
     console.log('📱 subscribeUser called with:', sub.endpoint)
@@ -36,18 +29,8 @@ export async function subscribeUser(sub: PushSubscription) {
     }
 
     try {
-        // Send to your Java backend
-        const authToken = await getAuthToken()
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/subscribe`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(authToken && { 'Authorization': `Bearer ${authToken}` })
-            },
-            body: JSON.stringify(subscriptionData)
-        })
-
-        const result = await response.json()
+        // Use serverFetch helper function
+        const result = await serverPushNotifications.subscribe(subscriptionData)
         console.log('✅ Subscription saved to database:', result)
         return result
     } catch (error) {
@@ -58,17 +41,8 @@ export async function subscribeUser(sub: PushSubscription) {
 
 export async function unsubscribeUser(endpoint: string) {
     try {
-        const authToken = await getAuthToken()
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/unsubscribe`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(authToken && { 'Authorization': `Bearer ${authToken}` })
-            },
-            body: JSON.stringify({ endpoint })
-        })
-
-        const result = await response.json()
+        // Use serverFetch helper function
+        const result = await serverPushNotifications.unsubscribe(endpoint)
         console.log('✅ Unsubscribed from database:', result)
         return result
     } catch (error) {
@@ -81,16 +55,8 @@ export async function sendNotificationToAllUsers(message: string) {
     console.log('🚀 Sending notification to all users:', message)
 
     try {
-        // Get all subscriptions from your Java backend
-        const authToken = await getAuthToken()
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/subscriptions`, {
-            headers: {
-                'Content-Type': 'application/json',
-                ...(authToken && { 'Authorization': `Bearer ${authToken}` })
-            }
-        })
-
-        const subscriptions = await response.json()
+        // Get all subscriptions using serverFetch helper function
+        const subscriptions = await serverPushNotifications.getAllSubscriptions()
         console.log('📱 Found subscriptions:', subscriptions.length)
 
         const results = []
