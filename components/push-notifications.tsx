@@ -16,6 +16,15 @@ function urlBase64ToUint8Array(base64String: string) {
     return outputArray
 }
 
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+    const bytes = new Uint8Array(buffer)
+    let binary = ''
+    for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i])
+    }
+    return btoa(binary)
+}
+
 export default function PushNotificationManager() {
     const [isSupported, setIsSupported] = useState(false)
     const [subscription, setSubscription] = useState<PushSubscription | null>(
@@ -41,6 +50,7 @@ export default function PushNotificationManager() {
 
     async function subscribeToPush() {
         try {
+            console.log('🚀 Starting subscription process...')
             const registration = await navigator.serviceWorker.ready
             const sub = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
@@ -49,12 +59,24 @@ export default function PushNotificationManager() {
                 ),
             })
 
+            // ✅ Serialize the subscription object before sending to server action
+            const serializedSubscription = {
+                endpoint: sub.endpoint,
+                expirationTime: sub.expirationTime,
+                keys: {
+                    p256dh: arrayBufferToBase64(sub.getKey('p256dh')!),
+                    auth: arrayBufferToBase64(sub.getKey('auth')!)
+                }
+            }
+
+            console.log('📱 Serialized subscription created')
             setSubscription(sub)
 
-            // Save to database via backend
-            const result = await subscribeUser(sub)
+            // Save to database via backend - send serialized object
+            const result = await subscribeUser(serializedSubscription)
 
             if (result.success) {
+                console.log('✅ Successfully subscribed and saved to database')
             } else {
                 console.error('❌ Failed to save subscription:', result.error)
             }
@@ -72,7 +94,6 @@ export default function PushNotificationManager() {
 
             // Remove from database
             const result = await unsubscribeUser(subscription.endpoint)
-
             if (result.success) {
                 setSubscription(null)
             } else {

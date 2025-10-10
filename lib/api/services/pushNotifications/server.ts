@@ -20,8 +20,7 @@ export const serverPushNotifications = {
             method: 'DELETE',
             body: JSON.stringify({ endpoint }),
         });
-        console.log(response)
-        console.log(await response.json())
+        
         if (!response.ok) throw new Error('Failed to unsubscribe from notifications');
         return response.json();
     },
