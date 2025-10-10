@@ -20,7 +20,7 @@ export default async function Dashboard() {
         <PushNotificationManager />
 
         {/* Test Button */}
-        <div className="p-4 border rounded-lg">
+        {/* <div className="p-4 border rounded-lg">
           <h3 className="text-lg font-semibold mb-2">🧪 Test PWA Notifications</h3>
           <form action={handleTestNotification}>
             <button
@@ -33,7 +33,8 @@ export default async function Dashboard() {
           <p className="text-sm text-muted-foreground mt-2">
             Click the button, then wait 10 seconds for a push notification!
           </p>
-        </div>
+        </div> */}
+
       </div>
 
       <CalendarMonth />
