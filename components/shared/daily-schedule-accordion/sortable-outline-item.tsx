@@ -71,7 +71,6 @@ export default function SortableOutlineItem({
             {/* Regular content - not draggable */}
             <div
                 className="flex items-center gap-3 flex-1"
-                style={{ marginLeft: !isEditable ? `${item.indentLevel * 20}px` : '0px' }}
             >
                 <Checkbox
                     className='w-[15px] h-[16px] rounded-full'

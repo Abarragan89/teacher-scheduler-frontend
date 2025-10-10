@@ -90,14 +90,13 @@ export async function sendNotificationToAllUsers(message: string) {
                 )
 
                 results.push({ success: true, endpoint: subscription.endpoint })
-                console.log('✅ Sent to:', subscription.endpoint.substring(0, 50) + '...')
 
             } catch (error: any) {
                 console.error('❌ Failed to send to:', subscription.endpoint.substring(0, 50) + '...', error.message)
 
-                // ✅ Handle expired/invalid subscriptions
+                // ✅ Handle expired/invalid subscriptions - mark for renewal
                 if (error.statusCode === 410 || error.statusCode === 404) {
-                    console.log('🗑️ Subscription expired/invalid, marking for removal:', subscription.endpoint.substring(0, 50) + '...')
+                    console.log('� Subscription expired/invalid, marking for renewal:', subscription.endpoint.substring(0, 50) + '...')
                     invalidSubscriptions.push(subscription.endpoint)
                 }
 
@@ -130,7 +129,8 @@ export async function sendNotificationToAllUsers(message: string) {
             results,
             sentCount: successCount,
             totalCount: results.length,
-            cleanedUp: invalidSubscriptions.length
+            cleanedUp: invalidSubscriptions.length,
+            needsRenewal: invalidSubscriptions.length > 0 // ✅ Signal that renewal is needed
         }
 
     } catch (error) {
@@ -203,4 +203,19 @@ export async function sendDelayedTestNotification() {
             }
         }, 1000)
     })
+}
+
+// ✅ New function to check if subscription renewal is needed
+export async function checkSubscriptionStatus() {
+    try {
+        const subscriptions = await serverPushNotifications.getAllSubscriptions()
+        return {
+            success: true,
+            hasSubscriptions: subscriptions.length > 0,
+            count: subscriptions.length
+        }
+    } catch (error) {
+        console.error('❌ Failed to check subscription status:', error)
+        return { success: false, error: String(error) }
+    }
 }

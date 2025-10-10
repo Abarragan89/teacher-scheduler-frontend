@@ -1,4 +1,3 @@
-'use client';
 import * as React from "react"
 
 export function BareInput(props: React.InputHTMLAttributes<HTMLInputElement>) {

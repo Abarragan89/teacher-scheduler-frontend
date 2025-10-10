@@ -39,6 +39,21 @@ export default function PushNotificationManager() {
         }
     }, [])
 
+
+
+    // ✅ Expose renewal function globally for other components to trigger
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            (window as any).renewPushSubscription = renewSubscriptionSeamlessly
+        }
+
+        return () => {
+            if (typeof window !== 'undefined') {
+                delete (window as any).renewPushSubscription
+            }
+        }
+    }, [])
+
     async function registerServiceWorker() {
         const registration = await navigator.serviceWorker.register('/sw.js', {
             scope: '/',
@@ -48,9 +63,52 @@ export default function PushNotificationManager() {
         setSubscription(sub)
     }
 
+    // ✅ Seamless subscription renewal function
+    async function renewSubscriptionSeamlessly() {
+        try {
+            console.log('🔄 Renewing subscription seamlessly...')
+
+            const registration = await navigator.serviceWorker.ready
+
+            // Create new subscription (this automatically replaces the old one)
+            const newSub = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(
+                    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+                ),
+            })
+
+            // Serialize and save new subscription
+            const serializedSubscription = {
+                endpoint: newSub.endpoint,
+                expirationTime: newSub.expirationTime,
+                keys: {
+                    p256dh: arrayBufferToBase64(newSub.getKey('p256dh')!),
+                    auth: arrayBufferToBase64(newSub.getKey('auth')!)
+                }
+            }
+
+            const result = await subscribeUser(serializedSubscription)
+
+            if (result.success) {
+                setSubscription(newSub)
+                console.log('✅ Subscription renewed seamlessly')
+                return true
+            } else {
+                console.error('❌ Failed to save renewed subscription:', result.error)
+                return false
+            }
+
+        } catch (error) {
+            console.error('❌ Seamless renewal failed:', error)
+            return false
+        }
+    }
+
+
+
     async function subscribeToPush() {
         try {
-            console.log('🚀 Starting subscription process...')
             const registration = await navigator.serviceWorker.ready
             const sub = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
@@ -69,7 +127,6 @@ export default function PushNotificationManager() {
                 }
             }
 
-            console.log('📱 Serialized subscription created')
             setSubscription(sub)
 
             // Save to database via backend - send serialized object
@@ -107,6 +164,11 @@ export default function PushNotificationManager() {
             const result = await sendNotificationToAllUsers(message)
             if (result.success) {
                 setMessage('')
+
+                // ✅ If subscriptions were cleaned up, trigger renewal
+                if (result.needsRenewal && subscription) {
+                    await renewSubscriptionSeamlessly()
+                }
             } else {
                 console.error('❌ Failed to send test notification:', result.error)
             }

@@ -104,19 +104,41 @@ export default function TaskItem({
                         items={task?.outlineItems?.length > 0 ? task.outlineItems.map(item => item.id) : []}
                         strategy={verticalListSortingStrategy}
                     >
-                        {task?.outlineItems?.length > 0 && task.outlineItems.map(item => (
-                            <SortableOutlineItem
-                                key={item.id}
-                                item={item}
-                                taskId={task.id}
-                                isEditable={isEditable}
-                                onFocusOutline={onFocusOutline}
-                                onToggleOutlineCompletion={onToggleOutlineCompletion}
-                                onUpdateOutlineItem={onUpdateOutlineItem}
-                                onOutlineKeyDown={onOutlineKeyDown}
-                                onOutlineBlur={onOutlineBlur}
-                            />
-                        ))}
+                        {(() => {
+                            // Filter items based on edit mode
+                            const filteredItems = task?.outlineItems?.filter(item => {
+                                // In edit mode, show all items
+                                if (isEditable) return true
+                                // In view mode, hide empty items
+                                return item.text.trim() !== ''
+                            }) || []
+
+                            // Show "no outline items" message in edit mode when no items with content exist
+                            const hasContentItems = task?.outlineItems?.some(item => item.text.trim() !== '') || false
+
+                            if (isEditable && !hasContentItems) {
+                                return (
+                                    <div className="text-center pt-2">
+                                        <p className="text-muted-foreground italic text-sm">no outline items</p>
+                                    </div>
+                                )
+                            }
+
+                            // Render filtered items
+                            return filteredItems.map(item => (
+                                <SortableOutlineItem
+                                    key={item.id}
+                                    item={item}
+                                    taskId={task.id}
+                                    isEditable={isEditable}
+                                    onFocusOutline={onFocusOutline}
+                                    onToggleOutlineCompletion={onToggleOutlineCompletion}
+                                    onUpdateOutlineItem={onUpdateOutlineItem}
+                                    onOutlineKeyDown={onOutlineKeyDown}
+                                    onOutlineBlur={onOutlineBlur}
+                                />
+                            ))
+                        })()}
                     </SortableContext>
                 </div>
             </AccordionContent>

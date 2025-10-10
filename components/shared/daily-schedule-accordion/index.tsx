@@ -39,8 +39,8 @@ export default function DailyScheduleAccordion({
                 ...task,
                 clientKey: `client-${task.id}`
             }
-            // Ensure each task has an empty outline item at the end
-            if (taskWithClient.outlineItems.length === 0 || !taskWithClient.outlineItems.some(item => item.text.trim() === '')) {
+            // Ensure each task has an empty outline item at the end, but only if there are no existing empty items
+            if (taskWithClient.outlineItems.length === 0) {
                 taskWithClient.outlineItems.push({
                     id: `temp-outline-${task.id}-${Date.now()}`,
                     text: '',
@@ -48,6 +48,18 @@ export default function DailyScheduleAccordion({
                     indentLevel: 0,
                     position: taskWithClient.outlineItems.length,
                 })
+            } else {
+                // Only add empty item if the last item has text
+                const lastItem = taskWithClient.outlineItems[taskWithClient.outlineItems.length - 1]
+                if (lastItem && lastItem.text.trim() !== '' && !taskWithClient.outlineItems.some(item => item.text.trim() === '')) {
+                    taskWithClient.outlineItems.push({
+                        id: `temp-outline-${task.id}-${Date.now()}`,
+                        text: '',
+                        completed: false,
+                        indentLevel: 0,
+                        position: taskWithClient.outlineItems.length,
+                    })
+                }
             }
             return taskWithClient
         }) || [])
@@ -97,6 +109,11 @@ export default function DailyScheduleAccordion({
                     : task
             )
         )
+
+        // Open the accordion when user starts typing in the task title (if it has content)
+        if (title.trim() !== '' && !openAccordions.includes(taskId)) {
+            setOpenAccordions(prev => [...prev, taskId])
+        }
     }
 
     const toggleOutlineItemCompletion = async (taskId: string, itemId: string) => {
@@ -141,11 +158,12 @@ export default function DailyScheduleAccordion({
                     )
 
                     // If user is typing in the last item and it now has text, ensure there's a new empty one at the end
+                    // But only if there are no other empty items
                     const itemIndex = updatedOutlineItems.findIndex(item => item.id === itemId)
                     const isLastItem = itemIndex === updatedOutlineItems.length - 1
-                    const hasEmptyItem = updatedOutlineItems.some(item => item.text.trim() === '')
+                    const emptyItems = updatedOutlineItems.filter(item => item.text.trim() === '')
 
-                    if (text.trim() !== '' && isLastItem && !hasEmptyItem) {
+                    if (text.trim() !== '' && isLastItem && emptyItems.length === 0) {
                         updatedOutlineItems.push({
                             id: `temp-outline-${Date.now()}`,
                             text: '',
@@ -153,6 +171,21 @@ export default function DailyScheduleAccordion({
                             indentLevel: 0,
                             position: updatedOutlineItems.length,
                         })
+                    }
+
+                    // If user cleared text from an item and there are multiple empty items, remove extras
+                    if (text.trim() === '' && emptyItems.length > 1) {
+                        // Keep only the first empty item, remove others
+                        const firstEmptyId = emptyItems[0].id
+                        return {
+                            ...task,
+                            outlineItems: updatedOutlineItems.filter((item, index) => {
+                                if (item.text.trim() === '') {
+                                    return item.id === firstEmptyId
+                                }
+                                return true
+                            }).map((item, index) => ({ ...item, position: index }))
+                        }
                     }
 
                     return { ...task, outlineItems: updatedOutlineItems }
@@ -178,10 +211,12 @@ export default function DailyScheduleAccordion({
         )
     }
 
-    // Helper function to ensure there's always an empty outline item at the end
+    // Helper function to ensure there's always an empty outline item at the end, but only one
     const ensureEmptyOutlineItem = (outlineItems: OutlineItem[]) => {
-        const hasEmptyItem = outlineItems.some(item => item.text.trim() === '')
-        if (!hasEmptyItem) {
+        const emptyItems = outlineItems.filter(item => item.text.trim() === '')
+
+        if (emptyItems.length === 0) {
+            // No empty items, add one at the end
             outlineItems.push({
                 id: `temp-outline-${Date.now()}`,
                 text: '',
@@ -189,6 +224,17 @@ export default function DailyScheduleAccordion({
                 indentLevel: 0,
                 position: outlineItems.length,
             })
+        } else if (emptyItems.length > 1) {
+            // Multiple empty items, keep only the first one
+            const firstEmptyId = emptyItems[0].id
+            const filteredItems = outlineItems.filter((item, index) => {
+                if (item.text.trim() === '') {
+                    return item.id === firstEmptyId
+                }
+                return true
+            })
+            outlineItems.length = 0
+            outlineItems.push(...filteredItems.map((item, index) => ({ ...item, position: index })))
         }
     }
 
@@ -412,7 +458,6 @@ export default function DailyScheduleAccordion({
             }]
         }
         setTasks(prev => [...prev, newTask])
-        setOpenAccordions(prev => [...prev, tempId])
 
         // Focus the new task title input after a short delay
         setTimeout(() => {
@@ -421,7 +466,7 @@ export default function DailyScheduleAccordion({
                 newTaskInput.focus()
                 newTaskInput.select()
             }
-        }, 150) // Slightly longer delay to ensure accordion is open
+        }, 50) // Shorter delay since we don't need to wait for accordion to open
     }
 
     const updateTaskPositions = async (reorderedTasks: Task[]) => {
@@ -484,45 +529,86 @@ export default function DailyScheduleAccordion({
         if (e.key === 'Enter') {
             e.preventDefault();
 
+            // Don't create new item if current item is empty
+            if (item.text.trim() === '') {
+                return; // Do nothing if current item has no text
+            }
+
             // Find current item index
             const currentIndex = task.outlineItems.findIndex(i => i.id === itemId)
-            const nextIndex = currentIndex + 1
 
-            // If there's text in current item and we're at the last item, add a new empty one
-            if (item.text.trim() !== '' && currentIndex === task.outlineItems.length - 1) {
-                const newTempId = `temp-outline-${Date.now()}`
+            // Create a new item right below the current one
+            const newTempId = `temp-outline-${Date.now()}`
+            setTasks(prev =>
+                prev.map(t => {
+                    if (t.id === taskId) {
+                        const newOutlineItems = [...t.outlineItems]
+
+                        // Insert new item right after the current one
+                        const newItem = {
+                            id: newTempId,
+                            text: '',
+                            completed: false,
+                            indentLevel: item.indentLevel, // ✅ Maintain same indentation level
+                            position: currentIndex + 1,
+                        }
+
+                        newOutlineItems.splice(currentIndex + 1, 0, newItem)
+
+                        // Update positions for items that come after
+                        const updatedItems = newOutlineItems.map((outlineItem, index) => ({
+                            ...outlineItem,
+                            position: index
+                        }))
+
+                        return { ...t, outlineItems: updatedItems }
+                    }
+                    return t
+                })
+            )
+
+            // Focus the new input
+            setTimeout(() => {
+                const newInput = document.querySelector(`input[data-item-id="${newTempId}"]`) as HTMLInputElement
+                if (newInput) {
+                    newInput.focus()
+                }
+            }, 50)
+        }
+
+        if (e.key === 'Backspace' || e.key === 'Delete') {
+            // Only delete if the item is empty and there are multiple items
+            if (item.text.trim() === '' && task.outlineItems.length > 1) {
+                e.preventDefault()
+
+                const currentIndex = task.outlineItems.findIndex(i => i.id === itemId)
+
                 setTasks(prev =>
                     prev.map(t => {
                         if (t.id === taskId) {
-                            const newOutlineItems = [...t.outlineItems, {
-                                id: newTempId,
-                                text: '',
-                                completed: false,
-                                indentLevel: 0,
-                                position: t.outlineItems.length,
-                            }]
-                            return { ...t, outlineItems: newOutlineItems }
+                            const newOutlineItems = t.outlineItems.filter(i => i.id !== itemId)
+
+                            // Update positions for remaining items
+                            const updatedItems = newOutlineItems.map((outlineItem, index) => ({
+                                ...outlineItem,
+                                position: index
+                            }))
+
+                            return { ...t, outlineItems: updatedItems }
                         }
                         return t
                     })
                 )
-                // Focus the new input
-                setTimeout(() => {
-                    const newInput = document.querySelector(`input[data-item-id="${newTempId}"]`) as HTMLInputElement
-                    if (newInput) {
-                        newInput.focus()
-                    }
-                }, 50)
-            } else {
-                // Focus the next existing input
+
+                // Focus the previous item or the next item if it was the first
                 setTimeout(() => {
                     const inputs = document.querySelectorAll(`[data-task-id="${taskId}"] input[data-item-id]`)
-                    const nextInput = inputs[nextIndex] as HTMLInputElement
-                    if (nextInput) {
-                        nextInput.focus()
-                        nextInput.select()
+                    const targetIndex = currentIndex > 0 ? currentIndex - 1 : 0
+                    const targetInput = inputs[targetIndex] as HTMLInputElement
+                    if (targetInput) {
+                        targetInput.focus()
                     }
-                }, 10)
+                }, 50)
             }
         }
 
@@ -782,7 +868,7 @@ export default function DailyScheduleAccordion({
                 {isEditable && (
                     <button
                         onClick={addNewTask}
-                        className="w-full mt-4 p-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 hover:bg-border hover:text-ring"
+                        className="w-full mt-4 mb-14 p-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 hover:bg-border hover:text-ring"
                     >
                         <span className="text-lg">+</span>
                         <span>Add Task</span>
