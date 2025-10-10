@@ -423,7 +423,7 @@ export default function DailyScheduleAccordion({
     }
 
     // Handle pressing the ENTER button on the task to open the subtasks
-    const handleTaskTitleKeyDown = (e: KeyboardEvent<HTMLInputElement>, taskId: string) => {
+    const handleTaskTitleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>, taskId: string) => {
         if (e.key === 'Enter') {
             e.preventDefault()
             // Open the accordion if it's not already open
@@ -432,7 +432,7 @@ export default function DailyScheduleAccordion({
             }
             // Focus the first subtask after a brief delay
             setTimeout(() => {
-                const firstSubtaskInput = document.querySelector(`[data-task-id="${taskId}"] input[data-item-id]`) as HTMLInputElement
+                const firstSubtaskInput = document.querySelector(`[data-task-id="${taskId}"] input[data-item-id]`) as HTMLTextAreaElement
                 if (firstSubtaskInput) {
                     firstSubtaskInput.focus()
                     firstSubtaskInput.select()
@@ -461,7 +461,7 @@ export default function DailyScheduleAccordion({
 
         // Focus the new task title input after a short delay
         setTimeout(() => {
-            const newTaskInput = document.querySelector(`[data-task-id="${tempId}"] .task-title-input`) as HTMLInputElement
+            const newTaskInput = document.querySelector(`[data-task-id="${tempId}"] .task-title-input`) as HTMLTextAreaElement
             if (newTaskInput) {
                 newTaskInput.focus()
                 newTaskInput.select()
@@ -520,7 +520,7 @@ export default function DailyScheduleAccordion({
     }
 
     // Handle TAB and ENTER key for indentation (Outline Items)
-    const handleOutlineKeyDown = (e: KeyboardEvent<HTMLInputElement>, taskId: string, itemId: string) => {
+    const handleOutlineKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>, taskId: string, itemId: string) => {
         const task = tasks.find(t => t.id === taskId)
         const item = task?.outlineItems.find(i => i.id === itemId)
 
@@ -569,7 +569,7 @@ export default function DailyScheduleAccordion({
 
             // Focus the new input
             setTimeout(() => {
-                const newInput = document.querySelector(`input[data-item-id="${newTempId}"]`) as HTMLInputElement
+                const newInput = document.querySelector(`input[data-item-id="${newTempId}"]`) as HTMLTextAreaElement
                 if (newInput) {
                     newInput.focus()
                 }
@@ -604,7 +604,7 @@ export default function DailyScheduleAccordion({
                 setTimeout(() => {
                     const inputs = document.querySelectorAll(`[data-task-id="${taskId}"] input[data-item-id]`)
                     const targetIndex = currentIndex > 0 ? currentIndex - 1 : 0
-                    const targetInput = inputs[targetIndex] as HTMLInputElement
+                    const targetInput = inputs[targetIndex] as HTMLTextAreaElement
                     if (targetInput) {
                         targetInput.focus()
                     }

@@ -12,7 +12,7 @@ interface SortableOutlineItemProps {
     isEditable: boolean
     onToggleOutlineCompletion: (taskId: string, itemId: string) => void
     onUpdateOutlineItem: (taskId: string, itemId: string, text: string) => void
-    onOutlineKeyDown: (e: React.KeyboardEvent<HTMLInputElement>, taskId: string, itemId: string) => void
+    onOutlineKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>, taskId: string, itemId: string) => void
     onFocusOutline: (taskId: string, itemId: string) => void
     onOutlineBlur: (taskId: string, itemId: string, text: string, position: number, indentation: number, completed: boolean) => void
 }
@@ -49,7 +49,7 @@ export default function SortableOutlineItem({
         <div
             ref={setNodeRef}
             style={style}
-            className="flex items-center gap-3"
+            className="flex items-start gap-3"
         >
 
             <div
@@ -70,10 +70,10 @@ export default function SortableOutlineItem({
 
             {/* Regular content - not draggable */}
             <div
-                className="flex items-center gap-3 flex-1"
+                className="flex items-start gap-3 flex-1"
             >
                 <Checkbox
-                    className='w-[15px] h-[16px] rounded-full'
+                    className='w-[15px] h-[16px] rounded-full mt-[2px]'
                     checked={item.completed}
                     onCheckedChange={() => onToggleOutlineCompletion(taskId, item.id)}
                 />

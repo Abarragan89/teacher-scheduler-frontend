@@ -54,7 +54,7 @@ export default function TaskItem({
             className="border-none"
             data-task-id={task.id}
         >
-            <div className="flex items-center gap-2 px-3 py-3 bg-muted rounded-lg">
+            <div className="flex items-start gap-2 px-3 py-3 bg-muted rounded-lg">
                 {/* Task Drag Handle */}
                 <div
                     {...taskAttributes}
@@ -74,7 +74,7 @@ export default function TaskItem({
                 <Checkbox
                     checked={task.completed}
                     onCheckedChange={() => onToggleCompletion(task.id)}
-                    className='w-[18px] h-[18px]'
+                    className='w-[18px] h-[18px] mt-[2px]'
                 />
 
                 <BareInput
