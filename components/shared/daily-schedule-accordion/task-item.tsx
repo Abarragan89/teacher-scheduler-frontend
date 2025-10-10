@@ -116,7 +116,7 @@ export default function TaskItem({
                             // Show "no outline items" message in edit mode when no items with content exist
                             const hasContentItems = task?.outlineItems?.some(item => item.text.trim() !== '') || false
 
-                            if (isEditable && !hasContentItems) {
+                            if (!isEditable && !hasContentItems) {
                                 return (
                                     <div className="text-center pt-2">
                                         <p className="text-muted-foreground italic text-sm">no outline items</p>
