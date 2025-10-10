@@ -44,7 +44,7 @@ export default function SigninForm() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    email: values.email
+                    email: values.email.toLowerCase().trim()
                 }),
                 credentials: "include"
             })
