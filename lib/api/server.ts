@@ -23,9 +23,13 @@ export async function serverFetch(
             method: 'POST',
         });
 
+        console.log('Token refresh response status:', refreshResponse.status);
+        console.log('response json:', await refreshResponse.clone().json().catch(() => ({})));
+
         if (refreshResponse.ok) {
             // Extract the new access_token from Set-Cookie header
             const setCookieHeader = refreshResponse.headers.get('set-cookie');
+            console.log('Set-Cookie header from refresh response:', setCookieHeader);
             let newAccessToken = '';
 
             if (setCookieHeader) {
@@ -35,9 +39,14 @@ export async function serverFetch(
                 }
             }
 
+            console.log('New access token from refresh:', newAccessToken);
             // Retry the original request with the new access token
             if (newAccessToken) {
+
                 const retryResponse = await makeServerRequest(endpoint, options, newAccessToken);
+                
+                console.log('Retry response status:', retryResponse.status);
+                console.log('Retry response json:', await retryResponse.clone().json().catch(() => ({})));
                 return retryResponse;
             }
         }
