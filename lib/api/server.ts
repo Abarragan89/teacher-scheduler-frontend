@@ -38,14 +38,14 @@ export async function serverFetch(
                 if (accessTokenMatch) newAccessToken = accessTokenMatch[1];
                 if (csrfTokenMatch) csrfToken = csrfTokenMatch[1];
             }
-            
+
 
             console.log('New access token from refresh:', newAccessToken);
             // Retry the original request with the new access token
             if (newAccessToken) {
 
                 const retryResponse = await makeServerRequest(endpoint, options, newAccessToken, csrfToken);
-                
+
                 console.log('Retry response status:', retryResponse.status);
                 console.log('Retry response json:', await retryResponse.clone().json().catch(() => ({})));
                 return retryResponse;
@@ -59,29 +59,39 @@ export async function serverFetch(
 async function makeServerRequest(
     endpoint: string,
     options: RequestInit = {},
-    newAccessToken?: string, 
+    newAccessToken?: string,
     newCsrfToken?: string
 ): Promise<Response> {
     const cookieStore = await cookies();
 
     let cookieHeader: string;
+    let csrfToken: string;
 
     if (newAccessToken) {
         // Use the new access token, keeping other cookies
         const otherCookies = cookieStore.getAll()
-            .filter(cookie => cookie.name !== 'access_token')
+            .filter(cookie => cookie.name !== 'access_token' && cookie.name !== 'XSRF-TOKEN') // Filter out both old tokens
             .map(cookie => `${cookie.name}=${cookie.value}`)
             .join('; ');
 
+        // Build cookie header with new tokens
         cookieHeader = `${otherCookies}; access_token=${newAccessToken}`;
+
+        // Add the new CSRF token to the cookie header if provided
+        if (newCsrfToken) {
+            cookieHeader += `; XSRF-TOKEN=${newCsrfToken}`;
+            csrfToken = newCsrfToken; // Use the new CSRF token directly
+        } else {
+            csrfToken = getCsrfFromCookies(cookieHeader);
+        }
     } else {
         // Use existing cookies
         cookieHeader = cookieStore.getAll()
             .map(cookie => `${cookie.name}=${cookie.value}`)
             .join('; ');
+        csrfToken = getCsrfFromCookies(cookieHeader);
     }
 
-    const csrfToken = getCsrfFromCookies(cookieHeader);
     const url = `${API_BASE}${endpoint}`;
 
     console.log('Making server request to:', url);
@@ -93,7 +103,7 @@ async function makeServerRequest(
         headers: {
             'Content-Type': 'application/json',
             'Cookie': cookieHeader,
-            'X-XSRF-TOKEN': newCsrfToken || csrfToken || '',
+            'X-XSRF-TOKEN': csrfToken,
             ...options.headers,
         },
         ...options,
