@@ -51,28 +51,20 @@ function InstallPrompt() {
                 <div className="space-y-4">
                     {isIOS ? (
                         <>
-                            <div className="bg-blue-50 p-3 rounded-lg">
-                                <div className="font-medium mb-2">Benefits:</div>
-                                <ul className="text-sm space-y-1">
-                                    <li>⚡ Faster loading</li>
-                                    <li>🏠 Home screen access</li>
-                                    <li>🔔 Push notifications</li>
-                                </ul>
-                            </div>
                             <div className="space-y-3 text-sm">
                                 <div className="font-medium">How to install:</div>
                                 <div className="flex items-center gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                                    <span className="flex-shrink-0 w-6 h-6 bg-secondary rounded-full flex items-center justify-center text-xs font-bold">1</span>
                                     <span>Tap the Share button</span>
                                     <span className="text-lg" role="img" aria-label="share icon"><Share /></span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                                    <span className="flex-shrink-0 w-6 h-6 bg-accent rounded-full flex items-center justify-center text-xs font-bold">2</span>
                                     <span>Scroll down and tap "Add to Home Screen"</span>
                                     <span className="text-lg" role="img" aria-label="plus icon">➕</span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                                    <span className="flex-shrink-0 w-6 h-6 bg-ring rounded-full flex items-center justify-center text-xs font-bold">3</span>
                                     <span>Tap "Add" to confirm</span>
                                     <span className="text-lg" role="img" aria-label="checkmark">✅</span>
                                 </div>
@@ -80,12 +72,27 @@ function InstallPrompt() {
                         </>
                     ) : (
                         <div>
-                            <div className="font-medium mb-2">Benefits:</div>
-                            <ul className="text-sm space-y-1">
-                                <li>⚡ Faster loading</li>
-                                <li>🏠 Home screen access</li>
-                                <li>🔔 Push notifications</li>
-                            </ul>
+                            <div className="space-y-3 text-sm">
+                                <div className="font-medium">How to install:</div>
+                                <div className="flex items-center gap-3">
+                                    <span className="flex-shrink-0 w-6 h-6 bg-secondary rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                                    <span>Tap the menu button (⋮) in your browser</span>
+                                    <span className="text-lg" role="img" aria-label="menu icon">⋮</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="flex-shrink-0 w-6 h-6 bg-accent rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                                    <span>Look for "Add to Home screen" or "Install app"</span>
+                                    <span className="text-lg" role="img" aria-label="plus icon">📱</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="flex-shrink-0 w-6 h-6 bg-ring rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                                    <span>Tap "Add" or "Install" to confirm</span>
+                                    <span className="text-lg" role="img" aria-label="checkmark">✅</span>
+                                </div>
+                                <div className="mt-3 p-3 bg-muted rounded-md text-xs text-muted-foreground">
+                                    <strong>Note:</strong> On desktop browsers, look for an install icon (⊕) in the address bar, or check the browser menu for "Install Teacher Scheduler" option.
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
