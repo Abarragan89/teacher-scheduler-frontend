@@ -93,7 +93,7 @@ async function makeServerRequest(
         headers: {
             'Content-Type': 'application/json',
             'Cookie': cookieHeader,
-            'X-XSRF-TOKEN': newCsrfToken || newCsrfToken || '',
+            'X-XSRF-TOKEN': newCsrfToken || csrfToken || '',
             ...options.headers,
         },
         ...options,
