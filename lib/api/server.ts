@@ -87,6 +87,7 @@ async function makeServerRequest(
     console.log('Making server request to:', url);
     console.log('With cookies:', cookieHeader);
     console.log('With CSRF token:', csrfToken);
+    console.log('With new CSRF token:', newCsrfToken);
 
     const config: RequestInit = {
         headers: {
