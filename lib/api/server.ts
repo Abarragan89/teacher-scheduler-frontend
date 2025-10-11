@@ -27,24 +27,44 @@ export async function serverFetch(
         console.log('response json:', await refreshResponse.clone().json().catch(() => ({})));
 
         if (refreshResponse.ok) {
-            // Extract the new access_token from Set-Cookie header
+            // Try both methods to get the most up-to-date tokens
+            let newAccessToken = '';
+            let newCsrfToken = '';
+
+            // Method 1: Extract from Set-Cookie headers (works better on mobile)
             const setCookieHeader = refreshResponse.headers.get('set-cookie');
             console.log('Set-Cookie header from refresh response:', setCookieHeader);
-            let newAccessToken = '';
 
             if (setCookieHeader) {
                 const accessTokenMatch = setCookieHeader.match(/access_token=([^;]+)/);
                 const csrfTokenMatch = setCookieHeader.match(/XSRF-TOKEN=([^;]+)/);
                 if (accessTokenMatch) newAccessToken = accessTokenMatch[1];
-                if (csrfTokenMatch) csrfToken = csrfTokenMatch[1];
+                if (csrfTokenMatch) newCsrfToken = csrfTokenMatch[1];
             }
 
+            // Method 2: Try to get from updated cookie store (works better on desktop)
+            // Add a small delay to allow cookie store to update on desktop
+            await new Promise(resolve => setTimeout(resolve, 10));
+            const cookieStore = await cookies();
+            const accessTokenCookie = cookieStore.get('access_token');
+            const csrfTokenCookie = cookieStore.get('XSRF-TOKEN');
 
-            console.log('New access token from refresh:', newAccessToken);
-            // Retry the original request with the new access token
+            // Use whichever method gave us the tokens
+            if (!newAccessToken && accessTokenCookie) {
+                newAccessToken = accessTokenCookie.value;
+                console.log('Using access token from cookie store (desktop method)');
+            }
+            if (!newCsrfToken && csrfTokenCookie) {
+                newCsrfToken = csrfTokenCookie.value;
+                console.log('Using CSRF token from cookie store (desktop method)');
+            }
+
+            console.log('Final access token:', newAccessToken);
+            console.log('Final CSRF token:', newCsrfToken);
+
+            // Retry the original request with the new tokens
             if (newAccessToken) {
-
-                const retryResponse = await makeServerRequest(endpoint, options, newAccessToken, csrfToken);
+                const retryResponse = await makeServerRequest(endpoint, options, newAccessToken, newCsrfToken);
 
                 console.log('Retry response status:', retryResponse.status);
                 console.log('Retry response json:', await retryResponse.clone().json().catch(() => ({})));
@@ -82,7 +102,14 @@ async function makeServerRequest(
             cookieHeader += `; XSRF-TOKEN=${newCsrfToken}`;
             csrfToken = newCsrfToken; // Use the new CSRF token directly
         } else {
-            csrfToken = getCsrfFromCookies(cookieHeader);
+            // Fallback: try to get CSRF token from existing cookies or updated cookie store
+            const existingCsrfCookie = cookieStore.get('XSRF-TOKEN');
+            if (existingCsrfCookie) {
+                cookieHeader += `; XSRF-TOKEN=${existingCsrfCookie.value}`;
+                csrfToken = existingCsrfCookie.value;
+            } else {
+                csrfToken = getCsrfFromCookies(cookieHeader);
+            }
         }
     } else {
         // Use existing cookies
