@@ -13,6 +13,7 @@ import { clientOutlineItems } from '@/lib/api/services/tasks/client'
 import { clientTasks } from '@/lib/api/services/tasks/client'
 import { Schedule } from '@/types/day'
 import YesterdayTomorrowNav from './yesterday-tomorrow-nav'
+import { useRouter } from 'next/navigation'
 
 // Make TaskItem dynamic since it uses useSortable hooks and causes hydration errors
 const DynamicTaskItem = dynamic(() => import('./task-item'), {
@@ -29,10 +30,14 @@ const DynamicTaskItem = dynamic(() => import('./task-item'), {
 
 
 export default function DailyScheduleAccordion({
-    scheduleData
+    scheduleData,
+    currentDay
 }: {
-    scheduleData: Schedule
+    scheduleData: Schedule,
+    currentDay: string
 }) {
+
+    const router = useRouter();
 
     const [tasks, setTasks] = useState<Task[]>(() => {
         return scheduleData?.tasks?.map(task => {
@@ -780,19 +785,36 @@ export default function DailyScheduleAccordion({
         )
     }
 
+    function goToYesterday() {
+        const yesterday = new Date(currentDay)
+        yesterday.setDate(yesterday.getDate() - 1)
+        const formattedDate = yesterday.toISOString().split('T')[0]
+        router.push(`/dashboard/daily/${formattedDate}`)
+    }
+
+    function goToTomorrow() {
+        const tomorrow = new Date(currentDay)
+        tomorrow.setDate(tomorrow.getDate() + 1)
+        const formattedDate = tomorrow.toISOString().split('T')[0]
+        router.push(`/dashboard/daily/${formattedDate}`)
+    }
+
     return (
         <div>
-            <div className="flex text-sm items-start justify-end mt-7 mb-5 gap-x-2">
-
-                <YesterdayTomorrowNav />
-                <span>View</span>
-                <Switch
-                    checked={isEditable}
-                    onCheckedChange={setIsEditable}
+            <div className="flex-between">
+                <YesterdayTomorrowNav
+                    goToTomorrow={goToTomorrow}
+                    goToYesterday={goToYesterday}
                 />
-                <span>Edit</span>
+                <div className="flex text-sm items-start justify-end my-6 gap-x-2">
+                    <span>View</span>
+                    <Switch
+                        checked={isEditable}
+                        onCheckedChange={setIsEditable}
+                    />
+                    <span>Edit</span>
+                </div>
             </div>
-
             <DndContext
                 sensors={sensors}
                 onDragStart={handleDragStart}
