@@ -15,11 +15,11 @@ export default function YesterdayTomorrowNav({
 
     return (
         <div className="flex flex-start">
-            <Button onClick={goToYesterday} variant={"ghost"} size="sm" className="px-2">
-                <FaAnglesLeft className="mr-2" />
+            <Button onClick={goToYesterday} variant={"ghost"} size="sm" className='mr-2'>
+                <FaAnglesLeft />
             </Button>
-            <Button onClick={goToTomorrow} variant={"ghost"} size="sm" className="px-2">
-                <FaAnglesRight className="ml-2" />
+            <Button onClick={goToTomorrow} variant={"ghost"} size="sm" className='ml-2'>
+                <FaAnglesRight />
             </Button>
         </div>
     )
