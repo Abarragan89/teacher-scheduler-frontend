@@ -2,13 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog'
+import { Share } from 'lucide-react'
+import { ResponsiveDialog } from './responsive-dialog'
 
 function InstallPrompt() {
     const [isIOS, setIsIOS] = useState(false)
@@ -34,16 +29,6 @@ function InstallPrompt() {
         checkStandalone()
     }, [])
 
-    const handleInstallClick = () => {
-        if (isIOS) {
-            // Show iOS instructions modal
-            setShowIOSModal(true)
-        } else {
-            // For non-iOS devices, show better guidance
-            alert('Look for the install button in your browser\'s menu or address bar! On Chrome, look for the install icon next to the bookmark star.')
-        }
-    }
-
     if (isStandalone) {
         return null // Don't show install button if already installed
     }
@@ -51,56 +36,61 @@ function InstallPrompt() {
     return (
         <>
             <Button
-                onClick={handleInstallClick}
-                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                onClick={() => setShowIOSModal(true)}
                 size="sm"
             >
-                <span className="text-lg">📱</span>
                 Get App
             </Button>
 
-            <Dialog open={showIOSModal} onOpenChange={setShowIOSModal}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <span className="text-2xl">📱</span>
-                            Install Teacher Scheduler
-                        </DialogTitle>
-                        <DialogDescription>
-                            Get the full app experience with faster loading and offline access!
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                        <div className="bg-blue-50 p-3 rounded-lg">
-                            <div className="font-medium text-blue-900 mb-2">Benefits:</div>
-                            <ul className="text-sm text-blue-800 space-y-1">
+            <ResponsiveDialog
+                isOpen={showIOSModal}
+                setIsOpen={setShowIOSModal}
+                title='Install Teacher Scheduler'
+                description='Push notifications and faster loading!'
+            >
+                <div className="space-y-4">
+                    {isIOS ? (
+                        <>
+                            <div className="bg-blue-50 p-3 rounded-lg">
+                                <div className="font-medium mb-2">Benefits:</div>
+                                <ul className="text-sm space-y-1">
+                                    <li>⚡ Faster loading</li>
+                                    <li>🏠 Home screen access</li>
+                                    <li>🔔 Push notifications</li>
+                                </ul>
+                            </div>
+                            <div className="space-y-3 text-sm">
+                                <div className="font-medium">How to install:</div>
+                                <div className="flex items-center gap-3">
+                                    <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                                    <span>Tap the Share button</span>
+                                    <span className="text-lg" role="img" aria-label="share icon"><Share /></span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                                    <span>Scroll down and tap "Add to Home Screen"</span>
+                                    <span className="text-lg" role="img" aria-label="plus icon">➕</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                                    <span>Tap "Add" to confirm</span>
+                                    <span className="text-lg" role="img" aria-label="checkmark">✅</span>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div>
+                            <div className="font-medium mb-2">Benefits:</div>
+                            <ul className="text-sm space-y-1">
                                 <li>⚡ Faster loading</li>
-                                <li>📴 Works offline</li>
                                 <li>🏠 Home screen access</li>
                                 <li>🔔 Push notifications</li>
                             </ul>
                         </div>
-                        <div className="space-y-3 text-sm">
-                            <div className="font-medium">How to install:</div>
-                            <div className="flex items-center gap-3">
-                                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                                <span>Tap the Share button</span>
-                                <span className="text-lg" role="img" aria-label="share icon">📤</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
-                                <span>Scroll down and tap "Add to Home Screen"</span>
-                                <span className="text-lg" role="img" aria-label="plus icon">➕</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
-                                <span>Tap "Add" to confirm</span>
-                                <span className="text-lg" role="img" aria-label="checkmark">✅</span>
-                            </div>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
+                    )}
+                </div>
+            </ResponsiveDialog>
+
         </>
     )
 }

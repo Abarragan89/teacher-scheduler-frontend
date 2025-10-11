@@ -12,6 +12,7 @@ import { Trash2 } from 'lucide-react'
 import { clientOutlineItems } from '@/lib/api/services/tasks/client'
 import { clientTasks } from '@/lib/api/services/tasks/client'
 import { Schedule } from '@/types/day'
+import YesterdayTomorrowNav from './yesterday-tomorrow-nav'
 
 // Make TaskItem dynamic since it uses useSortable hooks and causes hydration errors
 const DynamicTaskItem = dynamic(() => import('./task-item'), {
@@ -782,6 +783,8 @@ export default function DailyScheduleAccordion({
     return (
         <div>
             <div className="flex text-sm items-start justify-end mt-7 mb-5 gap-x-2">
+
+                <YesterdayTomorrowNav />
                 <span>View</span>
                 <Switch
                     checked={isEditable}
