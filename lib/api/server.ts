@@ -18,7 +18,7 @@ export async function serverFetch(
     // If we get a 401 and this isn't already a refresh request, try to refresh the token
     if (response.status === 401 && !endpoint.includes('/auth/refresh')) {
         console.error('Server: 401 detected, attempting token refresh...');
-
+        let csrfToken = ""
         const refreshResponse = await makeServerRequest('/auth/refresh', {
             method: 'POST',
         });
@@ -34,16 +34,17 @@ export async function serverFetch(
 
             if (setCookieHeader) {
                 const accessTokenMatch = setCookieHeader.match(/access_token=([^;]+)/);
-                if (accessTokenMatch) {
-                    newAccessToken = accessTokenMatch[1];
-                }
+                const csrfTokenMatch = setCookieHeader.match(/XSRF-TOKEN=([^;]+)/);
+                if (accessTokenMatch) newAccessToken = accessTokenMatch[1];
+                if (csrfTokenMatch) csrfToken = csrfTokenMatch[1];
             }
+            
 
             console.log('New access token from refresh:', newAccessToken);
             // Retry the original request with the new access token
             if (newAccessToken) {
 
-                const retryResponse = await makeServerRequest(endpoint, options, newAccessToken);
+                const retryResponse = await makeServerRequest(endpoint, options, newAccessToken, csrfToken);
                 
                 console.log('Retry response status:', retryResponse.status);
                 console.log('Retry response json:', await retryResponse.clone().json().catch(() => ({})));
@@ -58,7 +59,8 @@ export async function serverFetch(
 async function makeServerRequest(
     endpoint: string,
     options: RequestInit = {},
-    newAccessToken?: string
+    newAccessToken?: string, 
+    newCsrfToken?: string
 ): Promise<Response> {
     const cookieStore = await cookies();
 
@@ -90,7 +92,7 @@ async function makeServerRequest(
         headers: {
             'Content-Type': 'application/json',
             'Cookie': cookieHeader,
-            'X-XSRF-TOKEN': csrfToken,
+            'X-XSRF-TOKEN': csrfToken || newCsrfToken || '',
             ...options.headers,
         },
         ...options,
