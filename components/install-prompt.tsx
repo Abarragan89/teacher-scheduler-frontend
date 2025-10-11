@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dock, MonitorDownIcon, Share } from 'lucide-react'
 import { ResponsiveDialog } from './responsive-dialog'
+import { MdOutlineAddBox } from "react-icons/md";
+
 
 interface PlatformInfo {
     isIOS: boolean
@@ -96,7 +98,7 @@ function InstallPrompt() {
                 title: "Install on iOS Safari",
                 steps: [
                     { icon: <Share />, text: "Tap the Share button" },
-                    { icon: "➕", text: "Scroll down and tap 'Add to Home Screen'" },
+                    { icon: <MdOutlineAddBox />, text: "Scroll down and tap 'Add to Home Screen'" },
                     { icon: "✅", text: "Tap 'Add' to confirm" }
                 ]
             }
@@ -191,8 +193,8 @@ function InstallPrompt() {
 
     return (
         <>
-            <Button onClick={handleInstallClick} size="sm">
-                📱 Get App
+            <Button onClick={handleInstallClick}>
+                Install App
             </Button>
 
             <ResponsiveDialog
@@ -205,9 +207,6 @@ function InstallPrompt() {
                     <div className="space-y-3 text-sm mt-4 mb-2">
                         {instructions.steps.map((step, index) => (
                             <div key={index} className="flex items-center gap-3">
-                                {/* <span className="flex-shrink-0 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold">
-                                    {index + 1}
-                                </span> */}
                                 <span className="text-lg flex-shrink-0">
                                     {typeof step.icon === 'string' ? step.icon : step.icon}
                                 </span>

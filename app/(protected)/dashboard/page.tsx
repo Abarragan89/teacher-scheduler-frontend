@@ -1,7 +1,7 @@
 import React from 'react'
 import CalendarMonth from '@/components/shared/calendar-month';
-import PushNotificationManager from '@/components/push-notifications';
-import InstallPrompt from '@/components/install-prompt';
+// import PushNotificationManager from '@/components/push-notifications';
+// import InstallPrompt from '@/components/install-prompt';
 import { sendDelayedTestNotification } from '@/app/actions';
 
 export default async function Dashboard() {
@@ -14,10 +14,9 @@ export default async function Dashboard() {
 
   return (
     <main className='wrapper'>
-      <div className="mb-6 space-y-4">
         {/* PWA Components */}
-        <InstallPrompt />
-        <PushNotificationManager />
+       
+        {/* <PushNotificationManager /> */}
 
         {/* Test Button */}
         {/* <div className="p-4 border rounded-lg">
@@ -34,8 +33,6 @@ export default async function Dashboard() {
             Click the button, then wait 10 seconds for a push notification!
           </p>
         </div> */}
-
-      </div>
 
       <CalendarMonth />
     </main>
