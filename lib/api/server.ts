@@ -82,6 +82,10 @@ async function makeServerRequest(
     const csrfToken = getCsrfFromCookies(cookieHeader);
     const url = `${API_BASE}${endpoint}`;
 
+    console.log('Making server request to:', url);
+    console.log('With cookies:', cookieHeader);
+    console.log('With CSRF token:', csrfToken);
+
     const config: RequestInit = {
         headers: {
             'Content-Type': 'application/json',
