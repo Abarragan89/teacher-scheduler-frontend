@@ -4,15 +4,17 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { EllipsisVertical, ArrowLeft } from 'lucide-react'
+import { EllipsisVertical, ArrowLeft, Trash2, CalendarIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Calendar } from "@/components/ui/calendar"
 import { clientTasks } from '@/lib/api/services/tasks/client'
 
 export default function EditTaskPopover({
-    taskId
+    taskId,
+    taskText
 }: {
-    taskId: string
+    taskId: string,
+    taskText: string
 }) {
 
     const [date, setDate] = React.useState<Date | undefined>(new Date());
@@ -22,11 +24,11 @@ export default function EditTaskPopover({
 
     async function addTaskToDate() {
         if (!date || isSubmitting) return;
-        
+
         setIsSubmitting(true);
         const dateString = date.toISOString().split('T')[0]; // Format: YYYY-MM-DD
         const isSuccessful = await clientTasks.moveTaskToLaterDate(taskId, dateString);
-        
+
         if (isSuccessful) {
             setIsOpen(false); // Close popover after successful move
         }
@@ -35,7 +37,7 @@ export default function EditTaskPopover({
 
     async function deleteTask() {
         if (isSubmitting) return;
-        
+
         setIsSubmitting(true);
         // Add your delete logic here
         const isSuccessful = await clientTasks.deleteTask(taskId);
@@ -66,23 +68,22 @@ export default function EditTaskPopover({
                 </Button>
             </PopoverTrigger>
 
-            <PopoverContent className="w-[250px] p-2">
+            <PopoverContent className="w-[245px] p-5">
                 {currentView === 'menu' && (
-                    <div className="flex flex-col gap-2">
-                        <Button 
-                            variant="ghost" 
-                            className="justify-start"
+                    <div className="flex flex-col justify-center text-center gap-2">
+                        <Button
+                            variant="ghost"
                             onClick={() => setCurrentView('moving')}
                         >
-                            📅 Move to Another Date
+                            <CalendarIcon /> Copy to Date
                         </Button>
 
-                        <Button 
-                            variant="ghost" 
-                            className="justify-start text-red-600 hover:text-red-700"
+                        <Button
+                            variant="ghost"
                             onClick={() => setCurrentView('deleting')}
+                            className='text-destructive hover:text-destructive'
                         >
-                            🗑️ Delete Task
+                            <Trash2 /> Delete Task
                         </Button>
                     </div>
                 )}
@@ -90,8 +91,8 @@ export default function EditTaskPopover({
                 {currentView === 'moving' && (
                     <div className="space-y-3">
                         <div className="flex items-center gap-2">
-                            <Button 
-                                variant="ghost" 
+                            <Button
+                                variant="ghost"
                                 size="sm"
                                 onClick={resetToMenu}
                             >
@@ -109,7 +110,7 @@ export default function EditTaskPopover({
                         />
 
                         <div className="flex gap-2">
-                            <Button 
+                            <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={resetToMenu}
@@ -117,9 +118,9 @@ export default function EditTaskPopover({
                             >
                                 Cancel
                             </Button>
-                            <Button 
+                            <Button
                                 size="sm"
-                                onClick={addTaskToDate} 
+                                onClick={addTaskToDate}
                                 disabled={!date || isSubmitting}
                             >
                                 {isSubmitting ? 'Moving...' : 'Move Task'}
@@ -129,23 +130,10 @@ export default function EditTaskPopover({
                 )}
 
                 {currentView === 'deleting' && (
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                            <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={resetToMenu}
-                            >
-                                <ArrowLeft size={16} />
-                            </Button>
-                            <h3 className="font-medium text-sm">Delete Task</h3>
-                        </div>
+                    <div className="space-y-5">
+                        <p className='line-clamp-1 text-sm text-center italic'>"{taskText}"</p>
 
-                        <p className="text-sm text-muted-foreground">
-                            Are you sure you want to delete this task? This action cannot be undone.
-                        </p>
-
-                        <div className="flex gap-2">
+                        <div className="flex justify-center gap-2">
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -160,7 +148,7 @@ export default function EditTaskPopover({
                                 onClick={deleteTask}
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? 'Deleting...' : 'Delete'}
+                                {isSubmitting ? 'Deleting...' : 'Delete Task'}
                             </Button>
                         </div>
                     </div>

@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic'
 import { Skeleton } from "@/components/ui/skeleton"
 import { DndContext, KeyboardSensor, TouchSensor, MouseSensor, useSensor, useSensors, useDroppable, DragStartEvent, DragEndEvent, pointerWithin, DragOverlay } from '@dnd-kit/core'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { Trash2 } from 'lucide-react'
+import { ChevronsUpDown, Trash2 } from 'lucide-react'
 import { clientOutlineItems } from '@/lib/api/services/tasks/client'
 import { clientTasks } from '@/lib/api/services/tasks/client'
 import { Schedule } from '@/types/day'
@@ -206,6 +206,8 @@ export default function DailyScheduleAccordion({
 
     const handleTaskDelete = async (taskId: string) => {
         try {
+            // 🎯 IMMEDIATELY remove from UI (optimistic update)
+                setTasks(prev => prev.filter(task => task.id !== taskId))
             await clientTasks.deleteTask(taskId);
         } catch (error) {
             console.error('Error deleting task:', error);
@@ -676,9 +678,6 @@ export default function DailyScheduleAccordion({
             const draggedId = active.id as string
 
             if (draggedItemType === 'task') {
-                // 🎯 IMMEDIATELY remove from UI (optimistic update)
-                setTasks(prev => prev.filter(task => task.id !== draggedId))
-
                 // Then handle API call in background
                 handleTaskDelete(draggedId)
             } else if (draggedItemType === 'outline') {
@@ -809,15 +808,21 @@ export default function DailyScheduleAccordion({
                 />
 
                 <div className="flex text-sm items-center justify-end my-6 gap-x-2">
-                    <Button variant={'ghost'}>
+                    <Button title="Close all tasks" onClick={() => setOpenAccordions([])} variant={'ghost'}>
                         <ChevronsDownUp
                             size={19}
                             strokeWidth={2.5}
-                            onClick={() => setOpenAccordions([])}
-                            className="text-muted-foreground mr-3"
-                        >
-                            <title>Drag and drop to reorder tasks or outline items</title>
-                        </ChevronsDownUp>
+                            className="text-muted-foreground"
+                        />
+                    </Button>
+                    <Button 
+                    title="Expand all tasks"
+                    onClick={() => setOpenAccordions(tasks.map(tasks => tasks.id))} variant={'ghost'}>
+                        <ChevronsUpDown
+                            size={19}
+                            strokeWidth={2.5}
+                            className="text-muted-foreground"
+                        />
                     </Button>
                     <span>View</span>
                     <Switch

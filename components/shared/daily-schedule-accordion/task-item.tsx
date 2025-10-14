@@ -99,6 +99,7 @@ export default function TaskItem({
                 {/* Popover to move task to different day */}
                 <EditTaskPopover 
                     taskId={task.id}
+                    taskText={task.title}
                 />
             </div>
 
