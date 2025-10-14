@@ -122,6 +122,7 @@ export const clientOutlineItems = {
 
     async batchUpdateOutlineItemPositions(items: any[]) {
         try {
+
             // Try batch endpoint first
             const response = await clientFetch('/task-outline-item/batch-update-positions', {
                 method: 'PUT',

@@ -84,7 +84,7 @@ export default function SortableOutlineItem({
                     value={item.text}
                     onChange={(e) => onUpdateOutlineItem(taskId, item.id, e.target.value)}
                     onKeyDown={(e) => onOutlineKeyDown(e, taskId, item.id)}
-                    onBlur={() => onOutlineBlur(taskId, item.id, item.text, 0, item.indentLevel, item.completed)}
+                    onBlur={() => onOutlineBlur(taskId, item.id, item.text, item.position, item.indentLevel, item.completed)}
                     data-item-id={item.id}
                     onFocus={() => onFocusOutline(taskId, item.id)}
                     disabled={!isEditable}

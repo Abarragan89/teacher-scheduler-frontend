@@ -39,8 +39,6 @@ export default function DailyScheduleAccordion({
     currentDay: string
 }) {
 
-    console.log('scheduleData:', scheduleData);
-
     const router = useRouter();
 
     const [tasks, setTasks] = useState<Task[]>(() => {
@@ -230,6 +228,7 @@ export default function DailyScheduleAccordion({
         indentation: number,
         completed: boolean
     ) => {
+        console.log('positions ', position)
 
         const task = tasks.find(t => t.id === taskId)
         if (!task) return
@@ -453,9 +452,10 @@ export default function DailyScheduleAccordion({
 
     const updateOutlineItemPositions = async (taskId: string, reorderedItems: OutlineItem[]) => {
         try {
+            console.log('reorderedItems', reorderedItems)
             // Try batch endpoint first
             await clientOutlineItems.batchUpdateOutlineItemPositions(
-                reorderedItems.map((item, index) => ({
+                reorderedItems.filter(item => item.text !== "").map((item, index) => ({
                     id: item.id,
                     text: item.text,
                     position: index,
@@ -466,6 +466,7 @@ export default function DailyScheduleAccordion({
             )
         } catch (error) {
             console.error('Batch update failed, falling back to individual requests:', error)
+            throw error
         }
     }
 
@@ -484,6 +485,8 @@ export default function DailyScheduleAccordion({
     const closeAllAccordions = () => {
         setOpenAccordions([])
     }
+
+    console.log('Tasks:', tasks)
 
     // Handle TAB and ENTER key for indentation (Outline Items)
     const handleOutlineKeyDown = async (e: KeyboardEvent<HTMLTextAreaElement>, taskId: string, itemId: string) => {
