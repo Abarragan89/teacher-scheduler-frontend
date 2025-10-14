@@ -39,6 +39,8 @@ export default function DailyScheduleAccordion({
     currentDay: string
 }) {
 
+    console.log('scheduleData:', scheduleData);
+
     const router = useRouter();
 
     const [tasks, setTasks] = useState<Task[]>(() => {
