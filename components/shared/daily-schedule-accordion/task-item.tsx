@@ -11,6 +11,8 @@ import { TaskItemProps } from '@/types/tasks'
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from "@dnd-kit/utilities"
 import SortableOutlineItem from './sortable-outline-item'
+import EditTaskPopover from "./edit-task-popover"
+
 
 export default function TaskItem({
     task,
@@ -54,7 +56,7 @@ export default function TaskItem({
             className="border-none"
             data-task-id={task.id}
         >
-            <div className="flex items-start gap-2 px-3 py-3 bg-muted rounded-lg">
+            <div className="flex items-center gap-2 px-3 py-3 bg-muted rounded-lg">
                 {/* Task Drag Handle */}
                 <div
                     {...taskAttributes}
@@ -74,7 +76,7 @@ export default function TaskItem({
                 <Checkbox
                     checked={task.completed}
                     onCheckedChange={() => onToggleCompletion(task.id)}
-                    className='w-[18px] h-[18px] mt-[2px]'
+                    className='w-[18px] h-[18px]'
                 />
 
                 <BareInput
@@ -93,8 +95,11 @@ export default function TaskItem({
                     onTouchStart={(e) => e.stopPropagation()}  // Add this
                     onTouchMove={(e) => e.stopPropagation()}   // Add this
                 />
-
                 <AccordionTrigger className="w-6 h-6 p-0 rounded" />
+                {/* Popover to move task to different day */}
+                <EditTaskPopover 
+                    taskId={task.id}
+                />
             </div>
 
             <AccordionContent className="px-4 pb-4" data-task-id={task.id}>

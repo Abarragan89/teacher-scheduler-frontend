@@ -64,6 +64,21 @@ export const clientTasks = {
             throw error;
         }
     },
+
+     async moveTaskToLaterDate(taskId: string, newDate: string) {
+        try {
+            const reopnse = await clientFetch('/task/move-to-later-date', {
+                method: 'POST',
+                body: JSON.stringify({ taskId, newDate }),
+            });
+            if (!reopnse.ok) throw new Error('Failed to move task to later date');
+            return true;
+            
+        } catch (error) {
+            console.log('error mvoing task to later date', error)
+            throw error;
+        }
+    }
 };
 
 export const clientOutlineItems = {

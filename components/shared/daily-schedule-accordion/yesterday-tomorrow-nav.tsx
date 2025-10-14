@@ -11,15 +11,17 @@ export default function YesterdayTomorrowNav({
     goToTomorrow: () => void
 }) {
 
-
-
     return (
-        <div className="flex flex-start">
+        <div className="flex flex-start text-muted-foreground">
             <Button onClick={goToYesterday} variant={"ghost"} size="sm" className='mr-2'>
-                <FaAnglesLeft />
+                <FaAnglesLeft>
+                    <title>Go to Yesterday</title>
+                </FaAnglesLeft>
             </Button>
             <Button onClick={goToTomorrow} variant={"ghost"} size="sm" className='ml-2'>
-                <FaAnglesRight />
+                <FaAnglesRight>
+                    <title>Go to Tomorrow</title>
+                </FaAnglesRight>
             </Button>
         </div>
     )

@@ -14,6 +14,8 @@ import { clientTasks } from '@/lib/api/services/tasks/client'
 import { Schedule } from '@/types/day'
 import YesterdayTomorrowNav from './yesterday-tomorrow-nav'
 import { useRouter } from 'next/navigation'
+import { ChevronsDownUp } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 // Make TaskItem dynamic since it uses useSortable hooks and causes hydration errors
 const DynamicTaskItem = dynamic(() => import('./task-item'), {
@@ -495,8 +497,6 @@ export default function DailyScheduleAccordion({
             if (item.text.trim() === '') {
                 // Only remove if there are multiple items (keep at least one)
                 if (task.outlineItems.length > 1) {
-                    const currentIndex = task.outlineItems.findIndex(i => i.id === itemId)
-
                     setTasks(prev =>
                         prev.map(t => {
                             if (t.id === taskId) {
@@ -806,7 +806,18 @@ export default function DailyScheduleAccordion({
                     goToTomorrow={goToTomorrow}
                     goToYesterday={goToYesterday}
                 />
-                <div className="flex text-sm items-start justify-end my-6 gap-x-2">
+
+                <div className="flex text-sm items-center justify-end my-6 gap-x-2">
+                    <Button variant={'ghost'}>
+                        <ChevronsDownUp
+                            size={19}
+                            strokeWidth={2.5}
+                            onClick={() => setOpenAccordions([])}
+                            className="text-muted-foreground mr-3"
+                        >
+                            <title>Drag and drop to reorder tasks or outline items</title>
+                        </ChevronsDownUp>
+                    </Button>
                     <span>View</span>
                     <Switch
                         checked={isEditable}
@@ -894,6 +905,6 @@ export default function DailyScheduleAccordion({
             </DndContext>
 
 
-        </div>
+        </div >
     )
 }

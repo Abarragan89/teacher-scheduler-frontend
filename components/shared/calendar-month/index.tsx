@@ -116,7 +116,7 @@ export default function CalendarMonth() {
                         key={index}
                         onClick={() => handleDateClick(date)}
                         className={`
-               flex flex-col items-end h-16 pr-1 border-b border-r
+               flex flex-col items-end h-16 md:h-18 lg:h-20 pr-1 border-b border-r
               ${!isCurrentMonth(date) ? 'text-muted-foreground' : ''}
               ${isToday(date) ? 'bg-accent' : ''}
               hover:shadow-xl shadow-ring hover:scale-[1.02] transition-all

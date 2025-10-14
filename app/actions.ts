@@ -62,12 +62,9 @@ export async function unsubscribeUser(endpoint: string) {
 
 export async function sendNotificationToAllUsers(message: string) {
     try {
-        console.log('📡 Getting all subscriptions...')
         const subscriptions = await serverPushNotifications.getAllSubscriptions()
-        console.log(`📱 Found ${subscriptions.length} subscriptions`)
-
         const results = []
-        const invalidSubscriptions = [] // Track invalid subscriptions
+        const invalidSubscriptions = []
 
         // Send to each subscription
         for (const subscription of subscriptions) {
