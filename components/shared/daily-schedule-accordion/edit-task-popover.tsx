@@ -28,7 +28,6 @@ export default function EditTaskPopover({
         const isSuccessful = await clientTasks.moveTaskToLaterDate(taskId, dateString);
         
         if (isSuccessful) {
-            console.log(`Task moved to ${dateString}`);
             setIsOpen(false); // Close popover after successful move
         }
         setIsSubmitting(false);
@@ -39,11 +38,11 @@ export default function EditTaskPopover({
         
         setIsSubmitting(true);
         // Add your delete logic here
-        // const isSuccessful = await clientTasks.deleteTask(taskId);
-        // if (isSuccessful) {
-            console.log('Task deleted');
+        const isSuccessful = await clientTasks.deleteTask(taskId);
+        if (isSuccessful) {
+
             setIsOpen(false); // Close popover after successful delete
-        // }
+        }
         setIsSubmitting(false);
     }
 

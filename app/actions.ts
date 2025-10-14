@@ -93,7 +93,6 @@ export async function sendNotificationToAllUsers(message: string) {
 
                 // ✅ Handle expired/invalid subscriptions - mark for renewal
                 if (error.statusCode === 410 || error.statusCode === 404) {
-                    console.log('� Subscription expired/invalid, marking for renewal:', subscription.endpoint.substring(0, 50) + '...')
                     invalidSubscriptions.push(subscription.endpoint)
                 }
 
@@ -107,11 +106,9 @@ export async function sendNotificationToAllUsers(message: string) {
 
         // ✅ Clean up invalid subscriptions from database
         if (invalidSubscriptions.length > 0) {
-            console.log(`🧹 Cleaning up ${invalidSubscriptions.length} invalid subscriptions...`)
             for (const invalidEndpoint of invalidSubscriptions) {
                 try {
                     await serverPushNotifications.unsubscribe(invalidEndpoint)
-                    console.log('�️ Removed invalid subscription from database')
                 } catch (cleanupError) {
                     console.error('❌ Failed to cleanup invalid subscription:', cleanupError)
                 }
@@ -119,8 +116,6 @@ export async function sendNotificationToAllUsers(message: string) {
         }
 
         const successCount = results.filter(r => r.success).length
-        console.log(`📊 Sent to ${successCount}/${results.length} subscriptions (${invalidSubscriptions.length} cleaned up)`)
-
         return {
             success: true,
             results,
@@ -138,7 +133,6 @@ export async function sendNotificationToAllUsers(message: string) {
 
 export async function cleanupInvalidSubscriptions() {
     try {
-        console.log('🧹 Starting subscription cleanup...')
         const subscriptions = await serverPushNotifications.getAllSubscriptions()
         const invalidSubscriptions = []
 
@@ -175,8 +169,7 @@ export async function cleanupInvalidSubscriptions() {
         for (const invalidEndpoint of invalidSubscriptions) {
             await serverPushNotifications.unsubscribe(invalidEndpoint)
         }
-
-        console.log(`🧹 Cleaned up ${invalidSubscriptions.length} invalid subscriptions`)
+        
         return {
             success: true,
             cleanedUp: invalidSubscriptions.length,

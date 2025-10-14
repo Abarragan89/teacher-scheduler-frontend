@@ -228,7 +228,6 @@ export default function DailyScheduleAccordion({
         indentation: number,
         completed: boolean
     ) => {
-        console.log('positions ', position)
 
         const task = tasks.find(t => t.id === taskId)
         if (!task) return
@@ -452,7 +451,6 @@ export default function DailyScheduleAccordion({
 
     const updateOutlineItemPositions = async (taskId: string, reorderedItems: OutlineItem[]) => {
         try {
-            console.log('reorderedItems', reorderedItems)
             // Try batch endpoint first
             await clientOutlineItems.batchUpdateOutlineItemPositions(
                 reorderedItems.filter(item => item.text !== "").map((item, index) => ({
@@ -485,8 +483,6 @@ export default function DailyScheduleAccordion({
     const closeAllAccordions = () => {
         setOpenAccordions([])
     }
-
-    console.log('Tasks:', tasks)
 
     // Handle TAB and ENTER key for indentation (Outline Items)
     const handleOutlineKeyDown = async (e: KeyboardEvent<HTMLTextAreaElement>, taskId: string, itemId: string) => {

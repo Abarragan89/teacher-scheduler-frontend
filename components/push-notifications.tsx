@@ -66,8 +66,6 @@ export default function PushNotificationManager() {
     // ✅ Seamless subscription renewal function
     async function renewSubscriptionSeamlessly() {
         try {
-            console.log('🔄 Renewing subscription seamlessly...')
-
             const registration = await navigator.serviceWorker.ready
 
             // Create new subscription (this automatically replaces the old one)
@@ -92,7 +90,6 @@ export default function PushNotificationManager() {
 
             if (result.success) {
                 setSubscription(newSub)
-                console.log('✅ Subscription renewed seamlessly')
                 return true
             } else {
                 console.error('❌ Failed to save renewed subscription:', result.error)
@@ -130,13 +127,7 @@ export default function PushNotificationManager() {
             setSubscription(sub)
 
             // Save to database via backend - send serialized object
-            const result = await subscribeUser(serializedSubscription)
-
-            if (result.success) {
-                console.log('✅ Successfully subscribed and saved to database')
-            } else {
-                console.error('❌ Failed to save subscription:', result.error)
-            }
+            await subscribeUser(serializedSubscription)
 
         } catch (error) {
             console.error('❌ Subscription failed:', error)

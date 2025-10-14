@@ -75,7 +75,6 @@ export const clientTasks = {
             return true;
             
         } catch (error) {
-            console.log('error mvoing task to later date', error)
             throw error;
         }
     }

@@ -82,8 +82,7 @@ function InstallPrompt() {
         // If we have a deferred prompt (Chrome/Edge), use it
         if (deferredPrompt) {
             deferredPrompt.prompt()
-            const { outcome } = await deferredPrompt.userChoice
-            console.log(`User response to install prompt: ${outcome}`)
+            await deferredPrompt.userChoice
             setDeferredPrompt(null)
         } else {
             // Otherwise show manual instructions
