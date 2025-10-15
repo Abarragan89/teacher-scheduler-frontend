@@ -2,6 +2,39 @@ import { OutlineItem } from '@/types/outline-item'
 import { clientOutlineItems } from '@/lib/api/services/tasks/client'
 import { AccordionState } from './types'
 
+// Helper function to update backend positions only after actual deletion
+const updateBackendPositionsAfterDeletion = async (taskId: string, deletedItemId: string, originalItems: any[]) => {
+    try {
+        const deletedIndex = originalItems.findIndex(item => item.id === deletedItemId)
+        if (deletedIndex === -1) return
+
+        // Only update items that come after the deleted item
+        const itemsToUpdate = originalItems
+            .filter((item, index) => index > deletedIndex && !item.id.startsWith('temp-'))
+            .map((item, relativeIndex) => ({
+                ...item,
+                position: deletedIndex + relativeIndex // New position after deletion
+            }))
+
+        if (itemsToUpdate.length > 0) {
+            const updatePromises = itemsToUpdate.map(item =>
+                clientOutlineItems.updateOutlineItem(
+                    item.id,
+                    item.text,
+                    item.position,
+                    item.indentLevel,
+                    item.completed
+                )
+            )
+
+            await Promise.all(updatePromises)
+            console.log('✅ Backend positions updated after deletion')
+        }
+    } catch (error) {
+        console.error('❌ Error updating positions after deletion:', error)
+    }
+}
+
 // Helper function to ensure there's always exactly one empty outline item at the end
 export const ensureEmptyOutlineItem = (outlineItems: OutlineItem[]) => {
     const lastItem = outlineItems[outlineItems.length - 1]
@@ -121,6 +154,8 @@ export const handleOutlineBlur = async (
             if (!isTemporary) {
                 try {
                     await clientOutlineItems.deleteOutlineItem(itemId);
+                    // Update backend positions after deletion
+                    updateBackendPositionsAfterDeletion(taskId, itemId, task.outlineItems)
                 } catch (error) {
                     console.error('error deleting outline item', error);
                 }
@@ -129,7 +164,9 @@ export const handleOutlineBlur = async (
             setTasks(prev =>
                 prev.map(t => {
                     if (t.id === taskId) {
-                        const newOutlineItems = t.outlineItems.filter(item => item.id !== itemId)
+                        const newOutlineItems = t.outlineItems
+                            .filter(item => item.id !== itemId)
+                            .map((item, index) => ({ ...item, position: index }))
                         ensureEmptyOutlineItem(newOutlineItems)
                         return { ...t, outlineItems: newOutlineItems }
                     }
@@ -156,37 +193,45 @@ export const handleOutlineBlur = async (
     const isTemporary = itemId.startsWith('temp-')
 
     if (isTemporary) {
-        // Create new item in backend
+        // 🎯 THIS IS WHERE WE UPDATE BACKEND POSITIONS - when text is actually saved
+        const currentIndex = task.outlineItems.findIndex(item => item.id === itemId)
+
         try {
+            // Create the new item in backend
             const newItem = await clientOutlineItems.createOutlineItem(
                 taskId,
                 text.trim(),
-                position,
+                currentIndex,
                 indentation,
                 completed
             )
 
-            // Update the item ID but preserve accordion state 
+            // Update UI with real ID
             setTasks(prev =>
                 prev.map(task => {
                     if (task.id === taskId) {
-                        return {
-                            ...task,
-                            outlineItems: task.outlineItems.map(item =>
-                                item.id === itemId
-                                    ? { ...item, id: newItem.id } // Update item ID, not task ID
-                                    : item
-                            )
-                        }
+                        const updatedItems = task.outlineItems.map((item, index) => {
+                            if (item.id === itemId) {
+                                return { ...item, id: newItem.id, position: index }
+                            }
+                            return { ...item, position: index }
+                        })
+
+                        ensureEmptyOutlineItem(updatedItems)
+                        return { ...task, outlineItems: updatedItems }
                     }
                     return task
                 })
             )
+
+            // 🎯 NOW update ALL backend positions since a new item was actually created
+            await updateAllBackendPositions(taskId, task.outlineItems, itemId, newItem.id)
+
         } catch (error) {
             console.error('Error creating new outline item:', error)
         }
     } else {
-        // Update existing item
+        // For existing items, just update the text (position shouldn't change)
         try {
             await clientOutlineItems.updateOutlineItem(
                 itemId,
@@ -217,6 +262,29 @@ export const updateOutlineItemPositions = async (taskId: string, reorderedItems:
     } catch (error) {
         console.error('Batch update failed, falling back to individual requests:', error)
         throw error
+    }
+}
+
+// Helper function to update all backend positions when a new item is actually created
+const updateAllBackendPositions = async (taskId: string, outlineItems: any[], tempId: string, realId: string) => {
+    try {
+        const updatePromises = outlineItems
+            .filter(item => !item.id.startsWith('temp-') || item.id === tempId)
+            .map((item, index) => {
+                const actualId = item.id === tempId ? realId : item.id
+                return clientOutlineItems.updateOutlineItem(
+                    actualId,
+                    item.text,
+                    index, // Use array index as position
+                    item.indentLevel,
+                    item.completed
+                )
+            })
+
+        await Promise.all(updatePromises)
+        console.log('✅ All backend positions updated after item creation')
+    } catch (error) {
+        console.error('❌ Error updating all positions:', error)
     }
 }
 

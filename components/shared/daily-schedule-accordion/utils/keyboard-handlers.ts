@@ -2,6 +2,39 @@ import { KeyboardEvent } from 'react'
 import { clientOutlineItems } from '@/lib/api/services/tasks/client'
 import { AccordionState } from './types'
 
+// Helper function to update backend positions only after actual deletion
+const updateBackendPositionsAfterDeletion = async (taskId: string, deletedItemId: string, originalItems: any[]) => {
+    try {
+        const deletedIndex = originalItems.findIndex(item => item.id === deletedItemId)
+        if (deletedIndex === -1) return
+
+        // Only update items that come after the deleted item
+        const itemsToUpdate = originalItems
+            .filter((item, index) => index > deletedIndex && !item.id.startsWith('temp-'))
+            .map((item, relativeIndex) => ({
+                ...item,
+                position: deletedIndex + relativeIndex // New position after deletion
+            }))
+
+        if (itemsToUpdate.length > 0) {
+            const updatePromises = itemsToUpdate.map(item =>
+                clientOutlineItems.updateOutlineItem(
+                    item.id,
+                    item.text,
+                    item.position,
+                    item.indentLevel,
+                    item.completed
+                )
+            )
+
+            await Promise.all(updatePromises)
+            console.log('✅ Backend positions updated after deletion')
+        }
+    } catch (error) {
+        console.error('❌ Error updating positions after deletion:', error)
+    }
+}
+
 // Handle pressing the ENTER button on the task input
 export const handleTaskTitleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>, taskId: string, state: AccordionState) => {
     const { openAccordions, setOpenAccordions } = state
@@ -35,6 +68,19 @@ export const handleOutlineKeyDown = async (e: KeyboardEvent<HTMLTextAreaElement>
         if (item.text.trim() === '') {
             // Only remove if there are multiple items (keep at least one)
             if (task.outlineItems.length > 1) {
+                const isTemporary = itemId.startsWith('temp-')
+
+                // Only delete from backend if it's not temporary
+                if (!isTemporary) {
+                    try {
+                        await clientOutlineItems.deleteOutlineItem(itemId);
+                        // Update positions in backend after deletion
+                        updateBackendPositionsAfterDeletion(taskId, itemId, task.outlineItems)
+                    } catch (error) {
+                        console.error('Error deleting outline item:', error);
+                    }
+                }
+
                 setTasks(prev =>
                     prev.map(t => {
                         if (t.id === taskId) {
@@ -58,10 +104,7 @@ export const handleOutlineKeyDown = async (e: KeyboardEvent<HTMLTextAreaElement>
 
         // If current item has text, create a new item right below the current one
         const currentIndex = task.outlineItems.findIndex(i => i.id === itemId)
-        console.log('Current Index:', currentIndex)
         const newTempId = `temp-outline-${Date.now()}`
-
-        console.log('tasks', tasks)
 
         setTasks(prev =>
             prev.map(t => {
@@ -73,15 +116,14 @@ export const handleOutlineKeyDown = async (e: KeyboardEvent<HTMLTextAreaElement>
                         id: newTempId,
                         text: '',
                         completed: false,
-                        indentLevel: item.indentLevel, // ✅ Maintain same indentation level
+                        indentLevel: item.indentLevel,
                         position: currentIndex + 1,
                     }
-
 
                     // Splice in the new item
                     newOutlineItems.splice(currentIndex + 1, 0, newItem)
 
-                    // Update positions for items that come after
+                    // Update positions for ALL items (but don't save to backend yet)
                     const updatedItems = newOutlineItems.map((outlineItem, index) => ({
                         ...outlineItem,
                         position: index
@@ -119,6 +161,8 @@ export const handleOutlineKeyDown = async (e: KeyboardEvent<HTMLTextAreaElement>
             if (!isTemporary) {
                 try {
                     await clientOutlineItems.deleteOutlineItem(itemId);
+                    // Update positions in backend after deletion
+                    updateBackendPositionsAfterDeletion(taskId, itemId, task.outlineItems)
                 } catch (error) {
                     console.error('Error deleting outline item:', error);
                 }
