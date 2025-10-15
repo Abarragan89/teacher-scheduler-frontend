@@ -35,6 +35,16 @@ const updateBackendPositionsAfterDeletion = async (taskId: string, deletedItemId
     }
 }
 
+// Handle outline item focus - store original text for change detection
+export const handleOutlineFocus = (taskId: string, itemId: string, state: AccordionState) => {
+    const { tasks, setFocusedText } = state
+    const task = tasks.find(t => t.id === taskId)
+    const item = task?.outlineItems.find(i => i.id === itemId)
+    if (item) {
+        setFocusedText(item.text) // Store the original text for change detection
+    }
+}
+
 // Helper function to ensure there's always exactly one empty outline item at the end
 export const ensureEmptyOutlineItem = (outlineItems: OutlineItem[]) => {
     const lastItem = outlineItems[outlineItems.length - 1]
@@ -140,9 +150,13 @@ export const handleOutlineBlur = async (
     completed: boolean,
     state: AccordionState
 ) => {
-    const { tasks, setTasks } = state
+    const { tasks, setTasks, focusedText } = state
     const task = tasks.find(t => t.id === taskId)
     if (!task) return
+
+    // Check if text actually changed - if not, skip backend update
+    const hasTextChanged = text.trim() !== focusedText.trim()
+    const isTemporary = itemId.startsWith('temp-')
 
     // If text is empty, remove the item unless it's the last one in the list
     if (text.trim() === '') {
@@ -178,7 +192,7 @@ export const handleOutlineBlur = async (
     }
 
     // If this was a temporary item that got text, ensure there's a new empty one at the end
-    if (text.trim() !== '' && itemId.startsWith('temp-')) {
+    if (text.trim() !== '' && isTemporary) {
         setTasks(prev =>
             prev.map(t => {
                 if (t.id === taskId) {
@@ -190,7 +204,6 @@ export const handleOutlineBlur = async (
             })
         )
     }
-    const isTemporary = itemId.startsWith('temp-')
 
     if (isTemporary) {
         // 🎯 THIS IS WHERE WE UPDATE BACKEND POSITIONS - when text is actually saved
@@ -230,8 +243,8 @@ export const handleOutlineBlur = async (
         } catch (error) {
             console.error('Error creating new outline item:', error)
         }
-    } else {
-        // For existing items, just update the text (position shouldn't change)
+    } else if (hasTextChanged) {
+        // 🎯 EFFICIENCY: Only update backend if text actually changed
         try {
             await clientOutlineItems.updateOutlineItem(
                 itemId,
@@ -240,9 +253,13 @@ export const handleOutlineBlur = async (
                 indentation,
                 completed
             )
+            console.log('✅ Updated outline item text (changed)')
         } catch (error) {
-            console.error('Error updating outline item:', error)
+            console.error('❌ Error updating outline item:', error)
         }
+    } else {
+        // 🎯 EFFICIENCY: Text didn't change, skip backend update
+        console.log('⏭️  Skipped outline item backend update (no text change detected)')
     }
 }
 

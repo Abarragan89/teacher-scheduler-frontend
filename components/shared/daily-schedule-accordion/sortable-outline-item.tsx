@@ -8,18 +8,8 @@ import { CSS } from "@dnd-kit/utilities"
 
 // Import utility functions
 import { AccordionState } from './utils/types'
-import { toggleOutlineItemCompletion, updateOutlineItem, handleOutlineBlur } from './utils/outline-operations'
+import { toggleOutlineItemCompletion, updateOutlineItem, handleOutlineBlur, handleOutlineFocus } from './utils/outline-operations'
 import { handleOutlineKeyDown } from './utils/keyboard-handlers'
-
-// Outline focus handler
-const handleOutlineFocus = (taskId: string, itemId: string, state: AccordionState) => {
-    const { tasks, setFocusedText } = state
-    const task = tasks.find(t => t.id === taskId)
-    const item = task?.outlineItems.find(i => i.id === itemId)
-    if (item) {
-        setFocusedText(item.text) // Just store the text
-    }
-}
 
 interface SortableOutlineItemProps {
     item: OutlineItem

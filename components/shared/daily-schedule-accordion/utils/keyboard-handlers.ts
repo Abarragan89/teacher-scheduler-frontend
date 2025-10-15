@@ -219,4 +219,58 @@ export const handleOutlineKeyDown = async (e: KeyboardEvent<HTMLTextAreaElement>
             )
         )
     }
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault()
+
+        const currentIndex = task.outlineItems.findIndex(i => i.id === itemId)
+        const currentTaskIndex = tasks.findIndex(t => t.id === taskId)
+
+        let targetTaskId = taskId
+        let targetItemIndex = currentIndex
+
+        if (e.key === 'ArrowDown') {
+            // Try to move to next outline item in current task
+            if (currentIndex < task.outlineItems.length - 1) {
+                targetItemIndex = currentIndex + 1
+            } else {
+                // Move to first outline item of next task (or first task if at end)
+                const nextTaskIndex = currentTaskIndex < tasks.length - 1 ? currentTaskIndex + 1 : 0
+                const nextTask = tasks[nextTaskIndex]
+                if (nextTask && nextTask.outlineItems.length > 0) {
+                    targetTaskId = nextTask.id
+                    targetItemIndex = 0
+                }
+            }
+        } else {
+            // Try to move to previous outline item in current task
+            if (currentIndex > 0) {
+                targetItemIndex = currentIndex - 1
+            } else {
+                // Move to last outline item of previous task (or last task if at beginning)
+                const prevTaskIndex = currentTaskIndex > 0 ? currentTaskIndex - 1 : tasks.length - 1
+                const prevTask = tasks[prevTaskIndex]
+                if (prevTask && prevTask.outlineItems.length > 0) {
+                    targetTaskId = prevTask.id
+                    targetItemIndex = prevTask.outlineItems.length - 1
+                }
+            }
+        }
+
+        // Find the target task and item
+        const targetTask = tasks.find(t => t.id === targetTaskId)
+        const targetItem = targetTask?.outlineItems[targetItemIndex]
+
+        if (targetItem) {
+            // Focus the target input
+            setTimeout(() => {
+                const targetInput = document.querySelector(`textarea[data-item-id="${targetItem.id}"]`) as HTMLTextAreaElement
+                if (targetInput) {
+                    targetInput.focus()
+                    // Place cursor at end of text for better UX
+                    targetInput.setSelectionRange(targetInput.value.length, targetInput.value.length)
+                }
+            }, 10)
+        }
+    }
 }
