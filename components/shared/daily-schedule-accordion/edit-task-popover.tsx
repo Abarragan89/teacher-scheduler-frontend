@@ -9,12 +9,19 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from "@/components/ui/calendar"
 import { clientTasks } from '@/lib/api/services/tasks/client'
 
+// Import the handleTaskDelete utility function
+import { handleTaskDelete } from './utils/task-operations'
+
+import { Task } from '@/types/tasks'
+
 export default function EditTaskPopover({
     taskId,
-    taskText
+    taskText,
+    setTasks
 }: {
     taskId: string,
-    taskText: string
+    taskText: string,
+    setTasks: React.Dispatch<React.SetStateAction<Task[]>>
 }) {
 
     const [date, setDate] = React.useState<Date | undefined>(new Date());
@@ -39,12 +46,8 @@ export default function EditTaskPopover({
         if (isSubmitting) return;
 
         setIsSubmitting(true);
-        // Add your delete logic here
-        const isSuccessful = await clientTasks.deleteTask(taskId);
-        if (isSuccessful) {
-
-            setIsOpen(false); // Close popover after successful delete
-        }
+        await handleTaskDelete(taskId, setTasks);
+        setIsOpen(false); // Close popover after successful delete
         setIsSubmitting(false);
     }
 

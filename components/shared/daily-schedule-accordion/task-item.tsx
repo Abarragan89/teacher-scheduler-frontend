@@ -7,26 +7,29 @@ import {
 import { BareInput } from "@/components/ui/bare-bones-input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { GripVertical } from 'lucide-react'
-import { TaskItemProps } from '@/types/tasks'
+import { Task } from '@/types/tasks'
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from "@dnd-kit/utilities"
 import SortableOutlineItem from './sortable-outline-item'
 import EditTaskPopover from "./edit-task-popover"
 
+// Import utility functions
+import { AccordionState } from './utils/types'
+import { toggleTaskCompletion, updateTaskTitle, handleTaskBlur, handleTaskFocus } from './utils/task-operations'
+import { handleTaskTitleKeyDown } from './utils/keyboard-handlers'
+import { closeAllAccordions } from './utils/accordion-utils'
+
+
+interface TaskItemProps {
+    task: Task
+    isEditable: boolean
+    state: AccordionState
+}
 
 export default function TaskItem({
     task,
     isEditable,
-    onToggleCompletion,
-    onUpdateTitle,
-    onTitleKeyDown,
-    onToggleOutlineCompletion,
-    onUpdateOutlineItem,
-    onOutlineKeyDown,
-    onOutlineBlur,
-    onFocusOutline,
-    onFocusTask,
-    onTaskBlur,
+    state
 }: TaskItemProps) {
 
     // Task-level sortable (for dragging entire tasks)
@@ -75,7 +78,7 @@ export default function TaskItem({
 
                 <Checkbox
                     checked={task.completed}
-                    onCheckedChange={() => onToggleCompletion(task.id)}
+                    onCheckedChange={() => toggleTaskCompletion(task.id, state)}
                     className='w-[18px] h-[18px]'
                 />
 
@@ -83,10 +86,10 @@ export default function TaskItem({
                     className={`task-title-input flex-1 text-base tracking-wide font-bold ${task.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
                     placeholder="Subject or Period..."
                     value={task.title}
-                    onChange={(e) => onUpdateTitle(task.id, e.target.value)}
-                    onBlur={() => onTaskBlur(task.id, task.title)}
-                    onFocus={() => onFocusTask(task.id)}
-                    onKeyDown={(e) => onTitleKeyDown(e, task.id)}
+                    onChange={(e) => updateTaskTitle(task.id, e.target.value, state)}
+                    onBlur={() => handleTaskBlur(task.id, task.title, state)}
+                    onFocus={() => handleTaskFocus(task.id, state)}
+                    onKeyDown={(e) => handleTaskTitleKeyDown(e, task.id, state)}
                     disabled={!isEditable}
                     readOnly={!isEditable}
                     // Prevent these events from bubbling up to drag handlers
@@ -97,9 +100,10 @@ export default function TaskItem({
                 />
                 <AccordionTrigger className="w-6 h-6 p-0 rounded" />
                 {/* Popover to move task to different day */}
-                <EditTaskPopover 
+                <EditTaskPopover
                     taskId={task.id}
                     taskText={task.title}
+                    setTasks={state.setTasks}
                 />
             </div>
 
@@ -137,11 +141,7 @@ export default function TaskItem({
                                     item={item}
                                     taskId={task.id}
                                     isEditable={isEditable}
-                                    onFocusOutline={onFocusOutline}
-                                    onToggleOutlineCompletion={onToggleOutlineCompletion}
-                                    onUpdateOutlineItem={onUpdateOutlineItem}
-                                    onOutlineKeyDown={onOutlineKeyDown}
-                                    onOutlineBlur={onOutlineBlur}
+                                    state={state}
                                 />
                             ))
                         })()}

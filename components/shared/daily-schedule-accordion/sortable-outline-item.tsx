@@ -6,26 +6,33 @@ import { OutlineItem } from '@/types/outline-item'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from "@dnd-kit/utilities"
 
+// Import utility functions
+import { AccordionState } from './utils/types'
+import { toggleOutlineItemCompletion, updateOutlineItem, handleOutlineBlur } from './utils/outline-operations'
+import { handleOutlineKeyDown } from './utils/keyboard-handlers'
+
+// Outline focus handler
+const handleOutlineFocus = (taskId: string, itemId: string, state: AccordionState) => {
+    const { tasks, setFocusedText } = state
+    const task = tasks.find(t => t.id === taskId)
+    const item = task?.outlineItems.find(i => i.id === itemId)
+    if (item) {
+        setFocusedText(item.text) // Just store the text
+    }
+}
+
 interface SortableOutlineItemProps {
     item: OutlineItem
     taskId: string
     isEditable: boolean
-    onToggleOutlineCompletion: (taskId: string, itemId: string) => void
-    onUpdateOutlineItem: (taskId: string, itemId: string, text: string) => void
-    onOutlineKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>, taskId: string, itemId: string) => void
-    onFocusOutline: (taskId: string, itemId: string) => void
-    onOutlineBlur: (taskId: string, itemId: string, text: string, position: number, indentation: number, completed: boolean) => void
+    state: AccordionState
 }
 
 export default function SortableOutlineItem({
     item,
     taskId,
     isEditable,
-    onToggleOutlineCompletion,
-    onUpdateOutlineItem,
-    onOutlineKeyDown,
-    onFocusOutline,
-    onOutlineBlur
+    state
 }: SortableOutlineItemProps) {
     const {
         attributes,
@@ -75,18 +82,18 @@ export default function SortableOutlineItem({
                 <Checkbox
                     className='w-[15px] h-[16px] rounded-full mt-[2px]'
                     checked={item.completed}
-                    onCheckedChange={() => onToggleOutlineCompletion(taskId, item.id)}
+                    onCheckedChange={() => toggleOutlineItemCompletion(taskId, item.id, state)}
                 />
 
                 <BareInput
                     className={`flex-1 text-sm ${item.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
                     placeholder="Add Talking Point..."
                     value={item.text}
-                    onChange={(e) => onUpdateOutlineItem(taskId, item.id, e.target.value)}
-                    onKeyDown={(e) => onOutlineKeyDown(e, taskId, item.id)}
-                    onBlur={() => onOutlineBlur(taskId, item.id, item.text, item.position, item.indentLevel, item.completed)}
+                    onChange={(e) => updateOutlineItem(taskId, item.id, e.target.value, state)}
+                    onKeyDown={(e) => handleOutlineKeyDown(e, taskId, item.id, state)}
+                    onBlur={() => handleOutlineBlur(taskId, item.id, item.text, item.position, item.indentLevel, item.completed, state)}
                     data-item-id={item.id}
-                    onFocus={() => onFocusOutline(taskId, item.id)}
+                    onFocus={() => handleOutlineFocus(taskId, item.id, state)}
                     disabled={!isEditable}
                     readOnly={!isEditable}
                     // Prevent these events from bubbling up to drag handlers
