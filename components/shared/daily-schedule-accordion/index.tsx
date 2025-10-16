@@ -29,6 +29,7 @@ import { AccordionState } from './utils/types'
 import { addNewTask } from './utils/task-operations'
 import { handleDragStart, handleDragEnd } from './utils/drag-drop-handlers'
 import MoveSchedulePopover from './move-schedule-popover'
+import SchedulePrintView from './schedule-print-view'
 
 // Make TaskItem dynamic since it uses useSortable hooks and causes hydration errors
 const DynamicTaskItem = dynamic(() => import('./task-item'), {
@@ -153,7 +154,9 @@ export default function DailyScheduleAccordion({
 
     return (
         <div>
-
+            <SchedulePrintView 
+                scheduleData={scheduleData}
+            />
             <MoveSchedulePopover 
                 scheduleId={scheduleData.id}
             />

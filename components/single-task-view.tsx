@@ -45,15 +45,7 @@ export function SingleTaskView({ task, isOpen, onClose, state }: FullScreenTaskV
                 {/* Task Title with Checkbox */}
                 <div className="mb-5 border-y">
                     <div className="flex items-center gap-3 my-3">
-                        {/* <Checkbox
-                            checked={task.completed}
-                            onCheckedChange={() => toggleTaskCompletion(task.id, state)}
-                            className='w-[20px] h-[20px] mt-1'
-                        /> */}
-                        <h1 className={`text-3xl text-center font-bold leading-tight flex-1 line-clamp-1 ${task.completed
-                            ? 'line-through text-muted-foreground'
-                            : 'text-foreground'
-                            }`}>
+                        <h1 className={`text-3xl text-center font-bold leading-tight flex-1 line-clamp-1`}>
                             {task.title}
                         </h1>
                     </div>
