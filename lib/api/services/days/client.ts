@@ -15,4 +15,13 @@ export const clientDays = {
         if (!response.ok) throw new Error('Failed to get days');
         return response.json();
     },
+
+    async moveScheduleToDate(scheduleId: string, dayDate: string) {
+        const response = await clientFetch('/days/move-schedule-to-date', {
+            method: 'POST',
+            body: JSON.stringify({ scheduleId, dayDate }),
+        });
+        if (!response.ok) throw new Error('Failed to move schedule to date');
+        return response.json();
+    }
 };

@@ -71,14 +71,14 @@ export default function EditTaskPopover({
                 </Button>
             </PopoverTrigger>
 
-            <PopoverContent className="w-[245px] p-5">
+            <PopoverContent className="w-fit p-2">
                 {currentView === 'menu' && (
-                    <div className="flex flex-col justify-center text-center gap-2">
+                    <div className="flex flex-col justify-center text-center gap-2 p-2">
                         <Button
                             variant="ghost"
                             onClick={() => setCurrentView('moving')}
                         >
-                            <CalendarIcon /> Copy to Date
+                            <CalendarIcon /> Copy Task
                         </Button>
 
                         <Button
@@ -93,26 +93,15 @@ export default function EditTaskPopover({
 
                 {currentView === 'moving' && (
                     <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={resetToMenu}
-                            >
-                                <ArrowLeft size={16} />
-                            </Button>
-                            <h3 className="font-medium text-sm">Move Task</h3>
-                        </div>
-
                         <Calendar
                             mode="single"
                             selected={date}
                             onSelect={setDate}
-                            className="rounded-md w-full bg-transparent"
+                            className="rounded-md bg-transparent w-[250px]"
                             captionLayout='dropdown'
                         />
 
-                        <div className="flex gap-2">
+                        <div className="flex-center gap-2 mb-2">
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -126,14 +115,14 @@ export default function EditTaskPopover({
                                 onClick={addTaskToDate}
                                 disabled={!date || isSubmitting}
                             >
-                                {isSubmitting ? 'Moving...' : 'Move Task'}
+                                {isSubmitting ? 'Copying...' : 'Copy Task'}
                             </Button>
                         </div>
                     </div>
                 )}
 
                 {currentView === 'deleting' && (
-                    <div className="space-y-5">
+                    <div className="space-y-5 w-[200px] p-3">
                         <p className='line-clamp-1 text-sm text-center italic'>"{taskText}"</p>
 
                         <div className="flex justify-center gap-2">

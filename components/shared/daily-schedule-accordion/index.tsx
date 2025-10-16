@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button'
 import { AccordionState } from './utils/types'
 import { addNewTask } from './utils/task-operations'
 import { handleDragStart, handleDragEnd } from './utils/drag-drop-handlers'
+import MoveSchedulePopover from './move-schedule-popover'
 
 // Make TaskItem dynamic since it uses useSortable hooks and causes hydration errors
 const DynamicTaskItem = dynamic(() => import('./task-item'), {
@@ -152,13 +153,16 @@ export default function DailyScheduleAccordion({
 
     return (
         <div>
-            <div className="flex-between">
+
+            <MoveSchedulePopover 
+                scheduleId={scheduleData.id}
+            />
+            <div className="flex-between mb-3">
                 <YesterdayTomorrowNav
                     goToTomorrow={goToTomorrow}
                     goToYesterday={goToYesterday}
                 />
-
-                <div className="flex text-sm items-center justify-end my-6 gap-x-2">
+                <div className="flex text-sm items-center justify-end gap-x-2">
                     <Button title="Close all tasks" onClick={() => setOpenAccordions([])} variant={'ghost'}>
                         <ChevronsDownUp
                             size={19}
