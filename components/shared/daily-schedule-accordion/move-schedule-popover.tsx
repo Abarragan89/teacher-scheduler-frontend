@@ -36,7 +36,7 @@ export default function MoveSchedulePopover({
 
     return (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild className='print:hidden'>
                 <Button
                     variant={"link"}
                     className='m-0 p-0 pl-2 mb-1 hover:cursor-pointer'

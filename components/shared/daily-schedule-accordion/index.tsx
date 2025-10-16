@@ -6,15 +6,16 @@ import { Task } from '@/types/tasks'
 import { OutlineItem } from '@/types/outline-item'
 import dynamic from 'next/dynamic'
 import { Skeleton } from "@/components/ui/skeleton"
-import { DndContext, 
-    KeyboardSensor, 
-    TouchSensor, 
-    MouseSensor, 
-    useSensor, 
-    useSensors, 
-    useDroppable, 
-    pointerWithin, 
-    DragOverlay 
+import {
+    DndContext,
+    KeyboardSensor,
+    TouchSensor,
+    MouseSensor,
+    useSensor,
+    useSensors,
+    useDroppable,
+    pointerWithin,
+    DragOverlay
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { ChevronsUpDown, Trash2 } from 'lucide-react'
@@ -154,13 +155,14 @@ export default function DailyScheduleAccordion({
 
     return (
         <div>
-            <SchedulePrintView 
+            <SchedulePrintView
                 scheduleData={scheduleData}
+                currentDay={currentDay}
             />
-            <MoveSchedulePopover 
+            <MoveSchedulePopover
                 scheduleId={scheduleData.id}
             />
-            <div className="flex-between mb-3">
+            <div className="print:!hidden flex-between mb-3">
                 <YesterdayTomorrowNav
                     goToTomorrow={goToTomorrow}
                     goToYesterday={goToYesterday}
@@ -202,7 +204,7 @@ export default function DailyScheduleAccordion({
                 >
                     <Accordion
                         type="multiple"
-                        className="w-full space-y-2"
+                        className="w-full space-y-2 print:hidden"
                         value={openAccordions}
                         onValueChange={setOpenAccordions}
                     >
@@ -248,7 +250,7 @@ export default function DailyScheduleAccordion({
                 {isEditable && (
                     <button
                         onClick={() => addNewTask(accordionState)}
-                        className="w-full mt-4 mb-14 p-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 hover:bg-border hover:text-ring"
+                        className="print:hidden w-full mt-4 mb-14 p-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 hover:bg-border hover:text-ring"
                     >
                         <span className="text-lg">+</span>
                         <span>Add Task</span>

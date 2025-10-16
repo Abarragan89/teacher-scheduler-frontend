@@ -13,7 +13,7 @@ export default function Header({
 }) {
 
   return (
-    <header className="p-6 flex-between">
+    <header className="print:!hidden p-6 flex-between">
       <Link
         href={"/"}
         className='flex justify-center items-end'
