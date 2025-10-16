@@ -74,7 +74,6 @@ export function SingleTaskView({ task, isOpen, onClose, state }: FullScreenTaskV
                                         `w-[20px] h-[20px]`
                                         :
                                         'w-[16px] h-[16px] rounded-full'}
-
                                     checked={item.completed}
                                     onCheckedChange={() => toggleOutlineItemCompletion(task.id, item.id, state)}
                                 />
