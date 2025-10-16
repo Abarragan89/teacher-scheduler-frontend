@@ -12,12 +12,9 @@ import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-
 import { CSS } from "@dnd-kit/utilities"
 import SortableOutlineItem from './sortable-outline-item'
 import EditTaskPopover from "./edit-task-popover"
-
-// Import utility functions
 import { AccordionState } from './utils/types'
 import { toggleTaskCompletion, updateTaskTitle, handleTaskBlur, handleTaskFocus } from './utils/task-operations'
 import { handleTaskTitleKeyDown } from './utils/keyboard-handlers'
-import { closeAllAccordions } from './utils/accordion-utils'
 
 
 interface TaskItemProps {
@@ -101,8 +98,7 @@ export default function TaskItem({
                 <AccordionTrigger className="w-6 h-6 p-0 rounded" />
                 {/* Popover to move task to different day */}
                 <EditTaskPopover
-                    taskId={task.id}
-                    taskText={task.title}
+                    task={task}
                     setTasks={state.setTasks}
                 />
             </div>

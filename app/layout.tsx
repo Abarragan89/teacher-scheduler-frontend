@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
+import { Toaster } from "@/components/ui/sonner"
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -32,6 +33,7 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class">
           {children}
+           <Toaster />
         </ThemeProvider>
       </body>
     </html>

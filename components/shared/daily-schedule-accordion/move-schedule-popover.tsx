@@ -7,6 +7,8 @@ import {
 } from "@/components/ui/popover"
 import { Calendar } from '@/components/ui/calendar'
 import { clientDays } from '@/lib/api/services/days/client'
+import { toast } from "sonner"
+import { formatDateDisplay } from '@/lib/utils'
 
 export default function MoveSchedulePopover({
     scheduleId
@@ -28,6 +30,7 @@ export default function MoveSchedulePopover({
         if (response) {
             setIsOpen(false);
             setIsSubmitting(false);
+            toast.success(`Schedule copied successfully to ${formatDateDisplay(date)}`);
         }
     }
 
