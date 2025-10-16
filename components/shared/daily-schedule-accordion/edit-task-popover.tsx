@@ -11,15 +11,18 @@ import { clientTasks } from '@/lib/api/services/tasks/client'
 import { handleTaskDelete } from './utils/task-operations'
 import { SingleTaskView } from '@/components/single-task-view'
 import { Task } from '@/types/tasks'
+import { AccordionState } from './utils/types'
 import { toast } from 'sonner'
 import { formatDateDisplay } from '@/lib/utils'
 
 export default function EditTaskPopover({
     task,
-    setTasks
+    setTasks,
+    state
 }: {
     task: Task
     setTasks: React.Dispatch<React.SetStateAction<Task[]>>
+    state: AccordionState
 }) {
 
     const [date, setDate] = React.useState<Date | undefined>(new Date());
@@ -83,7 +86,7 @@ export default function EditTaskPopover({
                             </Button>
                             <Button
                                 variant="ghost"
-                                onClick={() => {setIsFullScreenView(true); setIsOpen(false)}}
+                                onClick={() => { setIsFullScreenView(true); setIsOpen(false) }}
                             >
                                 <Eye /> Task View
                             </Button>
@@ -154,10 +157,11 @@ export default function EditTaskPopover({
                 </PopoverContent>
             </Popover>
             {isFullScreenView && (
-                <SingleTaskView 
+                <SingleTaskView
                     task={task}
                     onClose={() => setIsFullScreenView(false)}
                     isOpen={isFullScreenView}
+                    state={state}
                 />
             )}
         </>

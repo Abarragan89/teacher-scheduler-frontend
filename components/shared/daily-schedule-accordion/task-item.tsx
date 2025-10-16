@@ -100,6 +100,7 @@ export default function TaskItem({
                 <EditTaskPopover
                     task={task}
                     setTasks={state.setTasks}
+                    state={state}
                 />
             </div>
 

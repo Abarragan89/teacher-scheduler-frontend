@@ -1,21 +1,27 @@
 import React from 'react'
-import { X, ArrowLeft, CheckCircle } from 'lucide-react'
+import { X, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Task } from '@/types/tasks'
+import { AccordionState } from './shared/daily-schedule-accordion/utils/types'
+import { toggleTaskCompletion } from './shared/daily-schedule-accordion/utils/task-operations'
+import { toggleOutlineItemCompletion } from './shared/daily-schedule-accordion/utils/outline-operations'
+import { Separator } from './ui/separator'
 
 interface FullScreenTaskViewProps {
     task: Task
     isOpen: boolean
     onClose: () => void
+    state: AccordionState
 }
 
-export function SingleTaskView({ task, isOpen, onClose }: FullScreenTaskViewProps) {
+export function SingleTaskView({ task, isOpen, onClose, state }: FullScreenTaskViewProps) {
     if (!isOpen) return null
 
     return (
         <div className="fixed inset-0 z-50 bg-background">
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex items-center justify-between p-4">
                 <Button
                     variant="ghost"
                     size="sm"
@@ -35,45 +41,53 @@ export function SingleTaskView({ task, isOpen, onClose }: FullScreenTaskViewProp
             </div>
 
             {/* Content */}
-            <div className="h-full overflow-y-auto p-4 pb-20">
-                {/* Task Title */}
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold leading-tight text-foreground mb-2">
-                        {task.title}
-                    </h1>
-                    <div className="h-px bg-border" />
+            <div className="h-full overflow-y-auto pb-20">
+                {/* Task Title with Checkbox */}
+                <div className="mb-5 border-y">
+                    <div className="flex items-center gap-3 my-3">
+                        {/* <Checkbox
+                            checked={task.completed}
+                            onCheckedChange={() => toggleTaskCompletion(task.id, state)}
+                            className='w-[20px] h-[20px] mt-1'
+                        /> */}
+                        <h1 className={`text-3xl text-center font-bold leading-tight flex-1 line-clamp-1 ${task.completed
+                            ? 'line-through text-muted-foreground'
+                            : 'text-foreground'
+                            }`}>
+                            {task.title}
+                        </h1>
+                    </div>
                 </div>
 
                 {/* Outline Items */}
-                {task.outlineItems && task.outlineItems.length > 0 && (
-                    <div className="space-y-4">
-                        {task.outlineItems.map((item, index) => (
+                {task?.outlineItems && task.outlineItems.length > 0 && (
+                    <div className="space-y-4 md:mx-10 p-2">
+                        {task.outlineItems.slice(0, task.outlineItems.length - 1).map(item => (
                             <div
                                 key={item.id}
-                                className="flex items-start gap-3 group"
-                                style={{ paddingLeft: `${item.indentLevel * 1.5}rem` }}
+                                className={`flex items-center gap-3 group ml-5
+                                    ${item.indentLevel === 0 ? `ml-3` : 'ml-14'}`}
                             >
-                                {/* Bullet or checkbox */}
-                                <div className="flex-shrink-0 mt-2">
-                                    {item.completed ? (
-                                        <CheckCircle size={16} className="text-green-600" />
-                                    ) : (
-                                        <div className="w-2 h-2 rounded-full bg-muted-foreground mt-1" />
-                                    )}
-                                </div>
+                                {/* Functional Checkbox */}
+                                <Checkbox
+                                    className={item.indentLevel === 0 ?
+                                        `w-[20px] h-[20px]`
+                                        :
+                                        'w-[16px] h-[16px] rounded-full'}
+
+                                    checked={item.completed}
+                                    onCheckedChange={() => toggleOutlineItemCompletion(task.id, item.id, state)}
+                                />
 
                                 {/* Content */}
-                                <div className="flex-1 min-w-0">
-                                    <p
-                                        className={`text-lg leading-relaxed ${
-                                            item.completed
-                                                ? 'line-through text-muted-foreground'
-                                                : 'text-foreground'
+                                <p
+                                    className={`text-lg leading-relaxed ${item.completed
+                                        ? 'line-through text-muted-foreground'
+                                        : 'text-foreground'
                                         }`}
-                                    >
-                                        {item.text}
-                                    </p>
-                                </div>
+                                >
+                                    {item.text}
+                                </p>
                             </div>
                         ))}
                     </div>
