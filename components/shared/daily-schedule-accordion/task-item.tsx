@@ -61,7 +61,7 @@ export default function TaskItem({
                 `}
             data-task-id={task.id}
         >
-            <div className={`flex items-center gap-2 p-3 bg-muted border
+            <div className={`flex items-center gap-2 p-2 bg-muted border
                 // ${isThisAccordionOpen ? 'rounded-t-lg border-b-0 border' : 'rounded-md'}
                 `}>
                 {/* Task Drag Handle */}
@@ -103,17 +103,13 @@ export default function TaskItem({
                     onTouchMove={(e) => e.stopPropagation()}   // Add this
                 />
                 <AccordionTrigger className="w-6 h-6 p-0 " />
+                <TimePicker />
                 {/* Popover to move task to different day */}
                 <EditTaskPopover
                     task={task}
                     setTasks={state.setTasks}
                     state={state}
                 />
-                {/* <TimePicker 
-                    startTime={'8:00 AM'}
-                    endTime={'9:00 AM'}
-                    onChange={() => console.log('changed')}
-                /> */}
             </div>
 
             <AccordionContent className="px-1 py-3 border border-t-0 rounded-b-lg" data-task-id={task.id}>

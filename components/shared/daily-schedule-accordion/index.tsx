@@ -24,8 +24,6 @@ import YesterdayTomorrowNav from './yesterday-tomorrow-nav'
 import { useRouter } from 'next/navigation'
 import { ChevronsDownUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-
-// Utils imports
 import { AccordionState } from './utils/types'
 import { addNewTask } from './utils/task-operations'
 import { handleDragStart, handleDragEnd } from './utils/drag-drop-handlers'
@@ -38,8 +36,8 @@ const DynamicTaskItem = dynamic(() => import('./task-item'), {
     loading: () => (
         <div className="border rounded-lg p-4 space-y-3">
             <div className="flex items-center gap-3">
-                <Skeleton className="h-3 w-3 rounded" />
-                <Skeleton className="h-3 flex-1" />
+                <Skeleton className="h-5 w-3 rounded" />
+                <Skeleton className="h-5 flex-1" />
             </div>
         </div>
     )

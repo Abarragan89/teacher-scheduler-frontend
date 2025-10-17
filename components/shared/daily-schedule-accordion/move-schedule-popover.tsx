@@ -44,7 +44,7 @@ export default function MoveSchedulePopover({
                     Copy Schedule
                 </Button>
             </PopoverTrigger>
-            <PopoverContent>
+            <PopoverContent className='h-fit'>
                 <div className="space-y-3">
                     <Calendar
                         mode="single"

@@ -75,7 +75,7 @@ export default function EditTaskPopover({
                     </Button>
                 </PopoverTrigger>
 
-                <PopoverContent className="w-fit p-2">
+                <PopoverContent className="w-fit h-fit p-2">
                     {currentView === 'menu' && (
                         <div className="flex flex-col justify-center text-center gap-1 p-2">
                             <Button
@@ -106,7 +106,7 @@ export default function EditTaskPopover({
                                 mode="single"
                                 selected={date}
                                 onSelect={setDate}
-                                className="rounded-md bg-transparent w-[250px] m-h-[250px]"
+                                className="rounded-md bg-transparent w-[250px] min-h-[250px]"
                                 captionLayout='dropdown'
                             />
 
