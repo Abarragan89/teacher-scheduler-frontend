@@ -19,14 +19,14 @@ export function TimePicker() {
                     <Clock size={16} className="text-muted-foreground" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent>
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+            <PopoverContent className="w-fit h-fit p-10">
+                <div className="flex flex-col items-center gap-4">
                     <div className="flex flex-col">
                         <Label htmlFor="startTime">Start Time</Label>
                         <Input
                             id="startTime"
                             type="time"
-                            className="w-40"
+
                         />
                     </div>
 
@@ -35,9 +35,11 @@ export function TimePicker() {
                         <Input
                             id="endTime"
                             type="time"
-                            className="w-40"
                         />
                     </div>
+                    <Button>
+                        Set Time
+                    </Button>
                 </div>
             </PopoverContent>
         </Popover>
