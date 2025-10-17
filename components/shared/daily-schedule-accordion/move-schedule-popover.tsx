@@ -50,7 +50,7 @@ export default function MoveSchedulePopover({
                         mode="single"
                         selected={date}
                         onSelect={setDate}
-                        className="rounded-md bg-transparent w-[250px] min-h-[250px]"
+                        className="rounded-md bg-transparent w-[250px] min-h-[340px]"
                         captionLayout='dropdown'
                     />
 
