@@ -15,6 +15,7 @@ import EditTaskPopover from "./edit-task-popover"
 import { AccordionState } from './utils/types'
 import { toggleTaskCompletion, updateTaskTitle, handleTaskBlur, handleTaskFocus } from './utils/task-operations'
 import { handleTaskTitleKeyDown } from './utils/keyboard-handlers'
+import { TimePicker } from "./time-picker"
 
 
 interface TaskItemProps {
@@ -108,10 +109,16 @@ export default function TaskItem({
                     setTasks={state.setTasks}
                     state={state}
                 />
+                {/* <TimePicker 
+                    startTime={'8:00 AM'}
+                    endTime={'9:00 AM'}
+                    onChange={() => console.log('changed')}
+                /> */}
             </div>
 
             <AccordionContent className="px-1 py-3 border border-t-0 rounded-b-lg" data-task-id={task.id}>
                 <div className="space-y-2 mt-2 ml-4">
+
                     {/* Outline Items with their own SortableContext */}
                     <SortableContext
                         items={task?.outlineItems?.length > 0 ? task.outlineItems.map(item => item.id) : []}

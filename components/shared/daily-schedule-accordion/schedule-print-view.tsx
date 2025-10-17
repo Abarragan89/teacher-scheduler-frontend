@@ -1,6 +1,5 @@
 import { Schedule } from '@/types/day'
 import React from 'react'
-import { formatDateDisplay } from '@/lib/utils'
 
 export default function SchedulePrintView({
     scheduleData,
@@ -26,7 +25,7 @@ export default function SchedulePrintView({
     ) || []
 
     return (
-        <div className="hidden print:block max-w-5xl mx-auto bg-white text-black print:p-2 print:max-w-none">
+        <div className="hidden print:block max-w-5xl mx-auto bg-white text-black print:max-w-none">
             {/* Print-specific styles */}
             <style jsx>{`
                 @media print {
@@ -38,8 +37,8 @@ export default function SchedulePrintView({
             `}</style>
 
             {/* Header */}
-            <div className="border-b border-black pb-4 mb-6 print-avoid-break">
-                <h1 className="text-3xl font-bold text-center mb-2">
+            <div className="pb-2 mb-2 print-avoid-break">
+                <h1 className="text-2xl font-bold text-center">
                     Daily Lesson Plan
                 </h1>
                 <p className="text-center">
@@ -51,12 +50,12 @@ export default function SchedulePrintView({
             {activeTasks.length > 0 && (
                 <div className="space-y-6">
                     {activeTasks.map(task => (
-                        <div key={task.id} className="border-2 border-gray-300 rounded-lg p-4 print-avoid-break">
+                        <div key={task.id} className="border-2 border-gray-300 rounded-sm p-2 print-avoid-break">
                             {/* Task/Period Header */}
-                            <div className="flex items-center gap-3 mb-3 pb-2 border-b border-gray-200">
-                                <div className="w-6 h-6 border-2 border-gray-400 rounded flex-shrink-0 flex items-center justify-center">
-                                </div>
-                                <h2 className={`text-xl font-bold flex-1`}>
+                            <div className={`
+                                ${task.outlineItems.length > 0 ? 'flex items-center gap-3  border-gray-200 border-b mb-2 pb-1' : ''}
+                                `}>
+                                <h2 className={`text-lg font-bold flex-1`}>
                                     {task.title}
                                 </h2>
                             </div>
@@ -69,19 +68,18 @@ export default function SchedulePrintView({
                                         .map(item => (
                                             <div
                                                 key={item.id}
-                                                className="flex items-start gap-3"
+                                                className="flex items-start gap-1"
                                                 style={{ marginLeft: `${item.indentLevel * 24}px` }}
                                             >
                                                 {/* Checkbox */}
-                                                <div className="w-4 h-4 border border-gray-400 rounded-sm flex-shrink-0 mt-1 flex items-center justify-center">
+                                                <div className="min-w-4 min-h-4 border border-gray-500 rounded-sm mt-1">
                                                 </div>
 
                                                 {/* Content */}
-                                                <div className="flex-1">
-                                                    <p className={`text-base leading-relaxed`}>
+                                                    <p className={`text-md ml-1`}>
                                                         {item.text}
                                                     </p>
-                                                </div>
+                                            
                                             </div>
                                         ))}
                                 </div>

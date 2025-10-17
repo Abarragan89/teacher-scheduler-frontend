@@ -106,7 +106,7 @@ export default function EditTaskPopover({
                                 mode="single"
                                 selected={date}
                                 onSelect={setDate}
-                                className="rounded-md bg-transparent w-[250px]"
+                                className="rounded-md bg-transparent w-[250px] m-h-[250px]"
                                 captionLayout='dropdown'
                             />
 

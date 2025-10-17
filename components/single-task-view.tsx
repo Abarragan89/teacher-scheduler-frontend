@@ -41,31 +41,29 @@ export function SingleTaskView({ task, isOpen, onClose, state }: FullScreenTaskV
             </div>
 
             {/* Content */}
-            <div className="h-full overflow-y-auto pb-20">
-                {/* Task Title with Checkbox */}
-                <div className="mb-5 border-y">
-                    <div className="flex items-center gap-3 my-3">
-                        <h1 className={`text-3xl text-center font-bold leading-tight flex-1 line-clamp-1`}>
-                            {task.title}
-                        </h1>
-                    </div>
+            <div className="h-full overflow-y-auto mx-5">
+                {/* Task Title */}
+                <div className="py-3 border-t border-x rounded-t-md bg-muted">
+                    <h1 className={`text-2xl md:text-3xl text-center font-bold leading-tight flex-1 mx-3 line-clamp-1`}>
+                        {task.title}
+                    </h1>
                 </div>
 
                 {/* Outline Items */}
                 {task?.outlineItems && task.outlineItems.length > 0 && (
-                    <div className="space-y-4 md:mx-10 p-2">
+                    <div className="space-y-4 px-3 py-5 border-x border-b rounded-b-md shadow-lg">
                         {task.outlineItems.slice(0, task.outlineItems.length - 1).map(item => (
                             <div
                                 key={item.id}
-                                className={`flex items-center gap-3 group ml-5
+                                className={`flex items-start gap-3 group ml-5
                                     ${item.indentLevel === 0 ? `ml-3` : 'ml-14'}`}
                             >
                                 {/* Functional Checkbox */}
                                 <Checkbox
-                                    className={item.indentLevel === 0 ?
-                                        `w-[20px] h-[20px]`
+                                    className={`mt-[4px] ${item.indentLevel === 0 ?
+                                        'w-[20px] h-[20px]'
                                         :
-                                        'w-[16px] h-[16px] rounded-full'}
+                                        'w-[16px] h-[16px] rounded-full'}`}
                                     checked={item.completed}
                                     onCheckedChange={() => toggleOutlineItemCompletion(task.id, item.id, state)}
                                 />

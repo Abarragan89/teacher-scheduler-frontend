@@ -20,8 +20,8 @@ export default function Header({
       >
         <Image
           src={'/images/logo.png'}
-          height={40}
-          width={40}
+          height={45}
+          width={45}
           alt="Company Logo"
           priority
         />

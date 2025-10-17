@@ -159,9 +159,20 @@ export default function DailyScheduleAccordion({
                 scheduleData={scheduleData}
                 currentDay={currentDay}
             />
-            <MoveSchedulePopover
-                scheduleId={scheduleData.id}
-            />
+
+            <div className="flex-between">
+                <MoveSchedulePopover
+                    scheduleId={scheduleData.id}
+                />
+                <Button
+                    onClick={() => window.print()}
+                    variant={'link'}
+                    className='print:hidden mr-0 pr-1'
+                    >
+                    Print
+                </Button>
+            </div>
+
             <div className="print:!hidden flex-between mb-3">
                 <YesterdayTomorrowNav
                     goToTomorrow={goToTomorrow}
