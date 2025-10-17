@@ -26,7 +26,7 @@ export default function SchedulePrintView({
     ) || []
 
     return (
-        <div className="hidden print:block max-w-5xl mx-auto p-4 bg-white text-black print:p-6 print:max-w-none">
+        <div className="hidden print:block max-w-5xl mx-auto bg-white text-black print:p-2 print:max-w-none">
             {/* Print-specific styles */}
             <style jsx>{`
                 @media print {
@@ -38,16 +38,13 @@ export default function SchedulePrintView({
             `}</style>
 
             {/* Header */}
-            <div className="border-b-4 border-black pb-4 mb-6 print-avoid-break">
+            <div className="border-b border-black pb-4 mb-6 print-avoid-break">
                 <h1 className="text-3xl font-bold text-center mb-2">
                     Daily Lesson Plan
                 </h1>
-                <div className="header-section">
-                    <h1 className="schedule-title">Daily Schedule</h1>
-                    <p className="schedule-date">
-                        {currentDay ? formatDate(currentDay) : 'Today'}
-                    </p>
-                </div>
+                <p className="text-center">
+                    {currentDay ? formatDate(currentDay) : 'Today'}
+                </p>
             </div>
 
             {/* Tasks/Periods */}
@@ -69,7 +66,7 @@ export default function SchedulePrintView({
                                 <div className="space-y-2">
                                     {task.outlineItems
                                         .filter(item => item.text.trim() !== '') // Only show non-empty items
-                                        .map((item, itemIndex) => (
+                                        .map(item => (
                                             <div
                                                 key={item.id}
                                                 className="flex items-start gap-3"
@@ -84,11 +81,6 @@ export default function SchedulePrintView({
                                                     <p className={`text-base leading-relaxed`}>
                                                         {item.text}
                                                     </p>
-                                                </div>
-
-                                                {/* Item number for reference */}
-                                                <div className="text-xs text-gray-400 font-mono">
-                                                    {itemIndex + 1}
                                                 </div>
                                             </div>
                                         ))}

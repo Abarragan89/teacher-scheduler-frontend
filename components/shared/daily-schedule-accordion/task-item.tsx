@@ -48,15 +48,21 @@ export default function TaskItem({
         opacity: isTaskDragging ? 0 : 1
     }
 
+    const isThisAccordionOpen = state.openAccordions.includes(task.id)
+
     return (
         <AccordionItem
             ref={setTaskNodeRef}
             style={taskStyle}
             value={task.id}
-            className="border-none"
+            className={`border-none my-4 rounded-md shadow-lg
+                ${isThisAccordionOpen ? 'shadow-lg' : ''}
+                `}
             data-task-id={task.id}
         >
-            <div className="flex items-center gap-2 px-3 py-3 bg-muted rounded-lg">
+            <div className={`flex items-center gap-2 p-3 bg-muted border
+                // ${isThisAccordionOpen ? 'rounded-t-lg border-b-0 border' : 'rounded-md'}
+                `}>
                 {/* Task Drag Handle */}
                 <div
                     {...taskAttributes}
@@ -70,13 +76,13 @@ export default function TaskItem({
                         WebkitTapHighlightColor: 'transparent' // Remove tap highlight
                     }}
                 >
-                    <GripVertical className="w-4 h-4" />
+                    <GripVertical className="w-5 h-5" />
                 </div>
 
                 <Checkbox
                     checked={task.completed}
                     onCheckedChange={() => toggleTaskCompletion(task.id, state)}
-                    className='w-[18px] h-[18px]'
+                    className='w-[20px] h-[20px]'
                 />
 
                 <BareInput
@@ -95,7 +101,7 @@ export default function TaskItem({
                     onTouchStart={(e) => e.stopPropagation()}  // Add this
                     onTouchMove={(e) => e.stopPropagation()}   // Add this
                 />
-                <AccordionTrigger className="w-6 h-6 p-0 rounded" />
+                <AccordionTrigger className="w-6 h-6 p-0 " />
                 {/* Popover to move task to different day */}
                 <EditTaskPopover
                     task={task}
@@ -104,7 +110,7 @@ export default function TaskItem({
                 />
             </div>
 
-            <AccordionContent className="px-4 pb-4" data-task-id={task.id}>
+            <AccordionContent className="px-1 py-3 border border-t-0 rounded-b-lg" data-task-id={task.id}>
                 <div className="space-y-2 mt-2 ml-4">
                     {/* Outline Items with their own SortableContext */}
                     <SortableContext

@@ -48,8 +48,8 @@
     0px 1px 2px -1px hsl(240 30% 25% / 0.12);
   --shadow-md: 0px 4px 10px 0px hsl(240 30% 25% / 0.12),
     0px 2px 4px -1px hsl(240 30% 25% / 0.12);
-  --shadow-lg: 0px 4px 10px 0px hsl(240 30% 25% / 0.12),
-    0px 4px 6px -1px hsl(240 30% 25% / 0.12);
+  --shadow-lg: 0px 4px 10px 0px hsla(240, 52%, 13%, 0.576),
+    0px 4px 6px -1px hsla(240, 26%, 20%, 0.576);
   --shadow-xl: 0px 4px 10px 0px hsl(240 30% 25% / 0.12),
     0px 8px 10px -1px hsl(240 30% 25% / 0.12);
   --shadow-2xl: 0px 4px 10px 0px hsl(240 30% 25% / 0.3);

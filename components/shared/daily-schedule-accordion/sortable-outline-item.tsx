@@ -5,8 +5,6 @@ import { GripVertical } from 'lucide-react'
 import { OutlineItem } from '@/types/outline-item'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from "@dnd-kit/utilities"
-
-// Import utility functions
 import { AccordionState } from './utils/types'
 import { toggleOutlineItemCompletion, updateOutlineItem, handleOutlineBlur, handleOutlineFocus } from './utils/outline-operations'
 import { handleOutlineKeyDown } from './utils/keyboard-handlers'
@@ -46,7 +44,8 @@ export default function SortableOutlineItem({
         <div
             ref={setNodeRef}
             style={style}
-            className="flex items-start gap-3"
+            className={`flex items-start gap-1 mb-2`}
+
         >
 
             <div
@@ -54,7 +53,7 @@ export default function SortableOutlineItem({
                 {...listeners}
                 className="cursor-grab active:cursor-grabbing p-1 hover:bg-accent rounded text-muted-foreground"
                 style={{
-                    marginLeft: `${item.indentLevel * 20}px`,
+                    marginLeft: `${item.indentLevel * 25}px`,
                     touchAction: 'none',
                     userSelect: 'none',
                     WebkitUserSelect: 'none',
@@ -62,12 +61,12 @@ export default function SortableOutlineItem({
                     WebkitTapHighlightColor: 'transparent'
                 }}
             >
-                <GripVertical className="w-3 h-3" />
+                <GripVertical className="w-4 h-4" />
             </div>
-
             {/* Regular content - not draggable */}
             <div
-                className="flex items-start gap-3 flex-1"
+                className={`flex items-start gap-2 flex-1`}
+
             >
                 <Checkbox
                     className='w-[15px] h-[16px] rounded-full mt-[2px]'
@@ -76,7 +75,11 @@ export default function SortableOutlineItem({
                 />
 
                 <BareInput
-                    className={`flex-1 text-sm ${item.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
+                    className={`flex-1 text-sm
+                        ${item.completed ? 'line-through text-muted-foreground' : ''} 
+                        ${!isEditable ? 'cursor-default' : ''}
+                        ${item.indentLevel > 0 ? 'bg-muted' : 'pl-0 border-none'}
+                        `}
                     placeholder="Add Talking Point..."
                     value={item.text}
                     onChange={(e) => updateOutlineItem(taskId, item.id, e.target.value, state)}
