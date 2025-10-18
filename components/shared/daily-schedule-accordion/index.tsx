@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, KeyboardEvent } from 'react'
+import React, { useState } from 'react'
 import { Accordion } from "@/components/ui/accordion"
 import { Switch } from "@/components/ui/switch"
 import { Task } from '@/types/tasks'

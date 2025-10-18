@@ -70,12 +70,10 @@ export default function EditTaskPopover({
         <>
             <Popover open={isOpen} onOpenChange={handleOpenChange}>
                 <PopoverTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                        <EllipsisVertical size={20} className="text-muted-foreground" />
-                    </Button>
+                        <EllipsisVertical size={20} className="text-muted-foreground " />
                 </PopoverTrigger>
 
-                <PopoverContent className="w-fit h-fit p-2">
+                <PopoverContent className="w-fit h-fit p-2 mr-5">
                     {currentView === 'menu' && (
                         <div className="flex flex-col justify-center text-center gap-1 p-2">
                             <Button
@@ -106,7 +104,7 @@ export default function EditTaskPopover({
                                 mode="single"
                                 selected={date}
                                 onSelect={setDate}
-                                className="rounded-md bg-transparent w-[250px] min-h-[340px]"
+                                className="rounded-md bg-transparent w-[250px] min-h-[300px]"
                                 captionLayout='dropdown'
                             />
 

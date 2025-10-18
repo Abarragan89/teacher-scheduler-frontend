@@ -4,9 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Task } from '@/types/tasks'
 import { AccordionState } from './shared/daily-schedule-accordion/utils/types'
-import { toggleTaskCompletion } from './shared/daily-schedule-accordion/utils/task-operations'
 import { toggleOutlineItemCompletion } from './shared/daily-schedule-accordion/utils/outline-operations'
-import { Separator } from './ui/separator'
 
 interface FullScreenTaskViewProps {
     task: Task
@@ -41,7 +39,7 @@ export function SingleTaskView({ task, isOpen, onClose, state }: FullScreenTaskV
             </div>
 
             {/* Content */}
-            <div className="h-full overflow-y-auto mx-5">
+            <div className="wrapper h-full overflow-y-auto mx-5">
                 {/* Task Title */}
                 <div className="py-3 border-t border-x rounded-t-md bg-muted">
                     <h1 className={`text-2xl md:text-3xl text-center font-bold leading-tight flex-1 mx-3 line-clamp-1`}>

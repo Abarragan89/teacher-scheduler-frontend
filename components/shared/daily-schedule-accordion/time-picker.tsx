@@ -13,13 +13,9 @@ export function TimePicker() {
 
         <Popover>
             <PopoverTrigger asChild>
-                <Button
-                    variant={"link"}
-                >
                     <Clock size={16} className="text-muted-foreground" />
-                </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-fit h-fit p-5 px-9">
+            <PopoverContent className="w-fit h-fit p-5 px-9 mr-5">
                 <div className="flex flex-col items-center gap-4">
                     <div className="flex flex-col">
                         <Label htmlFor="startTime">Start Time</Label>

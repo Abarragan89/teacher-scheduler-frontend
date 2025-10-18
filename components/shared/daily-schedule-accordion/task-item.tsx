@@ -61,7 +61,7 @@ export default function TaskItem({
                 `}
             data-task-id={task.id}
         >
-            <div className={`flex items-center gap-2 p-2 bg-muted border
+            <div className={`flex items-center gap-3 p-2 py-3 bg-muted border pr-3
                 // ${isThisAccordionOpen ? 'rounded-t-lg border-b-0 border' : 'rounded-md'}
                 `}>
                 {/* Task Drag Handle */}
@@ -87,7 +87,7 @@ export default function TaskItem({
                 />
 
                 <BareInput
-                    className={`task-title-input flex-1 text-base tracking-wide font-bold ${task.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
+                    className={`flex-1 font-bold ${task.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
                     placeholder="Subject or Period..."
                     value={task.title}
                     onChange={(e) => updateTaskTitle(task.id, e.target.value, state)}
@@ -102,7 +102,7 @@ export default function TaskItem({
                     onTouchStart={(e) => e.stopPropagation()}  // Add this
                     onTouchMove={(e) => e.stopPropagation()}   // Add this
                 />
-                <AccordionTrigger className="w-6 h-6 p-0 " />
+                <AccordionTrigger className="w-6 h-6 p-0" />
                 <TimePicker />
                 {/* Popover to move task to different day */}
                 <EditTaskPopover
