@@ -65,7 +65,7 @@ export const clientTasks = {
         }
     },
 
-     async moveTaskToLaterDate(taskId: string, newDate: string) {
+    async moveTaskToLaterDate(taskId: string, newDate: string) {
         try {
             const reopnse = await clientFetch('/task/move-to-later-date', {
                 method: 'POST',
@@ -73,7 +73,20 @@ export const clientTasks = {
             });
             if (!reopnse.ok) throw new Error('Failed to move task to later date');
             return true;
-            
+
+        } catch (error) {
+            throw error;
+        }
+    },
+    async updateTaskTime(taskId: string, startTime:string, endTime:string) {
+        try {
+            const reopnse = await clientFetch('/task/update-task-times', {
+                method: 'PUT',
+                body: JSON.stringify({ taskId, startTime, endTime }),
+            });
+            if (!reopnse.ok) throw new Error('Failed to move task to later date');
+            return true;
+
         } catch (error) {
             throw error;
         }

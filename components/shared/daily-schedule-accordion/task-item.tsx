@@ -16,6 +16,7 @@ import { AccordionState } from './utils/types'
 import { toggleTaskCompletion, updateTaskTitle, handleTaskBlur, handleTaskFocus } from './utils/task-operations'
 import { handleTaskTitleKeyDown } from './utils/keyboard-handlers'
 import { TimePicker } from "./time-picker"
+import { formatTime } from "@/lib/utils"
 
 
 interface TaskItemProps {
@@ -51,6 +52,8 @@ export default function TaskItem({
 
     const isThisAccordionOpen = state.openAccordions.includes(task.id)
 
+    console.log("state ", state)
+
     return (
         <AccordionItem
             ref={setTaskNodeRef}
@@ -61,7 +64,7 @@ export default function TaskItem({
                 `}
             data-task-id={task.id}
         >
-            <div className={`flex items-center gap-3 p-2 py-3 bg-muted border pr-3
+            <div className={`relative flex items-center gap-3 p-2 py-5 bg-muted border pr-3
                 // ${isThisAccordionOpen ? 'rounded-t-lg border-b-0 border' : 'rounded-md'}
                 `}>
                 {/* Task Drag Handle */}
@@ -102,14 +105,34 @@ export default function TaskItem({
                     onTouchStart={(e) => e.stopPropagation()}  // Add this
                     onTouchMove={(e) => e.stopPropagation()}   // Add this
                 />
+
+                {/* Open Close Accordion */}
                 <AccordionTrigger className="w-6 h-6 p-0" />
-                <TimePicker />
+
+                {/* Pick Time */}
+                <TimePicker
+                    setTasks={state.setTasks}
+                    taskId={task.id}
+                />
+
                 {/* Popover to move task to different day */}
                 <EditTaskPopover
                     task={task}
                     setTasks={state.setTasks}
                     state={state}
                 />
+
+                {task?.startTime && (
+                    <div className="absolute right-5 top-[2px] italic text-[.70rem] text-muted-foreground opacity-50">
+                        {formatTime(task.startTime)}
+                    </div>
+                )}
+                {task?.endTime && (
+                    <div className="absolute right-5 bottom-[2px] italic text-[.70rem] text-muted-foreground opacity-50">
+                        {formatTime(task.endTime)}
+                    </div>
+                )}
+
             </div>
 
             <AccordionContent className="px-1 py-3 border border-t-0 rounded-b-lg" data-task-id={task.id}>

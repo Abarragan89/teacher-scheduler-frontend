@@ -1,3 +1,4 @@
+import { formatTime } from '@/lib/utils'
 import { Schedule } from '@/types/day'
 import React from 'react'
 
@@ -50,7 +51,7 @@ export default function SchedulePrintView({
             {activeTasks.length > 0 && (
                 <div className="space-y-6">
                     {activeTasks.map(task => (
-                        <div key={task.id} className="border-2 border-gray-300 rounded-sm p-2 print-avoid-break">
+                        <div key={task.id} className="relative border-2 border-gray-300 rounded-sm p-4 print-avoid-break">
                             {/* Task/Period Header */}
                             <div className={`
                                 ${task.outlineItems.length > 0 ? 'flex items-center gap-3  border-gray-200 border-b mb-2 pb-1' : ''}
@@ -58,6 +59,17 @@ export default function SchedulePrintView({
                                 <h2 className={`text-lg font-bold flex-1`}>
                                     {task.title}
                                 </h2>
+                                <div className='absolute top-[2px] right-2 flex-center gap-x-1 opacity-80 text-xs'>
+                                    {task?.startTime && (
+                                        <p>{formatTime(task.startTime)}</p>
+                                    )}
+                                    {task?.endTime && (
+                                        <>
+                                            <p>-</p>
+                                            <p>{formatTime(task.endTime)}</p>
+                                        </>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Outline Items */}
@@ -76,10 +88,10 @@ export default function SchedulePrintView({
                                                 </div>
 
                                                 {/* Content */}
-                                                    <p className={`text-md ml-1`}>
-                                                        {item.text}
-                                                    </p>
-                                            
+                                                <p className={`text-md ml-1`}>
+                                                    {item.text}
+                                                </p>
+
                                             </div>
                                         ))}
                                 </div>

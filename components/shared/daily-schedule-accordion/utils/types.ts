@@ -1,5 +1,4 @@
 import { Task } from '@/types/tasks'
-import { OutlineItem } from '@/types/outline-item'
 
 // Reference object containing all the state and setters needed by utility functions
 export interface AccordionState {

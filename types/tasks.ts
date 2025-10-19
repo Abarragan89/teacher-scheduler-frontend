@@ -25,5 +25,7 @@ export interface Task {
     clientKey?: string;
     position: number;
     completed: boolean;
+    startTime?: string;
+    endTime?: string;
     outlineItems: OutlineItem[];
 }
