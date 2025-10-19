@@ -42,8 +42,8 @@ export function SingleTaskView({ task, isOpen, onClose, state }: FullScreenTaskV
             {/* Content */}
             <div className="wrapper h-full overflow-y-auto mx-5">
                 {/* Task Title */}
-                <div className="relative py-5 border-t border-x rounded-t-md bg-muted">
-                    <h1 className={`text-2xl md:text-3xl text-center font-bold leading-tight flex-1 mx-3 line-clamp-1`}>
+                <div className="relative py-4 border-t border-x rounded-t-md bg-muted">
+                    <h1 className={`text-lg xs:text-2xl text-center font-bold leading-tight flex-1 mx-4 line-clamp-1`}>
                         {task.title}
                     </h1>
                 </div>
@@ -80,7 +80,7 @@ export function SingleTaskView({ task, isOpen, onClose, state }: FullScreenTaskV
 
                                 {/* Content */}
                                 <p
-                                    className={`text-lg leading-relaxed ${item.completed
+                                    className={`text-md xs:text-lg leading-relaxed ${item.completed
                                         ? 'line-through text-muted-foreground'
                                         : 'text-foreground'
                                         }`}
