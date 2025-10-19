@@ -103,7 +103,8 @@ export default function TaskItem({
                     onPointerDown={(e) => e.stopPropagation()}
                     onMouseDown={(e) => e.stopPropagation()}
                     onTouchStart={(e) => e.stopPropagation()}  // Add this
-                    onTouchMove={(e) => e.stopPropagation()}   // Add this
+                    onTouchMove={(e) => e.stopPropagation()} 
+                    style={{fontSize: '18px'}}  // Add this
                 />
 
                 {/* Open Close Accordion */}
@@ -123,12 +124,12 @@ export default function TaskItem({
                 />
 
                 {task?.startTime && (
-                    <div className="absolute right-5 top-[2px] italic text-[.70rem] text-muted-foreground opacity-50">
+                    <div className="absolute right-3 top-[1px] italic text-[.70rem] text-muted-foreground opacity-50">
                         {formatTime(task.startTime)}
                     </div>
                 )}
                 {task?.endTime && (
-                    <div className="absolute right-5 bottom-[2px] italic text-[.70rem] text-muted-foreground opacity-50">
+                    <div className="absolute right-3 bottom-[1px] italic text-[.70rem] text-muted-foreground opacity-50">
                         {formatTime(task.endTime)}
                     </div>
                 )}
