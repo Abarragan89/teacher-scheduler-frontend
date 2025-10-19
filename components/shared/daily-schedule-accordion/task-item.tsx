@@ -51,8 +51,7 @@ export default function TaskItem({
     }
 
     const isThisAccordionOpen = state.openAccordions.includes(task.id)
-
-    console.log("state ", state)
+    const isItemTemp = task.id.startsWith('temp-')
 
     return (
         <AccordionItem
@@ -68,71 +67,98 @@ export default function TaskItem({
                 // ${isThisAccordionOpen ? 'rounded-t-lg border-b-0 border' : 'rounded-md'}
                 `}>
                 {/* Task Drag Handle */}
-                <div
-                    {...taskAttributes}
-                    {...taskListeners}
-                    className="cursor-grab active:cursor-grabbing p-1 hover:bg-accent rounded text-muted-foreground"
-                    style={{
-                        touchAction: 'none',           // Prevent scrolling/zooming
-                        userSelect: 'none',            // Prevent text selection
-                        WebkitUserSelect: 'none',      // Safari
-                        WebkitTouchCallout: 'none',    // Prevent iOS context menu
-                        WebkitTapHighlightColor: 'transparent' // Remove tap highlight
-                    }}
-                >
-                    <GripVertical className="w-5 h-5" />
-                </div>
 
-                <Checkbox
-                    checked={task.completed}
-                    onCheckedChange={() => toggleTaskCompletion(task.id, state)}
-                    className='w-[20px] h-[20px]'
-                />
+                {isItemTemp ? (
+                    <>
+                        <BareInput
+                            className={`task-title-input ml-10 flex-1 mr-2 font-bold ${task.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
+                            placeholder="Subject or Period..."
+                            value={task.title}
+                            onChange={(e) => updateTaskTitle(task.id, e.target.value, state)}
+                            onBlur={() => handleTaskBlur(task.id, task.title, state)}
+                            onFocus={() => handleTaskFocus(task.id, state)}
+                            onKeyDown={(e) => handleTaskTitleKeyDown(e, task.id, state)}
+                            disabled={!isEditable}
+                            readOnly={!isEditable}
+                            // Prevent these events from bubbling up to drag handlers
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onTouchStart={(e) => e.stopPropagation()}  // Add this
+                            onTouchMove={(e) => e.stopPropagation()}
+                            style={{ fontSize: '18px' }}  // Add this
+                        />
+                    </>
 
-                <BareInput
-                    className={`flex-1 font-bold ${task.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
-                    placeholder="Subject or Period..."
-                    value={task.title}
-                    onChange={(e) => updateTaskTitle(task.id, e.target.value, state)}
-                    onBlur={() => handleTaskBlur(task.id, task.title, state)}
-                    onFocus={() => handleTaskFocus(task.id, state)}
-                    onKeyDown={(e) => handleTaskTitleKeyDown(e, task.id, state)}
-                    disabled={!isEditable}
-                    readOnly={!isEditable}
-                    // Prevent these events from bubbling up to drag handlers
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onTouchStart={(e) => e.stopPropagation()}  // Add this
-                    onTouchMove={(e) => e.stopPropagation()} 
-                    style={{fontSize: '18px'}}  // Add this
-                />
+                ) : (
+                    <>
+                        <div
+                            {...taskAttributes}
+                            {...taskListeners}
+                            className="cursor-grab active:cursor-grabbing p-1 hover:bg-accent rounded text-muted-foreground"
+                            style={{
+                                touchAction: 'none',           // Prevent scrolling/zooming
+                                userSelect: 'none',            // Prevent text selection
+                                WebkitUserSelect: 'none',      // Safari
+                                WebkitTouchCallout: 'none',    // Prevent iOS context menu
+                                WebkitTapHighlightColor: 'transparent' // Remove tap highlight
+                            }}
+                        >
+                            <GripVertical className="w-5 h-5" />
+                        </div>
 
-                {/* Open Close Accordion */}
-                <AccordionTrigger className="w-6 h-6 p-0" />
+                        <Checkbox
+                            checked={task.completed}
+                            onCheckedChange={() => toggleTaskCompletion(task.id, state)}
+                            className='w-[20px] h-[20px]'
+                        />
+                        <BareInput
+                            className={`task-title-input flex-1 mr-2 font-bold ${task.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
+                            placeholder="Subject or Period..."
+                            value={task.title}
+                            onChange={(e) => updateTaskTitle(task.id, e.target.value, state)}
+                            onBlur={() => handleTaskBlur(task.id, task.title, state)}
+                            onFocus={() => handleTaskFocus(task.id, state)}
+                            onKeyDown={(e) => handleTaskTitleKeyDown(e, task.id, state)}
+                            disabled={!isEditable}
+                            readOnly={!isEditable}
+                            // Prevent these events from bubbling up to drag handlers
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onTouchStart={(e) => e.stopPropagation()}  // Add this
+                            onTouchMove={(e) => e.stopPropagation()}
+                            style={{ fontSize: '18px' }}  // Add this
+                        />
 
-                {/* Pick Time */}
-                <TimePicker
-                    setTasks={state.setTasks}
-                    taskId={task.id}
-                />
+                        {/* Open Close Accordion */}
+                        <AccordionTrigger className="w-6 h-6 p-0" />
 
-                {/* Popover to move task to different day */}
-                <EditTaskPopover
-                    task={task}
-                    setTasks={state.setTasks}
-                    state={state}
-                />
+                        {/* Pick Time */}
+                        <TimePicker
+                            setTasks={state.setTasks}
+                            taskId={task.id}
+                        />
 
-                {task?.startTime && (
-                    <div className="absolute right-3 top-[1px] italic text-[.70rem] text-muted-foreground opacity-50">
-                        {formatTime(task.startTime)}
-                    </div>
+                        {/* Popover to move task to different day */}
+                        <EditTaskPopover
+                            task={task}
+                            setTasks={state.setTasks}
+                            state={state}
+                        />
+
+                        {task?.startTime && (
+                            <div className="absolute right-3 top-[1px] italic text-[.70rem] text-muted-foreground opacity-50">
+                                {formatTime(task.startTime)}
+                            </div>
+                        )}
+                        {task?.endTime && (
+                            <div className="absolute right-3 bottom-[1px] italic text-[.70rem] text-muted-foreground opacity-50">
+                                {formatTime(task.endTime)}
+                            </div>
+                        )}
+                    </>
+
                 )}
-                {task?.endTime && (
-                    <div className="absolute right-3 bottom-[1px] italic text-[.70rem] text-muted-foreground opacity-50">
-                        {formatTime(task.endTime)}
-                    </div>
-                )}
+
 
             </div>
 
