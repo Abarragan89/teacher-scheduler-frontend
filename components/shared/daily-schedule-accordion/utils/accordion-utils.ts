@@ -11,12 +11,12 @@ export const openAccordion = (taskId: string, setOpenAccordions: React.Dispatch<
     })
 }
 
-export const toggleAccordion = (taskId: string, openAccordions: string[], setOpenAccordions: React.Dispatch<React.SetStateAction<string[]>>) => {
-    setOpenAccordions(prev => {
-        if (prev.includes(taskId)) {
-            return prev.filter(id => id !== taskId)
-        } else {
-            return [...prev, taskId]
-        }
-    })
-}
+// export const toggleAccordion = (taskId: string, openAccordions: string[], setOpenAccordions: React.Dispatch<React.SetStateAction<string[]>>) => {
+//     setOpenAccordions(prev => {
+//         if (prev.includes(taskId)) {
+//             return prev.filter(id => id !== taskId)
+//         } else {
+//             return [...prev, taskId]
+//         }
+//     })
+// }

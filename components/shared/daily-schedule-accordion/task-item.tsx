@@ -64,9 +64,8 @@ export default function TaskItem({
             data-task-id={task.id}
         >
             <div className={`relative flex items-center gap-3 p-2 py-5 bg-muted border pr-3
-                // ${isThisAccordionOpen ? 'rounded-t-lg border-b-0 border' : 'rounded-md'}
+                ${isThisAccordionOpen ? 'rounded-t-lg border-b-0 border' : 'rounded-md'}
                 `}>
-                {/* Task Drag Handle */}
 
                 {isItemTemp ? (
                     <>
