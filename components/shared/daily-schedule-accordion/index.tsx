@@ -29,6 +29,7 @@ import { addNewTask } from './utils/task-operations'
 import { handleDragStart, handleDragEnd } from './utils/drag-drop-handlers'
 import MoveSchedulePopover from './move-schedule-popover'
 import SchedulePrintView from './schedule-print-view'
+import SharableLink from './sharable-link'
 
 // Make TaskItem dynamic since it uses useSortable hooks and causes hydration errors
 const DynamicTaskItem = dynamic(() => import('./task-item'), {
@@ -46,10 +47,12 @@ const DynamicTaskItem = dynamic(() => import('./task-item'), {
 
 export default function DailyScheduleAccordion({
     scheduleData,
-    currentDay
+    currentDay,
+    dayId
 }: {
     scheduleData: Schedule,
-    currentDay: string
+    currentDay: string,
+    dayId: string
 }) {
 
     const router = useRouter();
@@ -151,6 +154,7 @@ export default function DailyScheduleAccordion({
         router.push(`/dashboard/daily/${formattedDate}`)
     }
 
+
     return (
         <div>
             <SchedulePrintView
@@ -162,13 +166,10 @@ export default function DailyScheduleAccordion({
                 <MoveSchedulePopover
                     scheduleId={scheduleData.id}
                 />
-                <Button
-                    onClick={() => window.print()}
-                    variant={'link'}
-                    className='print:hidden mr-0 pr-1'
-                    >
-                    Print
-                </Button>
+                <SharableLink
+                    dayId={dayId}
+                />
+                
             </div>
 
             <div className="print:!hidden flex-between mb-3">

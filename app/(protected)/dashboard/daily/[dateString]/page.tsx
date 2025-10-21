@@ -33,6 +33,7 @@ export default async function page({ params }: pageProps) {
 
                 <TabsContent value="schedule">
                     <DailyScheduleAccordion
+                        dayId={currentDay.id}
                         scheduleData={currentDay.schedule}
                         currentDay={currentDay.dayDate.replace(/-/g, "/")}
                     />
