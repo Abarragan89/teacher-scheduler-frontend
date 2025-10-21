@@ -126,24 +126,26 @@ export default function TaskItem({
                             onMouseDown={(e) => e.stopPropagation()}
                             onTouchStart={(e) => e.stopPropagation()}  // Add this
                             onTouchMove={(e) => e.stopPropagation()}
-                            style={{ fontSize: '18px' }}  // Add this
+                            style={{ fontSize: '17px' }}  // Add this
                         />
 
                         {/* Open Close Accordion */}
                         <AccordionTrigger className="w-6 h-6 p-0" />
 
-                        {/* Pick Time */}
-                        <TimePicker
-                            setTasks={state.setTasks}
-                            taskId={task.id}
-                        />
-
-                        {/* Popover to move task to different day */}
-                        <EditTaskPopover
-                            task={task}
-                            setTasks={state.setTasks}
-                            state={state}
-                        />
+                        {/* Pick Time and Edit Menu */}
+                        {isEditable && (
+                            <>
+                                <TimePicker
+                                    setTasks={state.setTasks}
+                                    taskId={task.id}
+                                />
+                                <EditTaskPopover
+                                    task={task}
+                                    setTasks={state.setTasks}
+                                    state={state}
+                                />
+                            </>
+                        )}
 
                         {task?.startTime && (
                             <div className="absolute right-3 top-[1px] italic text-[.70rem] text-muted-foreground opacity-50">
