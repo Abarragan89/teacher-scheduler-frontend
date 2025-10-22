@@ -105,12 +105,6 @@ export default function TaskItem({
                             <GripVertical className="w-5 h-5" />
                         </div>
 
-                        {/* <Checkbox
-                            checked={task.completed}
-                            onCheckedChange={() => toggleTaskCompletion(task.id, state)}
-                            className='w-[20px] h-[20px]'
-                        /> */}
-
                         {/* Task Completion Checkbox */}
                         <button
                             onClick={() => toggleTaskCompletion(task.id, state)}
@@ -161,12 +155,12 @@ export default function TaskItem({
                         )}
 
                         {task?.startTime && (
-                            <div className="absolute right-3 top-[1px] italic text-[.70rem] text-muted-foreground opacity-50">
+                            <div className="absolute right-3 top-[1px] italic text-[.70rem] text-muted-foreground">
                                 {formatTime(task.startTime)}
                             </div>
                         )}
                         {task?.endTime && (
-                            <div className="absolute right-3 bottom-[1px] italic text-[.70rem] text-muted-foreground opacity-50">
+                            <div className="absolute right-3 bottom-[1px] italic text-[.70rem] text-muted-foreground">
                                 {formatTime(task.endTime)}
                             </div>
                         )}
