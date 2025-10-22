@@ -20,7 +20,7 @@ export default async function PublicScheduleView({ params }: PublicScheduleViewP
 
     return (
         <main>
-            <header className="print:!hidden flex-between px-5 py-3">
+            <header className="print:!hidden flex-between px-6 pt-4">
                 <Link
                     href={"/"}
                     className='flex justify-center items-end'
@@ -39,7 +39,7 @@ export default async function PublicScheduleView({ params }: PublicScheduleViewP
                 </Link>
             </header>
             <div className="max-w-4xl mx-auto p-5 py-10 -mt-6">
-                <div className="text-center mb-2">
+                <div className="text-center mb-2 print:hidden">
                     <h1 className="text-2xl md:text-3xl font-bold">Daily Lesson Plan</h1>
                     <p className="text-muted-foreground">
                         {formatDateDisplay(new Date(currentDay.dayDate.replace(/-/g, "/")))}
@@ -48,6 +48,7 @@ export default async function PublicScheduleView({ params }: PublicScheduleViewP
 
                 <PublicViewAccordion
                     schedule={currentDay?.schedule}
+                    dayDate={currentDay?.dayDate}
                 />
             </div>
         </main>
