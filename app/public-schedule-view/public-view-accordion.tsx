@@ -2,10 +2,12 @@
 import { Task } from '@/types/tasks'
 import React, { useState } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { CheckCircle, ChevronsDownUp, ChevronsUpDown, Circle, Square, SquareCheckBig } from 'lucide-react'
+import { CheckCircle, ChevronsDownUp, ChevronsUpDown, Circle, Printer, Square, SquareCheckBig } from 'lucide-react'
 import { Schedule } from '@/types/day'
 import { clientTasks, clientOutlineItems } from '@/lib/api/services/tasks/client'
 import { Button } from '@/components/ui/button'
+import Header from '@/components/shared/header'
+import SchedulePrintView from '@/components/shared/daily-schedule-accordion/schedule-print-view'
 
 export default function PublicViewAccordion({ schedule }: { schedule: Schedule }) {
 
@@ -61,23 +63,31 @@ export default function PublicViewAccordion({ schedule }: { schedule: Schedule }
 
     return (
         <>
-            <div className="flex text-sm items-center justify-end gap-x-2">
-                <Button title="Close all tasks" onClick={() => setOpenAccordions([])} variant={'ghost'}>
-                    <ChevronsDownUp
-                        size={19}
-                        strokeWidth={2.5}
-                        className="text-muted-foreground"
+            <SchedulePrintView
+                scheduleData={schedule}
+            />
+            <div className="flex text-sm items-center justify-between gap-x-2 mb-2">
+                <>
+                    <Printer
+                        onClick={() => window.print()}
                     />
-                </Button>
-                <Button
-                    title="Expand all tasks"
-                    onClick={() => setOpenAccordions(scheduleData?.tasks.map(tasks => tasks.id))} variant={'ghost'}>
-                    <ChevronsUpDown
-                        size={19}
-                        strokeWidth={2.5}
-                        className="text-muted-foreground"
-                    />
-                </Button>
+                    <Button title="Close all tasks" onClick={() => setOpenAccordions([])} variant={'ghost'}>
+                        <ChevronsDownUp
+                            size={19}
+                            strokeWidth={2.5}
+                            className="text-muted-foreground"
+                        />
+                    </Button>
+                    <Button
+                        title="Expand all tasks"
+                        onClick={() => setOpenAccordions(scheduleData?.tasks.map(tasks => tasks.id))} variant={'ghost'}>
+                        <ChevronsUpDown
+                            size={19}
+                            strokeWidth={2.5}
+                            className="text-muted-foreground"
+                        />
+                    </Button>
+                </>
             </div>
             <Accordion
                 type="multiple"
@@ -89,7 +99,7 @@ export default function PublicViewAccordion({ schedule }: { schedule: Schedule }
                     <AccordionItem
                         key={task.id}
                         value={task.id}
-                        className="border-none my-4 rounded-md shadow-lg"
+                        className="border-none mb-4 rounded-md shadow-lg"
                     >
                         <div className={`relative flex items-center gap-3 p-2 py-4 bg-muted border pr-3
                     ${openAccordions.includes(task.id) ? 'rounded-t-lg border-b-0 border' : 'rounded-md'}
