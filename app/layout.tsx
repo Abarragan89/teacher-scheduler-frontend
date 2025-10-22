@@ -3,6 +3,7 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner"
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -32,8 +33,11 @@ export default function RootLayout({
         className={`${roboto.variable} antialiased`}
       >
         <ThemeProvider attribute="class">
-          {children}
-           <Toaster />
+
+          <ScrollArea className="h-screen w-screen">
+            {children}
+          </ScrollArea>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
