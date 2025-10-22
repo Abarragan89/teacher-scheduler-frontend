@@ -34,7 +34,7 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class">
 
-          <ScrollArea className="h-screen w-screen">
+          <ScrollArea className="h-screen w-screen print:h-auto print:overflow-visible">
             {children}
           </ScrollArea>
           <Toaster />
