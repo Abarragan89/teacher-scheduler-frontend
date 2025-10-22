@@ -5,6 +5,7 @@ import PublicViewAccordion from "../public-view-accordion";
 import Image from "next/image";
 import Link from "next/link";
 import SchedulePrintView from "@/components/shared/daily-schedule-accordion/schedule-print-view";
+import ModeToggle from "@/components/shared/header/mode-toggle";
 
 interface PublicScheduleViewProps {
     params: Promise<{
@@ -37,6 +38,7 @@ export default async function PublicScheduleView({ params }: PublicScheduleViewP
                         <p>Scheduler</p>
                     </div>
                 </Link>
+                <ModeToggle />
             </header>
             <div className="max-w-4xl mx-auto p-5 py-10 -mt-6">
                 <div className="text-center mb-2 print:hidden">

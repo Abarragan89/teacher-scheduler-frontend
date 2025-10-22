@@ -45,7 +45,7 @@ export default function ModeToggle() {
                 <PopoverTrigger asChild>
                     <Button className='hover:cursor-pointer' variant="ghost">{renderThemeIcon()}</Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-fit">
+                <PopoverContent className="w-fit mr-5">
                     <ul>
                         <li>
                             <Button variant={"ghost"} asChild onClick={() => setTheme("light")} className='hover:cursor-pointer'>

@@ -78,7 +78,7 @@ export default function SortableOutlineItem({
                 {item?.indentLevel > 0 ? (
                     <p
                         onClick={() => toggleOutlineItemCompletion(taskId, item.id, state)}
-                        className={`min-w-[10px] min-h-[10px] mt-[6px] rounded-full
+                        className={`min-w-[15px] min-h-[15px] mt-[4px] rounded-full mr-1
                         ${item.completed ? 'bg-ring border border-ring' : 'border border-muted-foreground'}
                         `}
                     />
