@@ -167,8 +167,6 @@ export default function TaskItem({
                     </>
 
                 )}
-
-
             </div>
 
             <AccordionContent className="px-1 py-3 border border-t-0 rounded-b-lg" data-task-id={task.id}>

@@ -120,7 +120,7 @@ export const handleTaskFocus = (taskId: string, state: AccordionState) => {
     const { tasks, setFocusedText } = state
     const task = tasks.find(t => t.id === taskId)
     if (task) {
-        setFocusedText(task.title)
+        if (setFocusedText) setFocusedText(task.title)
     }
 }
 

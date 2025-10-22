@@ -1,5 +1,5 @@
 import React from 'react'
-import { X, ArrowLeft } from 'lucide-react'
+import { X, ArrowLeft, SquareCheckBig, Square } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Task } from '@/types/tasks'
@@ -49,7 +49,7 @@ export function SingleTaskView({ task, isOpen, onClose, state }: FullScreenTaskV
                 </div>
 
                 {/* Outline Items */}
-                {task?.outlineItems && task.outlineItems.length > 0 && (
+                {task?.outlineItems && (
                     <div className="space-y-4 px-3 py-5 border-x border-b rounded-b-md shadow-lg">
                         <div className='flex-end gap-x-1 text-sm text-muted-foreground pr-2 -mt-3'>
                             {task?.startTime && (
@@ -62,42 +62,49 @@ export function SingleTaskView({ task, isOpen, onClose, state }: FullScreenTaskV
                                 </>
                             )}
                         </div>
-                        {task.outlineItems.slice(0, task.outlineItems.length - 1).map(item => (
-                            <div
-                                key={item.id}
-                                className={`flex items-start gap-3 group ml-5
-                                    ${item.indentLevel === 0 ? `ml-3` : 'ml-14'}`}
-                            >
-                                {/* Functional Checkbox */}
-                                <Checkbox
-                                    className={`mt-[4px] ${item.indentLevel === 0 ?
-                                        'w-[20px] h-[20px]'
-                                        :
-                                        'w-[16px] h-[16px] rounded-full'}`}
-                                    checked={item.completed}
-                                    onCheckedChange={() => toggleOutlineItemCompletion(task.id, item.id, state)}
-                                />
 
-                                {/* Content */}
-                                <p
-                                    className={`text-md xs:text-lg leading-relaxed ${item.completed
-                                        ? 'line-through text-muted-foreground'
-                                        : 'text-foreground'
-                                        }`}
+                        {task.outlineItems.length > 0 ? (
+                            task.outlineItems.map(item => (
+                                <div
+                                    key={item.id}
+                                    className={`flex items-start gap-3 group ml-5
+                        ${item.indentLevel === 0 ? `ml-3` : 'ml-14'}`}
                                 >
-                                    {item.text}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                                    {/* Your existing checkbox and content code */}
+                                    {item?.indentLevel > 0 ? (
+                                        <p
+                                            onClick={() => toggleOutlineItemCompletion(task.id, item.id, state)}
+                                            className={`min-w-[15px] min-h-[15px] mt-[4px] rounded-full mr-1
+                            ${item.completed ? 'bg-ring border border-ring' : 'border border-muted-foreground'}
+                            `}
+                                        />
+                                    ) : (
+                                        <button
+                                            onClick={() => toggleOutlineItemCompletion(task.id, item.id, state)}
+                                        >
+                                            {item.completed ? (
+                                                <SquareCheckBig className="w-5 h-5 text-ring" />
+                                            ) : (
+                                                <Square className="w-5 h-5 text-muted-foreground" />
+                                            )}
+                                        </button>
+                                    )}
 
-                {/* Empty state */}
-                {(!task.outlineItems || task.outlineItems.length === 0) && (
-                    <div className="flex items-center justify-center h-40">
-                        <p className="text-muted-foreground text-center">
-                            No outline items for this task
-                        </p>
+                                    <p
+                                        className={`text-md xs:text-lg leading-relaxed ${item.completed
+                                            ? 'line-through text-muted-foreground'
+                                            : 'text-foreground'
+                                            }`}
+                                    >
+                                        {item.text}
+                                    </p>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-muted-foreground text-center mt-5">
+                                No outline items for this task
+                            </p>
+                        )}
                     </div>
                 )}
             </div>

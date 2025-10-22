@@ -26,7 +26,7 @@ export default function SharableLink({
             <PopoverTrigger asChild>
                     <Share
                     size={20} 
-                    className='text-muted-foreground print:hidden'
+                    className='text-muted-foreground print:hidden ml-2 mr-3'
                     />
             </PopoverTrigger>
             <PopoverContent className='print:hidden flex flex-col gap-2 w-fit p-3 px-5 mr-10'>

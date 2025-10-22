@@ -29,7 +29,7 @@ export const clientTasks = {
         return response.json();
     },
 
-    async toggleTaskCopmlete(id: string, completed: boolean) {
+    async toggleTaskComplete(id: string, completed: boolean) {
         const response = await clientFetch('/task/toggle-complete', {
             method: 'PUT',
             headers: {

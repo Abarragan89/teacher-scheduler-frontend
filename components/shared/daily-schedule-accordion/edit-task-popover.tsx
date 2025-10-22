@@ -70,7 +70,7 @@ export default function EditTaskPopover({
         <>
             <Popover open={isOpen} onOpenChange={handleOpenChange}>
                 <PopoverTrigger asChild>
-                        <EllipsisVertical size={20} className="text-muted-foreground " />
+                    <EllipsisVertical size={20} className="text-muted-foreground " />
                 </PopoverTrigger>
 
                 <PopoverContent className="w-fit h-fit p-2 mr-5">
@@ -86,7 +86,7 @@ export default function EditTaskPopover({
                                 variant="ghost"
                                 onClick={() => { setIsFullScreenView(true); setIsOpen(false) }}
                             >
-                                <Eye /> Task View
+                                <Eye /> View Task
                             </Button>
                             <Button
                                 variant="ghost"

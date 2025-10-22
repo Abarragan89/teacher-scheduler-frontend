@@ -162,15 +162,9 @@ export default function DailyScheduleAccordion({
                 currentDay={currentDay}
             />
 
-            <div className="flex-between mr-3">
-                <MoveSchedulePopover
-                    scheduleId={scheduleData.id}
-                />
-                <SharableLink
-                    dayId={dayId}
-                />
-                
-            </div>
+            <MoveSchedulePopover
+                scheduleId={scheduleData.id}
+            />
 
             <div className="print:!hidden flex-between mb-3 mr-3">
                 <YesterdayTomorrowNav
@@ -194,6 +188,11 @@ export default function DailyScheduleAccordion({
                             className="text-muted-foreground"
                         />
                     </Button>
+
+                        <SharableLink
+                            dayId={dayId}
+                        />
+
                     <span>View</span>
                     <Switch
                         checked={isEditable}

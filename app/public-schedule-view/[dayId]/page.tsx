@@ -4,8 +4,9 @@ import { DayData } from "@/types/day";
 import PublicViewAccordion from "../public-view-accordion";
 import Image from "next/image";
 import Link from "next/link";
-import SchedulePrintView from "@/components/shared/daily-schedule-accordion/schedule-print-view";
 import ModeToggle from "@/components/shared/header/mode-toggle";
+import { NavigationMenuList } from "@/components/ui/navigation-menu";
+import { NavigationMenu } from "@radix-ui/react-navigation-menu";
 
 interface PublicScheduleViewProps {
     params: Promise<{
@@ -38,7 +39,11 @@ export default async function PublicScheduleView({ params }: PublicScheduleViewP
                         <p>Scheduler</p>
                     </div>
                 </Link>
-                <ModeToggle />
+                <NavigationMenu>
+                    <NavigationMenuList>
+                        <ModeToggle />
+                    </NavigationMenuList>
+                </NavigationMenu>
             </header>
             <div className="max-w-4xl mx-auto p-5 py-10 -mt-6">
                 <div className="text-center mb-2 print:hidden">

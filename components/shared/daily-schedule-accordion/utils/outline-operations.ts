@@ -41,7 +41,7 @@ export const handleOutlineFocus = (taskId: string, itemId: string, state: Accord
     const task = tasks.find(t => t.id === taskId)
     const item = task?.outlineItems.find(i => i.id === itemId)
     if (item) {
-        setFocusedText(item.text) // Store the original text for change detection
+        if (setFocusedText) setFocusedText(item.text) // Store the original text for change detection
     }
 }
 
@@ -155,7 +155,7 @@ export const handleOutlineBlur = async (
     if (!task) return
 
     // Check if text actually changed - if not, skip backend update
-    const hasTextChanged = text.trim() !== focusedText.trim()
+    const hasTextChanged = text.trim() !== focusedText!.trim()
     const isTemporary = itemId.startsWith('temp-')
 
     // If text is empty, remove the item unless it's the last one in the list
