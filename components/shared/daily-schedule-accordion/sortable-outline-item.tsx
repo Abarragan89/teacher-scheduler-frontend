@@ -1,7 +1,7 @@
 'use client'
 import { BareInput } from "@/components/ui/bare-bones-input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { GripVertical } from 'lucide-react'
+import { GripVertical, Square, SquareCheckBig } from 'lucide-react'
 import { OutlineItem } from '@/types/outline-item'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from "@dnd-kit/utilities"
@@ -68,11 +68,31 @@ export default function SortableOutlineItem({
                 className={`flex items-start gap-2 flex-1`}
 
             >
-                <Checkbox
+                {/* <Checkbox
                     className='w-[15px] h-[16px] rounded-full mt-[2px]'
                     checked={item.completed}
                     onCheckedChange={() => toggleOutlineItemCompletion(taskId, item.id, state)}
-                />
+                /> */}
+
+                {/* Smaller checkboxes for indented fields */}
+                {item?.indentLevel > 0 ? (
+                    <p
+                        onClick={() => toggleOutlineItemCompletion(taskId, item.id, state)}
+                        className={`min-w-[10px] min-h-[10px] mt-[6px] rounded-full
+                        ${item.completed ? 'bg-ring border border-ring' : 'border border-muted-foreground'}
+                        `}
+                    />
+                ) : (
+                    <button
+                        onClick={() => toggleOutlineItemCompletion(taskId, item.id, state)}
+                    >
+                        {item.completed ? (
+                            <SquareCheckBig className="w-5 h-5 text-ring" />
+                        ) : (
+                            <Square className="w-5 h-5 text-muted-foreground" />
+                        )}
+                    </button>
+                )}
 
                 <BareInput
                     className={`flex-1 text-sm

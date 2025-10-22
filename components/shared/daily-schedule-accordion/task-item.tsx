@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/accordion"
 import { BareInput } from "@/components/ui/bare-bones-input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { GripVertical } from 'lucide-react'
+import { CheckCircle, Circle, GripVertical } from 'lucide-react'
 import { Task } from '@/types/tasks'
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from "@dnd-kit/utilities"
@@ -105,11 +105,25 @@ export default function TaskItem({
                             <GripVertical className="w-5 h-5" />
                         </div>
 
-                        <Checkbox
+                        {/* <Checkbox
                             checked={task.completed}
                             onCheckedChange={() => toggleTaskCompletion(task.id, state)}
                             className='w-[20px] h-[20px]'
-                        />
+                        /> */}
+
+                        {/* Task Completion Checkbox */}
+                        <button
+                            onClick={() => toggleTaskCompletion(task.id, state)}
+                            className="flex-shrink-0 pl-0 rounded"
+                        >
+                            {task.completed ? (
+                                <CheckCircle className="w-6 h-6 text-ring" />
+                            ) : (
+                                <Circle className="w-6 h-6 text-muted-foreground" />
+                            )}
+                        </button>
+
+
                         <BareInput
                             className={`task-title-input flex-1 mr-2 font-bold ${task.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
                             placeholder="Subject or Period..."

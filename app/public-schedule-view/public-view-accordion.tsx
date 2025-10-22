@@ -1,9 +1,8 @@
 "use client"
 import { Task } from '@/types/tasks'
 import React, { useState } from 'react'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { CheckCircle, ChevronsDownUp, ChevronsUpDown, Circle } from 'lucide-react'
+import { CheckCircle, ChevronsDownUp, ChevronsUpDown, Circle, Square, SquareCheckBig } from 'lucide-react'
 import { Schedule } from '@/types/day'
 import { clientTasks, clientOutlineItems } from '@/lib/api/services/tasks/client'
 import { Button } from '@/components/ui/button'
@@ -39,7 +38,7 @@ export default function PublicViewAccordion({ schedule }: { schedule: Schedule }
         }))
 
         // API call to update outline item completion
-        await clientOutlineItems.updateOutlineItem(outlineItemId, item.text, item.position, item.indentLevel, !item.completed)
+        await clientOutlineItems.updateOutlineItemToggleComplete(outlineItemId, !item.completed)
     }
 
     const toggleTaskCompletion = async (taskId: string) => {
@@ -57,7 +56,7 @@ export default function PublicViewAccordion({ schedule }: { schedule: Schedule }
         }))
 
         // API call to update task completion
-        await clientTasks.updateTask(taskId, task.title, task.position, !task.completed)
+        await clientTasks.toggleTaskCopmlete(taskId, !task.completed)
     }
 
     return (
@@ -122,13 +121,27 @@ export default function PublicViewAccordion({ schedule }: { schedule: Schedule }
                                 {task.outlineItems
                                     .filter(item => item.text.trim() !== '')
                                     .map(item => (
-                                        <div key={item.id} className="flex items-start gap-3 group"
-                                            style={{ paddingLeft: `${item.indentLevel * 20}px` }}>
-                                            <Checkbox
-                                                onClick={() => toggleOutlineItemCompletion(task.id, item.id)}
-                                                checked={item.completed}
-                                                className="w-4 h-4 mt-[3px]"
-                                            />
+                                        <div key={item.id} className="flex items-start gap-2 group"
+                                            style={{ paddingLeft: `${item.indentLevel * 30}px` }}>
+                                            {/* Smaller checkboxes for indented fields */}
+                                            {item?.indentLevel > 0 ? (
+                                                <p
+                                                    onClick={() => toggleOutlineItemCompletion(task.id, item.id)}
+                                                    className={`min-w-[10px] min-h-[10px] mt-[6px] rounded-full
+                                                        ${item.completed ? 'bg-ring border border-ring' : 'border border-muted-foreground'}
+                                                        `}
+                                                />
+                                            ) : (
+                                                <button
+                                                    onClick={() => toggleOutlineItemCompletion(task.id, item.id)}
+                                                >
+                                                    {item.completed ? (
+                                                        <SquareCheckBig className="w-5 h-5 text-ring" />
+                                                    ) : (
+                                                        <Square className="w-5 h-5 text-muted-foreground" />
+                                                    )}
+                                                </button>
+                                            )}
                                             <span
                                                 className={`text-sm leading-relaxed ${item.completed
                                                     ? 'line-through text-muted-foreground'

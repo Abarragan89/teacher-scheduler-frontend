@@ -29,6 +29,22 @@ export const clientTasks = {
         return response.json();
     },
 
+    async toggleTaskCopmlete(id: string, completed: boolean) {
+        const response = await clientFetch('/task/toggle-complete', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-Public-Token": process.env.NEXT_PUBLIC_PUBLIC_TOKEN!,
+            },
+            body: JSON.stringify({
+                id,
+                completed
+            }),
+        });
+        if (!response.ok) throw new Error('Failed to update task');
+        return response.json();
+    },
+
     async deleteTask(taskId: string) {
         const response = await clientFetch(`/task/delete/${taskId}`, {
             method: 'DELETE',
@@ -117,6 +133,22 @@ export const clientOutlineItems = {
                 text,
                 position,
                 indentLevel,
+                completed
+            }),
+        });
+        if (!response.ok) throw new Error('Failed to update outline item');
+        return response.json();
+    },
+
+    async updateOutlineItemToggleComplete(id: string, completed: boolean) {
+        const response = await clientFetch('/task-outline-item/toggle-complete', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                "X-Public-Token": process.env.NEXT_PUBLIC_PUBLIC_TOKEN!,
+            },
+            body: JSON.stringify({
+                id,
                 completed
             }),
         });
