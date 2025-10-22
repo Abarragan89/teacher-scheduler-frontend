@@ -8,5 +8,7 @@ export interface AccordionState {
     setOpenAccordions: React.Dispatch<React.SetStateAction<string[]>>
     focusedText?: string
     setFocusedText?: React.Dispatch<React.SetStateAction<string>>
+    focusedIndentLevel?: number
+    setFocusedIndentLevel?: React.Dispatch<React.SetStateAction<number>>
     scheduleId: string
 }

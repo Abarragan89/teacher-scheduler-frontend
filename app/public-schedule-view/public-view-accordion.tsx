@@ -134,8 +134,6 @@ export default function PublicViewAccordion({
                         <div className={`relative flex items-center gap-3 p-2 py-5 bg-muted border pr-3
                             ${openAccordions.includes(task.id) ? 'rounded-t-lg border-b-0 border' : 'rounded-md'}
                         `}>
-
-
                             {/* Task Completion Checkbox */}
                             <button
                                 onClick={() => toggleTaskCompletion(task.id)}
@@ -176,7 +174,7 @@ export default function PublicViewAccordion({
                             </div>
                         </div>
 
-                        <AccordionContent className="px-1 py-3 border border-t-0 rounded-b-lg">
+                        <AccordionContent className="px-1 pr-3 py-3 border border-t-0 rounded-b-lg">
                             <div className="space-y-2 mt-2 ml-6">
                                 {task.outlineItems
                                     .filter(item => item.text.trim() !== '')

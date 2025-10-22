@@ -89,6 +89,7 @@ export default function DailyScheduleAccordion({
     const [draggedItemType, setDraggedItemType] = useState<'task' | 'outline' | null>(null)
     const [activeItem, setActiveItem] = useState<Task | OutlineItem | null>(null)
     const [focusedText, setFocusedText] = useState<string>('')
+    const [focusedIndentLevel, setFocusedIndentLevel] = useState<number>(0)
 
     // Create state object for utility functions
     const accordionState: AccordionState = {
@@ -98,6 +99,8 @@ export default function DailyScheduleAccordion({
         setOpenAccordions,
         focusedText,
         setFocusedText,
+        focusedIndentLevel,
+        setFocusedIndentLevel,
         scheduleId: scheduleData.id
     }
 
@@ -189,9 +192,9 @@ export default function DailyScheduleAccordion({
                         />
                     </Button>
 
-                        <SharableLink
-                            dayId={dayId}
-                        />
+                    <SharableLink
+                        dayId={dayId}
+                    />
 
                     <span>View</span>
                     <Switch

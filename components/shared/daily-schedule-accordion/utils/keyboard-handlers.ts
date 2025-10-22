@@ -204,6 +204,8 @@ export const handleOutlineKeyDown = async (e: KeyboardEvent<HTMLTextAreaElement>
             ? Math.max(0, item.indentLevel - 1)
             : Math.min(maxIndent, item.indentLevel + 1)
 
+        console.log('Changing indent level to:', newIndentLevel)
+
         setTasks(prev =>
             prev.map(t =>
                 t.id === taskId

@@ -24,10 +24,10 @@ export default function SharableLink({
     return (
         <Popover>
             <PopoverTrigger asChild>
-                    <Share
-                    size={20} 
+                <Share
+                    size={20}
                     className='text-muted-foreground print:hidden ml-2 mr-3'
-                    />
+                />
             </PopoverTrigger>
             <PopoverContent className='print:hidden flex flex-col gap-2 w-fit p-3 px-5 mr-10'>
                 <Button onClick={handleCopyClick} variant={'ghost'}>
@@ -38,7 +38,7 @@ export default function SharableLink({
                     variant={'ghost'}
                     className='print:hidden'
                 >
-                    <Printer /> Print 
+                    <Printer /> Print
                 </Button>
             </PopoverContent>
         </Popover>

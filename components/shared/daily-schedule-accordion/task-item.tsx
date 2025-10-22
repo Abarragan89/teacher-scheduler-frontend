@@ -169,7 +169,7 @@ export default function TaskItem({
                 )}
             </div>
 
-            <AccordionContent className="px-1 py-3 border border-t-0 rounded-b-lg" data-task-id={task.id}>
+            <AccordionContent className="px-1 pr-3 py-3 border border-t-0 rounded-b-lg" data-task-id={task.id}>
                 <div className="space-y-2 mt-2 ml-4">
 
                     {/* Outline Items with their own SortableContext */}

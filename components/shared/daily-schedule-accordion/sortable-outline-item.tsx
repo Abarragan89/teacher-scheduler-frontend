@@ -1,6 +1,5 @@
 'use client'
 import { BareInput } from "@/components/ui/bare-bones-input"
-import { Checkbox } from "@/components/ui/checkbox"
 import { GripVertical, Square, SquareCheckBig } from 'lucide-react'
 import { OutlineItem } from '@/types/outline-item'
 import { useSortable } from '@dnd-kit/sortable'
@@ -45,9 +44,7 @@ export default function SortableOutlineItem({
             ref={setNodeRef}
             style={style}
             className={`flex items-start gap-1 mb-2`}
-
         >
-
             <div
                 {...attributes}
                 {...listeners}
@@ -64,16 +61,7 @@ export default function SortableOutlineItem({
                 <GripVertical className="w-4 h-4" />
             </div>
             {/* Regular content - not draggable */}
-            <div
-                className={`flex items-start gap-2 flex-1`}
-
-            >
-                {/* <Checkbox
-                    className='w-[15px] h-[16px] rounded-full mt-[2px]'
-                    checked={item.completed}
-                    onCheckedChange={() => toggleOutlineItemCompletion(taskId, item.id, state)}
-                /> */}
-
+            <div className={`flex items-start gap-2 flex-1`}>
                 {/* Smaller checkboxes for indented fields */}
                 {item?.indentLevel > 0 ? (
                     <p
@@ -99,7 +87,7 @@ export default function SortableOutlineItem({
                         ${item.completed ? 'line-through text-muted-foreground' : ''} 
                         ${!isEditable ? 'cursor-default' : ''}
                         ${item.indentLevel > 0 ? 'bg-muted' : 'pl-0 border-none'}
-                        `}
+                    `}
                     placeholder="Add Talking Point..."
                     value={item.text}
                     onChange={(e) => updateOutlineItem(taskId, item.id, e.target.value, state)}
