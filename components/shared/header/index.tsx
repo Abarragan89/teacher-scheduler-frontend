@@ -6,14 +6,14 @@ import GuestNavLinks from './guest-nav-links'
 
 export default function Header({
   isAuthenticated = false,
-  username
+  email
 }: {
   isAuthenticated?: boolean
-  username?: string
+  email?: string
 }) {
 
   return (
-    <header className="print:!hidden p-6 flex-between">
+    <header className="print:!hidden p-6 flex-between max-w-6xl mx-auto">
       <Link
         href={"/"}
         className='flex justify-center items-end'
@@ -34,7 +34,7 @@ export default function Header({
       {/* Navigation Link */}
       {isAuthenticated ? (
         <AuthenticatedNavLinks
-          username={username || ''}
+          email={email || 'guest'}
         />
       ) : (
         <GuestNavLinks />

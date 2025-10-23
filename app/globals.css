@@ -16,7 +16,7 @@
   --secondary-foreground: oklch(0.8367 0.0849 285.9111);
   --muted: oklch(0.271 0.0621 281.4377);
   --muted-foreground: oklch(55.03% 0.04955 284.648);
-  --accent: oklch(0.3648 0.1833 272.6095);
+  --accent: oklch(31.699% 0.13618 275.36);
   --accent-foreground: oklch(0.9185 0.0257 285.8834);
   --destructive: oklch(0.6861 0.2061 14.9941);
   --destructive-foreground: oklch(1 0 0);
@@ -41,18 +41,20 @@
   --font-mono: JetBrains Mono, monospace;
   --radius: 0.5rem;
   --shadow-2xs: 0px 4px 10px 0px hsl(240 30% 25% / 0.06);
-  --shadow-xs: 0px 4px 10px 0px hsl(240 30% 25% / 0.06);
-  --shadow-sm: 0px 4px 10px 0px hsl(240 30% 25% / 0.12),
-    0px 1px 2px -1px hsl(240 30% 25% / 0.12);
-  --shadow: 0px 4px 10px 0px hsl(240 30% 25% / 0.12),
-    0px 1px 2px -1px hsl(240 30% 25% / 0.12);
-  --shadow-md: 0px 4px 10px 0px hsl(240 30% 25% / 0.12),
-    0px 2px 4px -1px hsl(240 30% 25% / 0.12);
+  --shadow-xs: 0px 4px 10px 0px hsla(240, 52%, 13%, 0.576),
+    0px 4px 6px -1px hsla(240, 26%, 20%, 0.576);
+  --shadow-sm: 0px 4px 10px 0px hsla(240, 52%, 13%, 0.576),
+    0px 4px 6px -1px hsla(240, 26%, 20%, 0.576);
+  --shadow: 0px 4px 10px 0px hsla(240, 52%, 13%, 0.576),
+    0px 4px 6px -1px hsla(240, 26%, 20%, 0.576);
+  --shadow-md: 0px 4px 10px 0px hsla(240, 52%, 13%, 0.576),
+    0px 4px 6px -1px hsla(240, 26%, 20%, 0.576);
   --shadow-lg: 0px 4px 10px 0px hsla(240, 52%, 13%, 0.576),
     0px 4px 6px -1px hsla(240, 26%, 20%, 0.576);
-  --shadow-xl: 0px 4px 10px 0px hsl(240 30% 25% / 0.12),
-    0px 8px 10px -1px hsl(240 30% 25% / 0.12);
-  --shadow-2xl: 0px 4px 10px 0px hsl(240 30% 25% / 0.3);
+  --shadow-xl: 0px 4px 10px 0px hsla(240, 52%, 13%, 0.576),
+    0px 4px 6px -1px hsla(240, 26%, 20%, 0.576);
+  --shadow-2xl: 0px 4px 10px 0px hsla(240, 52%, 13%, 0.576),
+    0px 4px 6px -1px hsla(240, 26%, 20%, 0.576);
 }
 .light {
   /* --background: oklch(0.973 0.0133 286.1503); */

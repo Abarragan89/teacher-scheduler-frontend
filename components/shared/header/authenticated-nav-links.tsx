@@ -3,32 +3,33 @@ import React from 'react'
 import ModeToggle from './mode-toggle'
 import UserActionMenu from './user-action-menu'
 import Link from 'next/link'
-import { CalendarDays } from 'lucide-react'
+import { CalendarDays, ListTodo } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import InstallPrompt from '@/components/install-prompt'
+import { TodoSheet } from '../todo-sheet'
 
-export default function AuthenticatedNavLinks({ username }: { username: string }) {
+export default function AuthenticatedNavLinks({ email }: { email: string }) {
     return (
         <NavigationMenu>
-            <NavigationMenuList className="gap-x-3">
+            <NavigationMenuList className="gap-x-2">
+
                 <NavigationMenuItem>
                     <Link href="/dashboard">
                         <Button variant={"ghost"} className='hover:cursor-pointer'>
-                            <CalendarDays />
+                            <CalendarDays 
+                                size={18}
+                            />
                         </Button>
                     </Link>
                 </NavigationMenuItem>
-                {/* <NavigationMenuItem>
-                    <Link href={`/dashboard/daily/${new Date().toISOString().split('T')[0]}`}>
-                        Today
-                    </Link>
-                </NavigationMenuItem> */}
-                <ModeToggle />
+
                 <NavigationMenuItem>
-                    <UserActionMenu username={username} />
+                   <TodoSheet />
                 </NavigationMenuItem>
+
+                <ModeToggle />
+                
                 <NavigationMenuItem>
-                    <InstallPrompt />
+                    <UserActionMenu email={email} />
                 </NavigationMenuItem>
             </NavigationMenuList>
         </NavigationMenu>

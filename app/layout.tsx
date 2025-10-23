@@ -33,7 +33,6 @@ export default function RootLayout({
         className={`${roboto.variable} antialiased`}
       >
         <ThemeProvider attribute="class">
-
           <ScrollArea className="h-screen w-screen print:h-auto print:overflow-visible">
             {children}
           </ScrollArea>
