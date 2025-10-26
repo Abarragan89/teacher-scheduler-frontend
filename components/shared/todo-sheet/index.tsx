@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button"
 import {
     Sheet,
     SheetContent,
-    SheetDescription,
     SheetHeader,
     SheetTitle,
     SheetTrigger,
@@ -21,9 +20,6 @@ export function TodoSheet() {
             <SheetContent>
                 <SheetHeader>
                     <SheetTitle>ToDo Lists</SheetTitle>
-                    <SheetDescription>
-                        Scheduled ToDos become reminders
-                    </SheetDescription>
                 </SheetHeader>
                 <TodoAccordion />
             </SheetContent>

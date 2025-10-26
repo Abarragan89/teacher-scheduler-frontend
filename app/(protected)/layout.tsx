@@ -1,7 +1,6 @@
 import InstallPrompt from '@/components/install-prompt';
 import Header from '@/components/shared/header';
 import { serverAuth } from '@/lib/api/services/auth/server';
-
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardLayout({
@@ -25,7 +24,6 @@ export default async function DashboardLayout({
     throw new Error("You Must Log In")
   }
 
-  console.log("authResult ", authResult)
   return (
     <>
       <Header

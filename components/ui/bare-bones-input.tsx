@@ -39,7 +39,7 @@ export function BareInput(props: React.TextareaHTMLAttributes<HTMLTextAreaElemen
             }}
             rows={1} // Start as single line
             {...props}
-            style={{ fontSize: '16px', ...props.style }}
+            style={{ ...props.style }}
             className={`bg-transparent outline-none leading-5.5 border-none focus:ring-0 focus:outline-none w-fit resize-none overflow-hidden ${props.className ?? ""}`}
         />
     )
