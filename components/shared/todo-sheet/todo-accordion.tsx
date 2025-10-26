@@ -1,26 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion"
-import { BareInput } from '@/components/ui/bare-bones-input'
-import { Button } from '@/components/ui/button'
 import { TodoList } from '@/types/todo'
-import { TodoState } from './utils/todo-list-operations'
-import {
-    addNewTodoList,
-    deleteTodoList,
-    updateTodoListTitle,
-    handleTodoListTitleBlur,
-    handleTodoListTitleFocus
-} from './utils/todo-list-operations'
-import TodoItem from './todo-input'
-import { Trash2, Plus } from 'lucide-react'
 import { clientTodoLists } from '@/lib/api/services/todos/client'
-import { todo } from 'node:test'
 import { CurrentList } from './current-list'
 
 export function TodoAccordion() {
@@ -47,22 +28,10 @@ export function TodoAccordion() {
         fetchTodoLists();
     }, [])
 
-    const [openAccordions, setOpenAccordions] = useState<string[]>([todoLists[0]?.id].filter(Boolean))
-    const [focusedText, setFocusedText] = useState<string>('')
-
-    const state: TodoState = {
-        todoLists,
-        setTodoLists,
-        openAccordions,
-        setOpenAccordions,
-        focusedText,
-        setFocusedText,
-    }
-
     return (
         <div className="w-full">
             {/* Add New List Button */}
-            <Button
+            {/* <Button
                 onClick={() => addNewTodoList(state)}
                 variant="link"
                 className="absolute top-0 right-0 mt-2 mr-2"
@@ -76,10 +45,10 @@ export function TodoAccordion() {
                         {list.listName}
                     </Button>
                 ))}
-            </div>
+            </div> */}
             
             <CurrentList 
-                list={todoLists[0]}
+                todoLists={todoLists}
             />
 
 

@@ -1,82 +1,154 @@
+'use client'
+import React, { useState, useEffect } from 'react'
+import { TodoList, TodoItem } from "@/types/todo"
+import { Button } from "@/components/ui/button"
+import { BareInput } from '@/components/ui/bare-bones-input'
+import { CheckCircle, Circle } from 'lucide-react'
+import { TodoState, ensureEmptyTodoItem } from './utils/todo-list-operations'
+import {
+    updateTodoItem,
+    handleTodoFocus,
+    handleTodoBlur,
+    handleTodoKeyDown,
+    toggleTodoCompletion
+} from './utils/todo-operations'
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
-    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { TodoList } from "@/types/todo"
 
-const invoices = [
-    {
-        invoice: "INV001",
-        paymentStatus: "Paid",
-        totalAmount: "$250.00",
-        paymentMethod: "Credit Card",
-    },
-    {
-        invoice: "INV002",
-        paymentStatus: "Pending",
-        totalAmount: "$150.00",
-        paymentMethod: "PayPal",
-    },
-    {
-        invoice: "INV003",
-        paymentStatus: "Unpaid",
-        totalAmount: "$350.00",
-        paymentMethod: "Bank Transfer",
-    },
-    {
-        invoice: "INV004",
-        paymentStatus: "Paid",
-        totalAmount: "$450.00",
-        paymentMethod: "Credit Card",
-    },
-    {
-        invoice: "INV005",
-        paymentStatus: "Paid",
-        totalAmount: "$550.00",
-        paymentMethod: "PayPal",
-    },
-    {
-        invoice: "INV006",
-        paymentStatus: "Pending",
-        totalAmount: "$200.00",
-        paymentMethod: "Bank Transfer",
-    },
-    {
-        invoice: "INV007",
-        paymentStatus: "Unpaid",
-        totalAmount: "$300.00",
-        paymentMethod: "Credit Card",
-    },
-]
+interface CurrentListProps {
+    todoLists: TodoList[]
+}
 
-export function CurrentList({ list }: { list: TodoList }) {
+export function CurrentList({ todoLists }: CurrentListProps) {
+    const [currentListIndex, setCurrentListIndex] = useState(0)
+    const [lists, setLists] = useState<TodoList[]>(todoLists)
+    const [focusedText, setFocusedText] = useState<string>('')
 
-    console.log('Current List:', list)
+    // Update lists when todoLists prop changes
+    useEffect(() => {
+        setLists(todoLists)
+    }, [todoLists])
+
+    // Ensure current index is within bounds
+    useEffect(() => {
+        if (currentListIndex >= lists.length && lists.length > 0) {
+            setCurrentListIndex(0)
+        }
+    }, [lists.length, currentListIndex])
+
+    const currentList = lists[currentListIndex]
+
+    // Ensure there's always an empty todo at the end of the current list
+    useEffect(() => {
+        if (currentList) {
+            const updatedTodos = [...currentList.todos]
+            ensureEmptyTodoItem(updatedTodos)
+
+            if (updatedTodos.length !== currentList.todos.length) {
+                setLists(prev =>
+                    prev.map(list =>
+                        list.id === currentList.id
+                            ? { ...list, todos: updatedTodos }
+                            : list
+                    )
+                )
+            }
+        }
+    }, [currentList?.todos.length, currentList?.id])
+
+    // Create state object for todo operations
+    const state: TodoState = {
+        todoLists: lists,
+        setTodoLists: setLists,
+        openAccordions: [], // Not used in single list view
+        setOpenAccordions: () => { }, // Not used in single list view
+        focusedText,
+        setFocusedText
+    }
+
+    const handleListSelect = (index: number) => {
+        setCurrentListIndex(index)
+    }
+
+    if (!currentList || lists.length === 0) {
+        return (
+            <div className="p-4 text-center text-muted-foreground">
+                <p>No todo lists available</p>
+            </div>
+        )
+    }
+
     return (
-        <Table>
-            <TableCaption>A list of your recent invoices.</TableCaption>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Task</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Due</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {invoices.map((invoice) => (
-                    <TableRow key={invoice.invoice}>
-                        <TableCell className="font-medium">{invoice.invoice}</TableCell>
-                        <TableCell>{invoice.paymentMethod}</TableCell>
-                        <TableCell className="text-right">{invoice.totalAmount}</TableCell>
-                    </TableRow>
-                ))}
-            </TableBody>
-        </Table>
+        <div className="space-y-4">
+            {/* List Selection Buttons */}
+            <div className="space-y-2 mt-5">
+                <div className="flex flex-wrap gap-2">
+                    {lists.map((list, index) => (
+                        <Button
+                            key={list.id}
+                            variant={currentListIndex === index ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handleListSelect(index)}
+                            className="text-sm"
+                        >
+                            {list.listName}
+                        </Button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Current List Table */}
+            <div>
+                <h4 className="text-base">{currentList.listName}</h4>
+
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-10"></TableHead>
+                            <TableHead></TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {currentList.todos.map(todo => (
+                            <TableRow key={todo.id}>
+                                <TableCell className="">
+                                    <button
+                                        onClick={() => toggleTodoCompletion(currentList.id, todo.id, state)}
+                                        className="flex-shrink-0  rounded transition-colors"
+                                    >
+                                        {todo.completed ? (
+                                            <CheckCircle className="w-5 h-5 text-ring" />
+                                        ) : (
+                                            <Circle className="w-5 h-5 text-muted-foreground" />
+                                        )}
+                                    </button>
+                                </TableCell>
+                                <TableCell className="p-2">
+                                    <BareInput
+                                        className={`w-full text-sm bg-transparent border-none p-0
+                                            ${todo.completed ? 'line-through text-muted-foreground' : ''} 
+                                        `}
+                                        placeholder="Add todo..."
+                                        value={todo.text}
+                                        onChange={(e) => updateTodoItem(currentList.id, todo.id, e.target.value, state)}
+                                        onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, state)}
+                                        onBlur={() => handleTodoBlur(currentList.id, todo.id, todo.text, todo.completed, state)}
+                                        onFocus={() => handleTodoFocus(currentList.id, todo.id, state)}
+                                        data-todo-id={todo.id}
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        ))}
+
+                    </TableBody>
+                </Table>
+            </div>
+        </div>
     )
 }
