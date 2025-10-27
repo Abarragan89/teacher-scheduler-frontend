@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react'
 import { TodoList } from "@/types/todo"
 import { Button } from "@/components/ui/button"
 import { BareInput } from '@/components/ui/bare-bones-input'
-import { CheckCircle, Circle } from 'lucide-react'
-import { TodoState, ensureEmptyTodoItem } from './utils/todo-list-operations'
+import { CheckCircle, Circle, Trash2Icon } from 'lucide-react'
+import { TodoState, deleteTodoList, ensureEmptyTodoItem } from './utils/todo-list-operations'
 import {
     updateTodoItem,
     handleTodoFocus,
@@ -18,6 +18,7 @@ import {
     TableCell,
     TableRow,
 } from "@/components/ui/table"
+import { clientTodo, clientTodoLists } from '@/lib/api/services/todos/client'
 
 interface CurrentListProps {
     lists: TodoList[]
@@ -99,9 +100,12 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
 
             {/* Current List Table */}
             <div>
-                <h4 className="text-base">{currentList.listName}</h4>
+                {/* <h4 className="mt-5 mb-2 font-bold text-center">{currentList.listName}</h4> */}
+                <Trash2Icon
+                    onClick={() => deleteTodoList(currentList.id, state)}
+                />
 
-                <Table>
+                <Table className='mt-4'>
                     <TableBody>
                         {currentList.todos.map(todo => (
                             <TableRow key={todo.id}>

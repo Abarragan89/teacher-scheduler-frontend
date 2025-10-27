@@ -63,12 +63,12 @@ export const toggleTodoCompletion = async (listId: string, todoId: string, state
         )
     )
 
-    // TODO: Update backend
-    // try {
-    //     await clientTodos.updateTodo(todoId, todo.text, todo.position, newCompleted)
-    // } catch (error) {
-    //     console.error('Failed to update todo completion:', error)
-    // }
+    // Update backend
+    try {
+        await clientTodo.updateTodo(todoId, todo.text, newCompleted, todo.priority )
+    } catch (error) {
+        console.error('Failed to update todo completion:', error)
+    }
 }
 
 // Handle todo focus
@@ -105,30 +105,34 @@ export const handleTodoBlur = async (
 
         // Only remove if it's not the last item
         if (!isLastItem) {
-            if (!isTemporary) {
-                // TODO: Delete from backend
-                // await clientTodos.deleteTodo(todoId)
-            }
-
+            
             // Remove from UI
             setTodoLists(prev =>
                 prev.map(l => {
                     if (l.id === listId) {
                         const newTodos = l.todos
-                            .filter(todo => todo.id !== todoId)
-                            .map((todo, index) => ({ ...todo, position: index }))
+                        .filter(todo => todo.id !== todoId)
+                        .map((todo, index) => ({ ...todo, position: index }))
                         ensureEmptyTodoItem(newTodos)
                         return { ...l, todos: newTodos }
                     }
                     return l
                 })
             )
+
+            if (!isTemporary) {
+                // Delete from backend
+                await clientTodo.deleteTodo(todoId)
+            }
         }
         return
     }
 
     if (isTemporary) {
         try {
+            // update it on the backend
+            const savedTodo = await clientTodo.createTodoItem(listId, text.trim())
+
             // Update UI with real ID
             setTodoLists(prev =>
                 prev.map(list => {
@@ -137,7 +141,7 @@ export const handleTodoBlur = async (
                             if (todo.id === todoId) {
                                 return {
                                     ...todo,
-                                    id: `todo-${Date.now()}-${index}`, // Use a non-temp ID for frontend demo
+                                    id: savedTodo.id,
                                     position: index
                                 }
                             }
@@ -150,9 +154,6 @@ export const handleTodoBlur = async (
                     return list
                 })
             )
-            // update it on the backend
-            await clientTodo.createTodoItem(listId, text.trim())
-            console.log('Creating new todo:', text)
         } catch (error) {
             console.error('Error creating new todo:', error)
         }

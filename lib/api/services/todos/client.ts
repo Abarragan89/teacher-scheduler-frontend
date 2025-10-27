@@ -24,6 +24,13 @@ export const clientTodoLists = {
         });
         if (!response.ok) throw new Error('Failed to update todo list title');
         return response.json();
+    },
+    async deleteTodoList(todoListId: string) {
+        const response = await clientFetch(`/todo-list/delete-list/${todoListId}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) throw new Error('Failed to delete todo list');
+        return response.json();
     }
 }
 
@@ -44,5 +51,14 @@ export const clientTodo = {
         });
         if (!response.ok) throw new Error('Failed to update todo item');
         return response.json();
+    },
+
+    async deleteTodo(todoId: string) {
+        const response = await clientFetch(`/todo/delete-list-item/${todoId}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) throw new Error('Failed to delete todo item');
+        return response.json();
     }
+
 }

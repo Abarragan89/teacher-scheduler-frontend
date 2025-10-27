@@ -57,7 +57,7 @@ export const deleteTodoList = async (listId: string, state: TodoState) => {
     const { setTodoLists } = state
 
     // TODO: Add API call to delete the list
-    // await clientTodoLists.deleteTodoList(listId)
+    await clientTodoLists.deleteTodoList(listId)
 
     setTodoLists(prev => prev.filter(list => list.id !== listId))
 }
