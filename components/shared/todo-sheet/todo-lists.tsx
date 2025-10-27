@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { BareInput } from '@/components/ui/bare-bones-input'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { CheckCircle, Circle, Trash2Icon, Plus, EllipsisVertical } from 'lucide-react'
+import { CheckCircle, Circle, Trash2Icon, Plus, EllipsisVertical, BookmarkCheckIcon, Bookmark } from 'lucide-react'
 import { TodoState, deleteTodoList, ensureEmptyTodoItem } from './utils/todo-list-operations'
 import {
     updateTodoItem,
@@ -201,9 +201,9 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                             <EllipsisVertical size={16} className="text-muted-foreground cursor-pointer" />
                         </PopoverTrigger>
                         {confirmDeleteList ? (
-                            <PopoverContent className=" flex flex-col gap-y-2 p-3 px-6 mr-5 z-50 bg-background border shadow-lg rounded-lg">
-                                <p className="text-sm text-destructive">Are you sure you want to delete this list?</p>
-                                <div className="flex-center gap-x-5">
+                            <PopoverContent className=" flex flex-col gap-y-2 p-3 px-5 mr-5 z-50 bg-background border shadow-lg rounded-lg">
+                                <p className="text-sm text-destructive mb-4">Are you sure you want to delete this list?</p>
+                                <div className="flex-center gap-x-5 mb-2">
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -225,18 +225,18 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                                 </div>
                             </PopoverContent>
                         ) : (
-                        <PopoverContent className=" flex flex-col gap-y-1 p-3 px-6 mr-5 z-50 bg-background border shadow-lg rounded-lg">
-                            <Button variant={"ghost"}>
-                                Make Default
-                            </Button>
-                            <Button
-                                variant='ghost'
-                                className='text-destructive hover:text-destructive'
-                                onClick={() => setConfirmDeleteList(true)}
-                            >
-                                <Trash2Icon size={14} /> Delete
-                            </Button>
-                        </PopoverContent>
+                            <PopoverContent className=" flex flex-col gap-y-1 p-3 px-6 mr-5 z-50 bg-background border shadow-lg rounded-lg">
+                                <Button variant={"ghost"}>
+                                    <Bookmark /> Make Default
+                                </Button>
+                                <Button
+                                    variant='ghost'
+                                    className='text-destructive hover:text-destructive'
+                                    onClick={() => setConfirmDeleteList(true)}
+                                >
+                                    <Trash2Icon size={14} /> Delete
+                                </Button>
+                            </PopoverContent>
                         )}
                     </Popover>
                 </div>
