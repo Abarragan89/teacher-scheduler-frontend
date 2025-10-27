@@ -6,7 +6,7 @@ import { BareInput } from '@/components/ui/bare-bones-input'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { CheckCircle, Circle, Trash2Icon, Plus, EllipsisVertical, BookmarkCheckIcon, Bookmark } from 'lucide-react'
-import { TodoState, deleteTodoList, ensureEmptyTodoItem } from './utils/todo-list-operations'
+import { TodoState, deleteTodoList, ensureEmptyTodoItem, updateTodoListTitle, handleTodoListTitleBlur, handleTodoListTitleFocus } from './utils/todo-list-operations'
 import {
     updateTodoItem,
     handleTodoFocus,
@@ -21,7 +21,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { ResponsiveDialog } from '@/components/responsive-dialog'
-import { clientTodo, clientTodoLists } from '@/lib/api/services/todos/client'
+import { clientTodoLists } from '@/lib/api/services/todos/client'
 import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
 import { Separator } from '@/components/ui/separator'
 
@@ -105,8 +105,6 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
         }
     }
 
-
-
     if (!currentList || lists.length === 0) {
         return (
             <div className="p-4 text-center text-muted-foreground space-y-4">
@@ -174,8 +172,7 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                         >
                             {list.listName}
                         </Button>
-                    )
-                    )}
+                    ))}
 
                     {/* Add New List Button */}
                     <Button
@@ -195,8 +192,15 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
             {/* Current List Table */}
             <div>
                 <div className="flex-between">
-                    <h4 className="font-bold text-lg md:text-xl">{currentList.listName}</h4>
-                    <Popover open={isPopOverOpen} onOpenChange={setIsPopoverOpen}>
+
+                    <BareInput
+                        className="font-bold text-lg md:text-xl bg-transparent border-none p-0"
+                        value={currentList.listName}
+                        onChange={(e) => updateTodoListTitle(currentList.id, e.target.value, state)}
+                        onBlur={() => handleTodoListTitleBlur(currentList.id, currentList.listName, state)}
+                        onFocus={() => handleTodoListTitleFocus(currentList.id, state)}
+                        placeholder="List Name"
+                    />                    <Popover open={isPopOverOpen} onOpenChange={setIsPopoverOpen}>
                         <PopoverTrigger>
                             <EllipsisVertical size={16} className="text-muted-foreground cursor-pointer" />
                         </PopoverTrigger>
@@ -226,7 +230,10 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                             </PopoverContent>
                         ) : (
                             <PopoverContent className=" flex flex-col gap-y-1 p-3 px-6 mr-5 z-50 bg-background border shadow-lg rounded-lg">
-                                <Button variant={"ghost"}>
+                                <Button
+                                    onClick={() => clientTodoLists.setDefaultList(currentList.id)}
+                                    variant={"ghost"}
+                                >
                                     <Bookmark /> Make Default
                                 </Button>
                                 <Button

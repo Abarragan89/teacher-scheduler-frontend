@@ -191,7 +191,7 @@ function InstallPrompt() {
     const instructions = getInstallInstructions()
 
     return (
-        <div className='max-w-6xl mx-auto pl-6 -mt-2'>
+        <div className='max-w-6xl mx-auto pl-6 -mt-2 print:!hidden'>
             <Button className='text-sm' variant={'outline'} onClick={handleInstallClick}>
                 Install App
             </Button>

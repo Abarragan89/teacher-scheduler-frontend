@@ -31,6 +31,14 @@ export const clientTodoLists = {
         });
         if (!response.ok) throw new Error('Failed to delete todo list');
         return true;
+    },
+    
+    async setDefaultList(todoListId: string) {
+        const response = await clientFetch(`/todo-list/set-default-list/${todoListId}`, {
+            method: 'PUT',
+        });
+        if (!response.ok) throw new Error('Failed to set default todo list');
+        return true;
     }
 }
 
