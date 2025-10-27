@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button"
 import { BareInput } from '@/components/ui/bare-bones-input'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { CheckCircle, Circle, Trash2Icon, Plus } from 'lucide-react'
-import { TodoState, deleteTodoList, ensureEmptyTodoItem, addNewTodoList } from './utils/todo-list-operations'
+import { CheckCircle, Circle, Trash2Icon, Plus, EllipsisVertical } from 'lucide-react'
+import { TodoState, deleteTodoList, ensureEmptyTodoItem } from './utils/todo-list-operations'
 import {
     updateTodoItem,
     handleTodoFocus,
@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/table"
 import { ResponsiveDialog } from '@/components/responsive-dialog'
 import { clientTodo, clientTodoLists } from '@/lib/api/services/todos/client'
+import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
+import { Separator } from '@/components/ui/separator'
 
 interface CurrentListProps {
     lists: TodoList[]
@@ -30,11 +32,13 @@ interface CurrentListProps {
 
 export default function TodoLists({ lists, setLists }: CurrentListProps) {
 
-    const [currentListIndex, setCurrentListIndex] = useState(0)
-    const [focusedText, setFocusedText] = useState<string>('')
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [newListName, setNewListName] = useState('')
-    const [isCreating, setIsCreating] = useState(false)
+    const [currentListIndex, setCurrentListIndex] = useState(0);
+    const [focusedText, setFocusedText] = useState<string>('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newListName, setNewListName] = useState('');
+    const [isCreating, setIsCreating] = useState(false);
+    const [confirmDeleteList, setConfirmDeleteList] = useState<boolean>(false)
+    const [isPopOverOpen, setIsPopoverOpen] = useState(false);
 
     // Ensure current index is within bounds
     useEffect(() => {
@@ -186,15 +190,55 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                 </div>
             </div>
 
+            <Separator className='my-5' />
+
             {/* Current List Table */}
             <div>
-                <div className="flex-between mt-4">
-                    <h4 className="font-bold text-2xl">{currentList.listName}</h4>
-                    <Trash2Icon
-                        size={16}
-                        onClick={() => deleteTodoList(currentList.id, state, currentListIndex)}
-                        className='text-destructive'
-                    />
+                <div className="flex-between">
+                    <h4 className="font-bold text-lg md:text-xl">{currentList.listName}</h4>
+                    <Popover open={isPopOverOpen} onOpenChange={setIsPopoverOpen}>
+                        <PopoverTrigger>
+                            <EllipsisVertical size={16} className="text-muted-foreground cursor-pointer" />
+                        </PopoverTrigger>
+                        {confirmDeleteList ? (
+                            <PopoverContent className=" flex flex-col gap-y-2 p-3 px-6 mr-5 z-50 bg-background border shadow-lg rounded-lg">
+                                <p className="text-sm text-destructive">Are you sure you want to delete this list?</p>
+                                <div className="flex-center gap-x-5">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setConfirmDeleteList(false)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={() => {
+                                            deleteTodoList(currentList.id, state, currentListIndex)
+                                            setConfirmDeleteList(false)
+                                            setIsPopoverOpen(false)
+                                        }}
+                                    >
+                                        Delete
+                                    </Button>
+                                </div>
+                            </PopoverContent>
+                        ) : (
+                        <PopoverContent className=" flex flex-col gap-y-1 p-3 px-6 mr-5 z-50 bg-background border shadow-lg rounded-lg">
+                            <Button variant={"ghost"}>
+                                Make Default
+                            </Button>
+                            <Button
+                                variant='ghost'
+                                className='text-destructive hover:text-destructive'
+                                onClick={() => setConfirmDeleteList(true)}
+                            >
+                                <Trash2Icon size={14} /> Delete
+                            </Button>
+                        </PopoverContent>
+                        )}
+                    </Popover>
                 </div>
 
                 <Table className='mt-4'>
