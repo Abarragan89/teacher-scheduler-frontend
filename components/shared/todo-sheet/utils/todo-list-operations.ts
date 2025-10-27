@@ -71,7 +71,6 @@ export const deleteTodoList = async (listId: string, state: TodoState, currentLi
             // A list before the current one was deleted, adjust index
             setCurrentListIndex(currentListIndex - 1)
         }
-        // If deleted list is after current list, no index change needed
         // Update the lists
         setTodoLists(updatedLists)
 }
