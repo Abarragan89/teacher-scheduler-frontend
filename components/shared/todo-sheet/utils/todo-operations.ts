@@ -1,5 +1,6 @@
 import { TodoItem } from '@/types/todo'
 import { TodoState, ensureEmptyTodoItem } from './todo-list-operations'
+import { clientTodo } from '@/lib/api/services/todos/client'
 
 // Update a todo item text
 export const updateTodoItem = (listId: string, todoId: string, text: string, state: TodoState) => {
@@ -26,6 +27,7 @@ export const updateTodoItem = (listId: string, todoId: string, text: string, sta
                         id: `temp-todo-${Date.now()}`,
                         text: '',
                         completed: false,
+                        priority: 1,
                     })
                 }
 
@@ -85,6 +87,7 @@ export const handleTodoBlur = async (
     todoId: string,
     text: string,
     completed: boolean,
+    priority: number,
     state: TodoState
 ) => {
     const { todoLists, setTodoLists, focusedText } = state
@@ -125,13 +128,7 @@ export const handleTodoBlur = async (
     }
 
     if (isTemporary) {
-        // Create new todo in backend
-        const currentIndex = list.todos.findIndex(todo => todo.id === todoId)
-
         try {
-            // TODO: Create the new item in backend
-            // const newTodo = await clientTodos.createTodo(listId, text.trim(), currentIndex, completed)
-
             // Update UI with real ID
             setTodoLists(prev =>
                 prev.map(list => {
@@ -153,7 +150,8 @@ export const handleTodoBlur = async (
                     return list
                 })
             )
-
+            // update it on the backend
+            await clientTodo.createTodoItem(listId, text.trim())
             console.log('Creating new todo:', text)
         } catch (error) {
             console.error('Error creating new todo:', error)
@@ -161,9 +159,7 @@ export const handleTodoBlur = async (
     } else if (hasTextChanged) {
         // Update existing todo in backend
         try {
-            // TODO: Update backend
-            // await clientTodos.updateTodo(todoId, text.trim(), position, completed)
-            console.log('Updating todo:', text)
+            await clientTodo.updateTodo(todoId, text.trim(), completed, priority)
         } catch (error) {
             console.error('Error updating todo:', error)
         }
@@ -193,7 +189,7 @@ export const handleTodoKeyDown = (
             id: `temp-todo-${Date.now()}`,
             text: '',
             completed: false,
-
+            priority: 1,
         }
 
         setTodoLists(prev =>

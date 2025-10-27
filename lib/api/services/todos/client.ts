@@ -26,3 +26,23 @@ export const clientTodoLists = {
         return response.json();
     }
 }
+
+export const clientTodo = {
+    async createTodoItem(todoListId: string, todoText: string) {
+        const response = await clientFetch('/todo/create-list-item', {
+            method: 'POST',
+            body: JSON.stringify({ todoListId, todoText }),
+        });
+        if (!response.ok) throw new Error('Failed to create todo item');
+        return response.json();
+    },
+
+    async updateTodo(todoId: string, todoText: string, completed: boolean, priority: number) {
+        const response = await clientFetch('/todo/update-list-item', {
+            method: 'PUT',
+            body: JSON.stringify({ todoId, todoText, completed, priority }),
+        });
+        if (!response.ok) throw new Error('Failed to update todo item');
+        return response.json();
+    }
+}

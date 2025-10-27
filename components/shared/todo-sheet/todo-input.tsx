@@ -45,7 +45,7 @@ export default function TodoItem({ todo, listId, state }: TodoItemProps) {
                 value={todo.text}
                 onChange={(e) => updateTodoItem(listId, todo.id, e.target.value, state)}
                 onKeyDown={(e) => handleTodoKeyDown(e, listId, todo.id, state)}
-                onBlur={() => handleTodoBlur(listId, todo.id, todo.text, todo.completed, state)}
+                onBlur={() => handleTodoBlur(listId, todo.id, todo.text, todo.completed, todo.priority, state)}
                 onFocus={() => handleTodoFocus(listId, todo.id, state)}
                 data-todo-id={todo.id}
             />

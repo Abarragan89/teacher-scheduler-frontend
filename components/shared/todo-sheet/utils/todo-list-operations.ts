@@ -25,6 +25,7 @@ export const ensureEmptyTodoItem = (todos: TodoItem[]) => {
         id: `temp-todo-${Date.now()}`,
         text: '',
         completed: false,
+        priority: 1
     })
 }
 
@@ -39,6 +40,7 @@ export const addNewTodoList = (state: TodoState) => {
             id: `temp-todo-${Date.now()}`,
             text: '',
             completed: false,
+            priority: 1,
         }],
     }
 

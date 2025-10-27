@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { TodoList, TodoItem } from "@/types/todo"
+import { TodoList } from "@/types/todo"
 import { Button } from "@/components/ui/button"
 import { BareInput } from '@/components/ui/bare-bones-input'
 import { CheckCircle, Circle } from 'lucide-react'
@@ -16,24 +16,18 @@ import {
     Table,
     TableBody,
     TableCell,
-    TableHead,
-    TableHeader,
     TableRow,
 } from "@/components/ui/table"
 
 interface CurrentListProps {
-    todoLists: TodoList[]
+    lists: TodoList[]
+    setLists: React.Dispatch<React.SetStateAction<TodoList[]>>
 }
 
-export function CurrentList({ todoLists }: CurrentListProps) {
+export default function TodoLists({ lists, setLists }: CurrentListProps) {
     const [currentListIndex, setCurrentListIndex] = useState(0)
-    const [lists, setLists] = useState<TodoList[]>(todoLists)
+    // const [lists, setLists] = useState<TodoList[]>(todoLists)
     const [focusedText, setFocusedText] = useState<string>('')
-
-    // Update lists when todoLists prop changes
-    useEffect(() => {
-        setLists(todoLists)
-    }, [todoLists])
 
     // Ensure current index is within bounds
     useEffect(() => {
@@ -108,19 +102,13 @@ export function CurrentList({ todoLists }: CurrentListProps) {
                 <h4 className="text-base">{currentList.listName}</h4>
 
                 <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-10"></TableHead>
-                            <TableHead></TableHead>
-                        </TableRow>
-                    </TableHeader>
                     <TableBody>
                         {currentList.todos.map(todo => (
                             <TableRow key={todo.id}>
-                                <TableCell className="">
+                                <TableCell className="w-[20px]">
                                     <button
                                         onClick={() => toggleTodoCompletion(currentList.id, todo.id, state)}
-                                        className="flex-shrink-0  rounded transition-colors"
+                                        className="flex-shrink-0 rounded transition-colors"
                                     >
                                         {todo.completed ? (
                                             <CheckCircle className="w-5 h-5 text-ring" />
@@ -138,7 +126,7 @@ export function CurrentList({ todoLists }: CurrentListProps) {
                                         value={todo.text}
                                         onChange={(e) => updateTodoItem(currentList.id, todo.id, e.target.value, state)}
                                         onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, state)}
-                                        onBlur={() => handleTodoBlur(currentList.id, todo.id, todo.text, todo.completed, state)}
+                                        onBlur={() => handleTodoBlur(currentList.id, todo.id, todo.text, todo.completed, todo.priority, state)}
                                         onFocus={() => handleTodoFocus(currentList.id, todo.id, state)}
                                         data-todo-id={todo.id}
                                     />

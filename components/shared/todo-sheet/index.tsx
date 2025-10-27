@@ -1,3 +1,5 @@
+"use client"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
     Sheet,
@@ -7,9 +9,12 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 import { ListTodo } from "lucide-react"
-import { TodoAccordion } from "./todo-accordion"
+import TodoLists from "./todo-lists"
+import { TodoList } from "@/types/todo"
 
-export function TodoSheet() {
+export function TodoSheet({todoLists}: {todoLists: TodoList[]}) {
+    const [lists, setLists] = useState<TodoList[]>(todoLists)
+    
     return (
         <Sheet>
             <SheetTrigger asChild>
@@ -21,7 +26,10 @@ export function TodoSheet() {
                 <SheetHeader>
                     <SheetTitle>ToDo Lists</SheetTitle>
                 </SheetHeader>
-                <TodoAccordion />
+                <TodoLists 
+                    lists={lists}
+                    setLists={setLists}
+                />
             </SheetContent>
         </Sheet>
     )

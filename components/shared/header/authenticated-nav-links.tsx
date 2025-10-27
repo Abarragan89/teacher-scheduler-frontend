@@ -6,12 +6,17 @@ import Link from 'next/link'
 import { CalendarDays } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { TodoSheet } from '../todo-sheet'
+import { serverTodoLists } from '@/lib/api/services/todos/server'
+
 export default async function AuthenticatedNavLinks({ email }: { email: string }) {
+
+    const todoLists = await serverTodoLists.getTodoLists();
+
+    console.log('Fetched todo lists in nav links:', todoLists);
 
     return (
         <NavigationMenu>
             <NavigationMenuList className="gap-x-2">
-
                 <NavigationMenuItem>
                     <Link href="/dashboard">
                         <Button variant={"ghost"} className='hover:cursor-pointer'>
@@ -23,7 +28,9 @@ export default async function AuthenticatedNavLinks({ email }: { email: string }
                 </NavigationMenuItem>
                 
                 <NavigationMenuItem>
-                   <TodoSheet />
+                   <TodoSheet 
+                        todoLists={todoLists}
+                   />
                 </NavigationMenuItem>
 
                 <ModeToggle />
