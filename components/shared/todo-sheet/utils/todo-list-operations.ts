@@ -4,8 +4,7 @@ import { TodoList, TodoItem } from '@/types/todo'
 export interface TodoState {
     todoLists: TodoList[]
     setTodoLists: React.Dispatch<React.SetStateAction<TodoList[]>>
-    openAccordions: string[]
-    setOpenAccordions: React.Dispatch<React.SetStateAction<string[]>>
+    setCurrentListIndex: React.Dispatch<React.SetStateAction<number>>
     focusedText?: string
     setFocusedText?: React.Dispatch<React.SetStateAction<string>>
 }
@@ -31,7 +30,7 @@ export const ensureEmptyTodoItem = (todos: TodoItem[]) => {
 
 // Add a new todo list
 export const addNewTodoList = (state: TodoState) => {
-    const { todoLists, setTodoLists, setOpenAccordions } = state
+    const { setTodoLists } = state
 
     const newList: TodoList = {
         id: `temp-list-${Date.now()}`,
@@ -45,26 +44,40 @@ export const addNewTodoList = (state: TodoState) => {
     }
 
     setTodoLists(prev => [...prev, newList])
-
-    // Open the new list
-    if (setOpenAccordions) {
-        setOpenAccordions(prev => [...prev, newList.id])
-    }
 }
 
 // Delete a todo list
-export const deleteTodoList = async (listId: string, state: TodoState) => {
-    const { setTodoLists } = state
+export const deleteTodoList = async (listId: string, state: TodoState, currentListIndex?: number) => {
+    const { todoLists, setTodoLists, setCurrentListIndex } = state
 
-    // TODO: Add API call to delete the list
-    await clientTodoLists.deleteTodoList(listId)
+        // Add API call to delete the list
+        await clientTodoLists.deleteTodoList(listId)
 
-    setTodoLists(prev => prev.filter(list => list.id !== listId))
+        // Find the index of the list being deleted
+        const deletedListIndex = todoLists.findIndex(list => list.id === listId)
+
+        // Remove the list from the array
+        const updatedLists = todoLists.filter(list => list.id !== listId)
+
+        // Determine the new current list index
+        if (updatedLists.length === 0) {
+            // No lists remaining
+            setCurrentListIndex(0)
+        } else if (currentListIndex !== undefined && deletedListIndex === currentListIndex) {
+            // The current list was deleted, show the previous list or first list
+            const newIndex = Math.max(0, deletedListIndex - 1)
+            setCurrentListIndex(newIndex)
+        } else if (currentListIndex !== undefined && deletedListIndex < currentListIndex) {
+            // A list before the current one was deleted, adjust index
+            setCurrentListIndex(currentListIndex - 1)
+        }
+        // If deleted list is after current list, no index change needed
+        // Update the lists
+        setTodoLists(updatedLists)
 }
 
 // Update todo list title
 export const updateTodoListTitle = (listId: string, listName: string, state: TodoState) => {
-    console.log('Updating todo list title locally:', listName)
     const { setTodoLists } = state
 
     setTodoLists(prev =>
@@ -100,7 +113,7 @@ export const handleTodoListTitleBlur = async (
         const newList = await clientTodoLists.createTodoList(title)
 
         // Update UI with real ID for frontend demo
-        const { setTodoLists, setOpenAccordions } = state
+        const { setTodoLists } = state
         const newListId = newList.id
 
         setTodoLists(prev =>
@@ -110,13 +123,6 @@ export const handleTodoListTitleBlur = async (
                     : list
             )
         )
-
-        // Update open accordions to use new ID
-        if (setOpenAccordions) {
-            setOpenAccordions(prev =>
-                prev.map(id => id === listId ? newListId : id)
-            )
-        }
     } else if (hasTextChanged) {
         // Update existing list in backend
         await clientTodoLists.updateTodoListTitle(listId, title)

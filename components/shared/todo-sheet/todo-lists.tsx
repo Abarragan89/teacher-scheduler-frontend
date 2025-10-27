@@ -3,8 +3,10 @@ import React, { useState, useEffect } from 'react'
 import { TodoList } from "@/types/todo"
 import { Button } from "@/components/ui/button"
 import { BareInput } from '@/components/ui/bare-bones-input'
-import { CheckCircle, Circle, Trash2Icon } from 'lucide-react'
-import { TodoState, deleteTodoList, ensureEmptyTodoItem } from './utils/todo-list-operations'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { CheckCircle, Circle, Trash2Icon, Plus } from 'lucide-react'
+import { TodoState, deleteTodoList, ensureEmptyTodoItem, addNewTodoList } from './utils/todo-list-operations'
 import {
     updateTodoItem,
     handleTodoFocus,
@@ -18,6 +20,7 @@ import {
     TableCell,
     TableRow,
 } from "@/components/ui/table"
+import { ResponsiveDialog } from '@/components/responsive-dialog'
 import { clientTodo, clientTodoLists } from '@/lib/api/services/todos/client'
 
 interface CurrentListProps {
@@ -26,9 +29,12 @@ interface CurrentListProps {
 }
 
 export default function TodoLists({ lists, setLists }: CurrentListProps) {
+
     const [currentListIndex, setCurrentListIndex] = useState(0)
-    // const [lists, setLists] = useState<TodoList[]>(todoLists)
     const [focusedText, setFocusedText] = useState<string>('')
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [newListName, setNewListName] = useState('')
+    const [isCreating, setIsCreating] = useState(false)
 
     // Ensure current index is within bounds
     useEffect(() => {
@@ -61,20 +67,90 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
     const state: TodoState = {
         todoLists: lists,
         setTodoLists: setLists,
-        openAccordions: [], // Not used in single list view
-        setOpenAccordions: () => { }, // Not used in single list view
         focusedText,
-        setFocusedText
+        setFocusedText,
+        setCurrentListIndex
     }
 
     const handleListSelect = (index: number) => {
         setCurrentListIndex(index)
     }
 
+    const handleCreateList = async () => {
+        if (!newListName.trim()) return
+
+        setIsCreating(true)
+        try {
+            // Create list on backend
+            const newList = await clientTodoLists.createTodoList(newListName.trim())
+
+            // Update local state
+            setLists(prev => [...prev, newList])
+
+            // Select the new list
+            setCurrentListIndex(lists.length)
+
+            // Close modal and reset form
+            setIsModalOpen(false)
+            setNewListName('')
+        } catch (error) {
+            console.error('Failed to create todo list:', error)
+            // You might want to show a toast notification here
+        } finally {
+            setIsCreating(false)
+        }
+    }
+
+
+
     if (!currentList || lists.length === 0) {
         return (
-            <div className="p-4 text-center text-muted-foreground">
+            <div className="p-4 text-center text-muted-foreground space-y-4">
                 <p>No todo lists available</p>
+                <Button variant="outline" onClick={() => setIsModalOpen(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Your First List
+                </Button>
+                <ResponsiveDialog
+                    isOpen={isModalOpen}
+                    setIsOpen={setIsModalOpen}
+                    title="Create New List"
+                    description="Enter a name for your new todo list."
+                >
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="listName">List Name</Label>
+                            <Input
+                                id="listName"
+                                placeholder="Enter list name..."
+                                value={newListName}
+                                onChange={(e) => setNewListName(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && newListName.trim()) {
+                                        handleCreateList()
+                                    }
+                                }}
+                            />
+                        </div>
+                        <div className="flex justify-end space-x-2">
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    setIsModalOpen(false)
+                                    setNewListName('')
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={handleCreateList}
+                                disabled={!newListName.trim() || isCreating}
+                            >
+                                {isCreating ? 'Creating...' : 'Create List'}
+                            </Button>
+                        </div>
+                    </div>
+                </ResponsiveDialog>
             </div>
         )
     }
@@ -94,16 +170,32 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                         >
                             {list.listName}
                         </Button>
-                    ))}
+                    )
+                    )}
+
+                    {/* Add New List Button */}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-sm border-dashed text-muted-foreground hover:text-foreground"
+                        onClick={() => setIsModalOpen(true)}
+                    >
+                        <Plus className="w-4 h-4 mr-1" />
+                        New List
+                    </Button>
                 </div>
             </div>
 
             {/* Current List Table */}
             <div>
-                {/* <h4 className="mt-5 mb-2 font-bold text-center">{currentList.listName}</h4> */}
-                <Trash2Icon
-                    onClick={() => deleteTodoList(currentList.id, state)}
-                />
+                <div className="flex-between mt-4">
+                    <h4 className="font-bold text-2xl">{currentList.listName}</h4>
+                    <Trash2Icon
+                        size={16}
+                        onClick={() => deleteTodoList(currentList.id, state, currentListIndex)}
+                        className='text-destructive'
+                    />
+                </div>
 
                 <Table className='mt-4'>
                     <TableBody>
@@ -141,6 +233,48 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                     </TableBody>
                 </Table>
             </div>
+
+            {/* Responsive Dialog for Creating New List */}
+            <ResponsiveDialog
+                isOpen={isModalOpen}
+                setIsOpen={setIsModalOpen}
+                title="Create New List"
+                description="Enter a name for your new todo list."
+            >
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="listName">List Name</Label>
+                        <Input
+                            id="listName"
+                            placeholder="Enter list name..."
+                            value={newListName}
+                            onChange={(e) => setNewListName(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && newListName.trim()) {
+                                    handleCreateList()
+                                }
+                            }}
+                        />
+                    </div>
+                    <div className="flex justify-end space-x-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setIsModalOpen(false)
+                                setNewListName('')
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleCreateList}
+                            disabled={!newListName.trim() || isCreating}
+                        >
+                            {isCreating ? 'Creating...' : 'Create List'}
+                        </Button>
+                    </div>
+                </div>
+            </ResponsiveDialog>
         </div>
     )
 }

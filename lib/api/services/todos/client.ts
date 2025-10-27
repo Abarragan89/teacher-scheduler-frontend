@@ -30,7 +30,7 @@ export const clientTodoLists = {
             method: 'DELETE',
         });
         if (!response.ok) throw new Error('Failed to delete todo list');
-        return response.json();
+        return true;
     }
 }
 
