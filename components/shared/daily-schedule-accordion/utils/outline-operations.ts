@@ -28,7 +28,6 @@ const updateBackendPositionsAfterDeletion = async (taskId: string, deletedItemId
             )
 
             await Promise.all(updatePromises)
-            console.log('✅ Backend positions updated after deletion')
         }
     } catch (error) {
         console.error('❌ Error updating positions after deletion:', error)
@@ -298,7 +297,6 @@ const updateAllBackendPositions = async (taskId: string, outlineItems: any[], te
             })
 
         await Promise.all(updatePromises)
-        console.log('✅ All backend positions updated after item creation')
     } catch (error) {
         console.error('❌ Error updating all positions:', error)
     }

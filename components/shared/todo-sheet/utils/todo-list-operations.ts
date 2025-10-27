@@ -35,6 +35,7 @@ export const addNewTodoList = (state: TodoState) => {
     const newList: TodoList = {
         id: `temp-list-${Date.now()}`,
         listName: 'Untitled List',
+        isDefault: false,
         todos: [{
             id: `temp-todo-${Date.now()}`,
             text: '',
@@ -42,7 +43,6 @@ export const addNewTodoList = (state: TodoState) => {
             priority: 1,
         }],
     }
-
     setTodoLists(prev => [...prev, newList])
 }
 
@@ -50,29 +50,52 @@ export const addNewTodoList = (state: TodoState) => {
 export const deleteTodoList = async (listId: string, state: TodoState, currentListIndex?: number) => {
     const { todoLists, setTodoLists, setCurrentListIndex } = state
 
-        // Add API call to delete the list
-        await clientTodoLists.deleteTodoList(listId)
+    // Add API call to delete the list
+    await clientTodoLists.deleteTodoList(listId)
 
-        // Find the index of the list being deleted
-        const deletedListIndex = todoLists.findIndex(list => list.id === listId)
+    // Find the index of the list being deleted
+    const deletedListIndex = todoLists.findIndex(list => list.id === listId)
 
-        // Remove the list from the array
-        const updatedLists = todoLists.filter(list => list.id !== listId)
+    // Remove the list from the array
+    const updatedLists = todoLists.filter(list => list.id !== listId)
 
-        // Determine the new current list index
-        if (updatedLists.length === 0) {
-            // No lists remaining
-            setCurrentListIndex(0)
-        } else if (currentListIndex !== undefined && deletedListIndex === currentListIndex) {
-            // The current list was deleted, show the previous list or first list
-            const newIndex = Math.max(0, deletedListIndex - 1)
-            setCurrentListIndex(newIndex)
-        } else if (currentListIndex !== undefined && deletedListIndex < currentListIndex) {
-            // A list before the current one was deleted, adjust index
-            setCurrentListIndex(currentListIndex - 1)
-        }
-        // Update the lists
-        setTodoLists(updatedLists)
+    // Determine the new current list index
+    if (updatedLists.length === 0) {
+        // No lists remaining
+        setCurrentListIndex(0)
+    } else if (currentListIndex !== undefined && deletedListIndex === currentListIndex) {
+        // The current list was deleted, show the previous list or first list
+        const newIndex = Math.max(0, deletedListIndex - 1)
+        setCurrentListIndex(newIndex)
+    } else if (currentListIndex !== undefined && deletedListIndex < currentListIndex) {
+        // A list before the current one was deleted, adjust index
+        setCurrentListIndex(currentListIndex - 1)
+    }
+    // Update the lists
+    setTodoLists(updatedLists)
+}
+
+export const setDefaultTodoList = async (listId: string, state: TodoState) => {
+    const { todoLists, setTodoLists, setCurrentListIndex } = state
+
+    // Call API to set default list
+    await clientTodoLists.setDefaultList(listId)
+
+    // Update local state to reflect the change
+    const updatedLists = todoLists.map(list => ({
+        ...list,
+        isDefault: list.id === listId
+    }))
+
+    const sortedLists = updatedLists.sort((a, b) => {
+        if (a.isDefault && !b.isDefault) return -1
+        if (!a.isDefault && b.isDefault) return 1
+        return 0  // Preserve existing order if both have same isDefault value
+    })
+
+    // Update current list index to point to the default list (which is now at index 0)
+    setCurrentListIndex(0)
+    setTodoLists(sortedLists)
 }
 
 // Update todo list title
@@ -125,7 +148,6 @@ export const handleTodoListTitleBlur = async (
     } else if (hasTextChanged) {
         // Update existing list in backend
         await clientTodoLists.updateTodoListTitle(listId, title)
-        console.log('Updating todo list title:', title)
     }
 }
 

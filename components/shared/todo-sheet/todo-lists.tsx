@@ -6,7 +6,7 @@ import { BareInput } from '@/components/ui/bare-bones-input'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { CheckCircle, Circle, Trash2Icon, Plus, EllipsisVertical, BookmarkCheckIcon, Bookmark } from 'lucide-react'
-import { TodoState, deleteTodoList, ensureEmptyTodoItem, updateTodoListTitle, handleTodoListTitleBlur, handleTodoListTitleFocus } from './utils/todo-list-operations'
+import { TodoState, deleteTodoList, ensureEmptyTodoItem, updateTodoListTitle, handleTodoListTitleBlur, handleTodoListTitleFocus, setDefaultTodoList } from './utils/todo-list-operations'
 import {
     updateTodoItem,
     handleTodoFocus,
@@ -165,12 +165,13 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                     {lists.map((list, index) => (
                         <Button
                             key={list.id}
-                            variant={currentListIndex === index ? "default" : "outline"}
+                            variant={currentListIndex === index ? "default" : "secondary"}
                             size="sm"
                             onClick={() => handleListSelect(index)}
-                            className="text-sm"
+                            className="text-sm border"
                         >
                             {list.listName}
+                            {list.isDefault && <BookmarkCheckIcon className="w-4 h-4 ml-1" />}
                         </Button>
                     ))}
 
@@ -205,7 +206,7 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                             <EllipsisVertical size={16} className="text-muted-foreground cursor-pointer" />
                         </PopoverTrigger>
                         {confirmDeleteList ? (
-                            <PopoverContent className=" flex flex-col gap-y-2 p-3 px-5 mr-5 z-50 bg-background border shadow-lg rounded-lg">
+                            <PopoverContent className=" flex flex-col gap-y-2 mr-5 z-50 bg-background border shadow-lg rounded-lg">
                                 <p className="text-sm text-destructive mb-4">Are you sure you want to delete this list?</p>
                                 <div className="flex-center gap-x-5 mb-2">
                                     <Button
@@ -231,7 +232,7 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                         ) : (
                             <PopoverContent className=" flex flex-col gap-y-1 p-3 px-6 mr-5 z-50 bg-background border shadow-lg rounded-lg">
                                 <Button
-                                    onClick={() => clientTodoLists.setDefaultList(currentList.id)}
+                                    onClick={() => setDefaultTodoList(currentList.id, state)}
                                     variant={"ghost"}
                                 >
                                     <Bookmark /> Make Default

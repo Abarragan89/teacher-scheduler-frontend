@@ -26,9 +26,7 @@ const updateBackendPositionsAfterDeletion = async (taskId: string, deletedItemId
                     item.completed
                 )
             )
-
             await Promise.all(updatePromises)
-            console.log('✅ Backend positions updated after deletion')
         }
     } catch (error) {
         console.error('❌ Error updating positions after deletion:', error)
@@ -203,8 +201,6 @@ export const handleOutlineKeyDown = async (e: KeyboardEvent<HTMLTextAreaElement>
         const newIndentLevel = e.shiftKey
             ? Math.max(0, item.indentLevel - 1)
             : Math.min(maxIndent, item.indentLevel + 1)
-
-        console.log('Changing indent level to:', newIndentLevel)
 
         setTasks(prev =>
             prev.map(t =>

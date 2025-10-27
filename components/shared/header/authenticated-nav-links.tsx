@@ -12,8 +12,6 @@ export default async function AuthenticatedNavLinks({ email }: { email: string }
 
     const todoLists = await serverTodoLists.getTodoLists();
 
-    console.log('Fetched todo lists in nav links:', todoLists);
-
     return (
         <NavigationMenu>
             <NavigationMenuList className="gap-x-2">

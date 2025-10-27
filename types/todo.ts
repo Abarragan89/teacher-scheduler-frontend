@@ -8,5 +8,6 @@ export interface TodoItem {
 export interface TodoList {
     id: string
     listName: string
+    isDefault: boolean
     todos: TodoItem[]
 }

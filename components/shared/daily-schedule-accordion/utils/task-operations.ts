@@ -105,14 +105,10 @@ export const handleTaskBlur = async (
             const task = tasks.find(t => t.id === taskId)
             if (task) {
                 await clientTasks.updateTask(taskId, title.trim(), task.position, task.completed)
-                console.log('✅ Updated task title (changed)')
             }
         } catch (error) {
             console.error('❌ Error updating task:', error)
         }
-    } else {
-        // 🎯 EFFICIENCY: Title didn't change, skip backend update
-        console.log('⏭️  Skipped task backend update (no title change detected)')
     }
 }
 
