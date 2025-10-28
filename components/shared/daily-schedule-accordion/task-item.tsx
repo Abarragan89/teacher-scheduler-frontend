@@ -5,7 +5,6 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import { BareInput } from "@/components/ui/bare-bones-input"
-import { Checkbox } from "@/components/ui/checkbox"
 import { CheckCircle, Circle, GripVertical } from 'lucide-react'
 import { Task } from '@/types/tasks'
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'

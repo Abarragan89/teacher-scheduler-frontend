@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/table"
 import { ResponsiveDialog } from '@/components/responsive-dialog'
 import { clientTodoLists } from '@/lib/api/services/todos/client'
-import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
 import { Separator } from '@/components/ui/separator'
 import { BsFillBookmarkFill } from "react-icons/bs";
 
@@ -202,12 +203,15 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                         onBlur={() => handleTodoListTitleBlur(currentList.id, currentList.listName, state)}
                         onFocus={() => handleTodoListTitleFocus(currentList.id, state)}
                         placeholder="List Name"
-                    />                    <Popover open={isPopOverOpen} onOpenChange={setIsPopoverOpen}>
+                    />
+
+                    {/* Popover for editing the list */}
+                    <Popover open={isPopOverOpen} onOpenChange={setIsPopoverOpen}>
                         <PopoverTrigger>
                             <EllipsisVertical size={16} className="text-muted-foreground cursor-pointer" />
                         </PopoverTrigger>
                         {confirmDeleteList ? (
-                            <PopoverContent className=" flex flex-col gap-y-2 mr-5 z-50 bg-background border shadow-lg rounded-lg">
+                            <PopoverContent className="flex flex-col gap-y-2 mr-5 px-5 z-50 bg-background border shadow-lg rounded-lg">
                                 <p className="text-sm text-destructive mb-4">Are you sure you want to delete this list?</p>
                                 <div className="flex-center gap-x-5 mb-2">
                                     <Button
@@ -231,7 +235,7 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                                 </div>
                             </PopoverContent>
                         ) : (
-                            <PopoverContent className=" flex flex-col gap-y-1 p-3 px-6 mr-5 z-50 bg-background border shadow-lg rounded-lg">
+                            <PopoverContent className="w-fit flex flex-col gap-y-1 p-3 px-6 mr-5 z-50 bg-background border shadow-lg rounded-lg">
                                 <Button
                                     onClick={() => setDefaultTodoList(currentList.id, state)}
                                     variant={"ghost"}
@@ -250,6 +254,7 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                     </Popover>
                 </div>
 
+                {/* Table Row Data (TODO Lists) */}
                 <Table className='mt-4'>
                     <TableBody>
                         {currentList.todos.map(todo => (
@@ -280,15 +285,91 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                                         data-todo-id={todo.id}
                                     />
                                     {!todo.id.startsWith("temp-") && (
-                                        <div className="flex-between text-muted-foreground opacity-70 text-xs">
-                                            <p>Due: 12/4/10 @ 1:45pm</p>
-                                            <BsFillBookmarkFill size={15} />
+                                        <div className="flex-between text-muted-foreground opacity-70 text-xs my-1">
+                                            {/* Due Date Popover */}
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <p
+                                                        className="h-auto p-0 text-xs font-normal text-muted-foreground hover:cursor-pointer hover:text-foreground"
+                                                    >
+                                                        Due: 12/4/10 @ 1:45pm
+                                                    </p>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[290px] p-2 mr-7" align="start">
+                                                    <div className="space-y-1">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={new Date()}
+                                                            onSelect={(date) => {
+                                                                // TODO: Handle date selection
+                                                                console.log('Selected date:', date)
+                                                            }}
+                                                            captionLayout='dropdown'
+                                                            className="w-full bg-transparent pt-1"
+                                                        />
+                                                        <div className="flex-center mx-auto gap-x-4">
+                                                            <Input
+                                                                id="time"
+                                                                type="time"
+                                                                aria-label='Set due time'
+                                                                defaultValue="13:45"
+                                                                className="w-fit my-3"
+                                                            />
+                                                            <Button size="sm">
+                                                                Set Due Date
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </PopoverContent>
+                                            </Popover>
+
+                                            {/* Priority Popover */}
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+
+                                                    <BsFillBookmarkFill
+                                                        className='hover:text-foreground cursor-pointer'
+                                                        size={15} />
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-48" align="end">
+                                                    <div className="space-y-2">
+                                                        <h4 className="font-medium text-sm mb-3">Set Priority</h4>
+                                                        <div className="space-y-1">
+                                                            {[
+                                                                { level: 'high', label: 'High Priority', color: 'text-red-500', bgColor: 'hover:bg-red-50' },
+                                                                { level: 'medium', label: 'Medium Priority', color: 'text-yellow-600', bgColor: 'hover:bg-yellow-50' },
+                                                                { level: 'low', label: 'Low Priority', color: 'text-blue-500', bgColor: 'hover:bg-blue-50' },
+                                                                { level: 'none', label: 'No Priority', color: 'text-muted-foreground', bgColor: 'hover:bg-muted/50' }
+                                                            ].map(({ level, label, color, bgColor }) => (
+                                                                <Button
+                                                                    key={level}
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    className={`w-full justify-start ${bgColor} ${color}`}
+                                                                    onClick={() => {
+                                                                        // TODO: Handle priority selection
+                                                                        console.log('Selected priority:', level)
+                                                                    }}
+                                                                >
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div className={`w-2 h-2 rounded-full ${level === 'high' ? 'bg-red-500' :
+                                                                            level === 'medium' ? 'bg-yellow-500' :
+                                                                                level === 'low' ? 'bg-blue-500' :
+                                                                                    'bg-muted-foreground'
+                                                                            }`} />
+                                                                        {label}
+                                                                    </div>
+                                                                </Button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </PopoverContent>
+                                            </Popover>
                                         </div>
                                     )}
                                 </TableCell>
                             </TableRow>
                         ))}
-
                     </TableBody>
                 </Table>
             </div>
