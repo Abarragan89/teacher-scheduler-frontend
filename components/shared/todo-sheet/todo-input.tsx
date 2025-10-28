@@ -26,7 +26,7 @@ export default function TodoItem({ todo, listId, state }: TodoItemProps) {
             {/* Checkbox - only show for non-temporary items */}
                 <button
                     onClick={() => toggleTodoCompletion(listId, todo.id, state)}
-                    className="flex-shrink-0 p-1 pt-0 rounded transition-colors"
+                    className="flex-shrink-0 pt-0 rounded transition-colors"
                 >
                     {todo.completed ? (
                         <CheckCircle className="w-5 h-5 text-ring" />

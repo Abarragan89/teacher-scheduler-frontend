@@ -24,6 +24,7 @@ import { ResponsiveDialog } from '@/components/responsive-dialog'
 import { clientTodoLists } from '@/lib/api/services/todos/client'
 import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
 import { Separator } from '@/components/ui/separator'
+import { BsFillBookmarkFill } from "react-icons/bs";
 
 interface CurrentListProps {
     lists: TodoList[]
@@ -253,7 +254,7 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                     <TableBody>
                         {currentList.todos.map(todo => (
                             <TableRow key={todo.id}>
-                                <TableCell className="w-[20px]">
+                                <TableCell className="pt-[5px] w-5 align-top">
                                     <button
                                         onClick={() => toggleTodoCompletion(currentList.id, todo.id, state)}
                                         className="flex-shrink-0 rounded transition-colors"
@@ -265,9 +266,9 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                                         )}
                                     </button>
                                 </TableCell>
-                                <TableCell className="p-2">
+                                <TableCell className="p-1 align-top">
                                     <BareInput
-                                        className={`w-full text-sm bg-transparent border-none p-0
+                                        className={`w-full text-md bg-transparent border-none p-0
                                             ${todo.completed ? 'line-through text-muted-foreground' : ''} 
                                         `}
                                         placeholder="Add todo..."
@@ -278,6 +279,12 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                                         onFocus={() => handleTodoFocus(currentList.id, todo.id, state)}
                                         data-todo-id={todo.id}
                                     />
+                                    {!todo.id.startsWith("temp-") && (
+                                        <div className="flex-between text-muted-foreground opacity-70 text-xs">
+                                            <p>Due: 12/4/10 @ 1:45pm</p>
+                                            <BsFillBookmarkFill size={15} />
+                                        </div>
+                                    )}
                                 </TableCell>
                             </TableRow>
                         ))}
