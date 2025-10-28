@@ -1,3 +1,4 @@
+import { TodoItem } from "@/types/todo";
 import { clientFetch } from "../../client";
 
 export const clientTodoLists = {
@@ -52,10 +53,17 @@ export const clientTodo = {
         return response.json();
     },
 
-    async updateTodo(todoId: string, todoText: string, completed: boolean, priority: number) {
+    // async updateTodo(todoId: string, todoText: string, completed: boolean, priority: number) {
+    async updateTodo(todoItem: TodoItem) {
         const response = await clientFetch('/todo/update-list-item', {
             method: 'PUT',
-            body: JSON.stringify({ todoId, todoText, completed, priority }),
+            body: JSON.stringify({ 
+                todoId: todoItem.id, 
+                todoText: todoItem.text, 
+                completed: todoItem.completed, 
+                priority: todoItem.priority,
+                dueDate: todoItem.dueDate 
+            }),
         });
         if (!response.ok) throw new Error('Failed to update todo item');
         return response.json();

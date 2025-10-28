@@ -2,7 +2,7 @@ import { TodoItem } from '@/types/todo'
 import { TodoState, ensureEmptyTodoItem } from './todo-list-operations'
 import { clientTodo } from '@/lib/api/services/todos/client'
 
-// Update a todo item text
+// Update a todo item text on change (No backend update)
 export const updateTodoItem = (listId: string, todoId: string, text: string, state: TodoState) => {
     const { setTodoLists } = state
 
@@ -28,6 +28,7 @@ export const updateTodoItem = (listId: string, todoId: string, text: string, sta
                         text: '',
                         completed: false,
                         priority: 1,
+                        dueDate: null,
                     })
                 }
 
@@ -46,6 +47,7 @@ export const toggleTodoCompletion = async (listId: string, todoId: string, state
     if (!list || !todo) return
 
     const newCompleted = !todo.completed
+    todo.completed = newCompleted
 
     // Update UI immediately (optimistic update)
     setTodoLists(prev =>
@@ -65,7 +67,7 @@ export const toggleTodoCompletion = async (listId: string, todoId: string, state
 
     // Update backend
     try {
-        await clientTodo.updateTodo(todoId, todo.text, newCompleted, todo.priority )
+        await clientTodo.updateTodo(todo)
     } catch (error) {
         console.error('Failed to update todo completion:', error)
     }
@@ -81,7 +83,7 @@ export const handleTodoFocus = (listId: string, todoId: string, state: TodoState
     }
 }
 
-// Handle todo blur
+// Handle todo blur (Frontend and Backend Update)
 export const handleTodoBlur = async (
     listId: string,
     todoId: string,
@@ -93,6 +95,8 @@ export const handleTodoBlur = async (
     const { todoLists, setTodoLists, focusedText } = state
     const list = todoLists.find(l => l.id === listId)
     if (!list) return
+    const todo = list.todos.find(t => t.id === todoId)
+    if (!todo) return
 
     // Check if text actually changed
     const hasTextChanged = text.trim() !== focusedText?.trim()
@@ -160,7 +164,7 @@ export const handleTodoBlur = async (
     } else if (hasTextChanged) {
         // Update existing todo in backend
         try {
-            await clientTodo.updateTodo(todoId, text.trim(), completed, priority)
+            await clientTodo.updateTodo(todo)
         } catch (error) {
             console.error('Error updating todo:', error)
         }
@@ -191,6 +195,7 @@ export const handleTodoKeyDown = (
             text: '',
             completed: false,
             priority: 1,
+            dueDate: null,
         }
 
         setTodoLists(prev =>
@@ -217,4 +222,34 @@ export const handleTodoKeyDown = (
             }
         }, 10)
     }
+}
+
+// Handle Due Date Update (backend update and frontend update)
+export const handleDueDateUpdate = async (
+    todoId: string,
+    dueDate: String,
+    state: TodoState
+) => {
+    const { todoLists, setTodoLists } = state
+    const todo = todoLists
+        .flatMap(list => list.todos)
+        .find(t => t.id === todoId)
+    if (!todo) return
+
+    todo.dueDate = dueDate
+
+    // Update the due date/time in the UI
+    setTodoLists(prev =>
+        prev.map(list => ({
+            ...list,
+            todos: list.todos.map(todo =>
+                todo.id === todoId
+                    ? { ...todo, dueDate }
+                    : todo
+            )
+        }))
+    )
+
+    // Here you would also add the backend update logic if needed
+    await clientTodo.updateTodo(todo)
 }

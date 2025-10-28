@@ -3,6 +3,7 @@ export interface TodoItem {
     text: string
     completed: boolean
     priority: number
+    dueDate: String | null
 }
 
 export interface TodoList {
