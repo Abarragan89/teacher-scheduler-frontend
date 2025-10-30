@@ -70,7 +70,7 @@ export default function SigninForm() {
                         <FormItem aria-required>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
-                                <Input placeholder="user@example.com" {...field} />
+                                <Input type='email' placeholder="user@example.com" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

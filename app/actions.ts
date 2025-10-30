@@ -1,5 +1,4 @@
 'use server'
-
 import webpush from 'web-push'
 import { serverPushNotifications } from '@/lib/api/services/pushNotifications/server'
 

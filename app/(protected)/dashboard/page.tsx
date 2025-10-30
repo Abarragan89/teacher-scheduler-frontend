@@ -1,22 +1,22 @@
 import React from 'react'
 import CalendarMonth from '@/components/shared/calendar-month';
-// import PushNotificationManager from '@/components/push-notifications';
+import PushNotificationManager from '@/components/push-notifications';
 // import InstallPrompt from '@/components/install-prompt';
 import { sendDelayedTestNotification } from '@/app/actions';
 
 export default async function Dashboard() {
 
   // Server action to handle the test button click
-  async function handleTestNotification() {
-    'use server'
-    await sendDelayedTestNotification()
-  }
+  // async function handleTestNotification() {
+  //   'use server'
+  //   await sendDelayedTestNotification()
+  // }
 
   return (
     <main className='wrapper'>
         {/* PWA Components */}
        
-        {/* <PushNotificationManager /> */}
+        <PushNotificationManager />
 
         {/* Test Button */}
         {/* <div className="p-4 border rounded-lg">
