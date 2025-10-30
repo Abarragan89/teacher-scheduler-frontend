@@ -44,7 +44,7 @@ export default function MoveSchedulePopover({
                     Copy Schedule
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className='ml-5 p-2 w-[290px] min-h-[367px]'>
+            <PopoverContent className='flex flex-col justify-between ml-5 p-2 w-[290px] min-h-[367px]'>
                 <div className="space-y-3">
                     <Calendar
                         mode="single"

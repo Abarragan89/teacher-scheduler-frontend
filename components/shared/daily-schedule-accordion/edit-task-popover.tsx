@@ -99,7 +99,7 @@ export default function EditTaskPopover({
                     )}
 
                     {currentView === 'moving' && (
-                        <div className="space-y-3 pt-1 w-[275px] min-h-[367px]">
+                        <div className="flex flex-col justify-between space-y-3 pt-1 w-[275px] min-h-[367px]">
                             <Calendar
                                 mode="single"
                                 selected={date}
