@@ -1,10 +1,10 @@
-import * as React from "react"
+import { useEffect, useLayoutEffect, useRef, useCallback} from "react"
 
 export function BareInput(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-    const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
 
     // Auto-resize function
-    const autoResize = React.useCallback(() => {
+    const autoResize = useCallback(() => {
         const textarea = textareaRef.current
         if (textarea) {
             textarea.style.height = 'auto'
@@ -13,12 +13,12 @@ export function BareInput(props: React.TextareaHTMLAttributes<HTMLTextAreaElemen
     }, [])
 
     // Resize on mount and when value changes
-    React.useEffect(() => {
+    useEffect(() => {
         autoResize()
     }, [props.value, autoResize])
 
     // Also resize after render (for cases where content is set programmatically)
-    React.useLayoutEffect(() => {
+    useLayoutEffect(() => {
         autoResize()
     })
 

@@ -109,14 +109,14 @@ export const handleTodoBlur = async (
 
         // Only remove if it's not the last item
         if (!isLastItem) {
-            
+
             // Remove from UI
             setTodoLists(prev =>
                 prev.map(l => {
                     if (l.id === listId) {
                         const newTodos = l.todos
-                        .filter(todo => todo.id !== todoId)
-                        .map((todo, index) => ({ ...todo, position: index }))
+                            .filter(todo => todo.id !== todoId)
+                            .map((todo, index) => ({ ...todo, position: index }))
                         ensureEmptyTodoItem(newTodos)
                         return { ...l, todos: newTodos }
                     }
@@ -227,7 +227,7 @@ export const handleTodoKeyDown = (
 // Handle Due Date Update (backend update and frontend update)
 export const handleDueDateUpdate = async (
     todoId: string,
-    dueDate: String,
+    dueDate: String | null,
     state: TodoState
 ) => {
     const { todoLists, setTodoLists } = state

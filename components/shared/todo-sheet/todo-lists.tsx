@@ -216,7 +216,7 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                     <TableBody>
                         {currentList.todos.map(todo => (
                             <TableRow key={todo.id}>
-                                <TableCell className="pt-[5px] w-5 align-top">
+                                <TableCell className="pt-[10px] w-5 align-top">
                                     <button
                                         onClick={() => toggleTodoCompletion(currentList.id, todo.id, state)}
                                         className="flex-shrink-0 rounded transition-colors"
@@ -230,7 +230,7 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                                 </TableCell>
                                 <TableCell className="p-1 align-top">
                                     <BareInput
-                                        className={`w-full text-md bg-transparent border-none p-0
+                                        className={`w-full text-[15px] bg-transparent border-none pt-1
                                             ${todo.completed ? 'line-through text-muted-foreground' : ''} 
                                         `}
                                         placeholder="Add todo..."

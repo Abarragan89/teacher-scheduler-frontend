@@ -9,17 +9,31 @@ import { TodoState } from '../utils/todo-list-operations'
 
 export default function DueDatePopover({ todo, state }: { todo: TodoItem, state: TodoState }) {
 
-    // const [isOpen, setIsOpen] = useState<boolean>(false);
-    const [date, setDate] = useState<Date | undefined>(new Date());
-    const [time, setTime] = useState<string>("12:00");
+    // Initialize with todo's due date if it exists, otherwise use current date
+    const [date, setDate] = useState<Date | undefined>(
+        todo.dueDate ? new Date(todo.dueDate.toString()) : new Date()
+    );
+    const [time, setTime] = useState<string>(
+        todo.dueDate ? extractTimeFromISO(todo.dueDate.toString()) : "07:00"
+    );
 
-    console.log('todo ', todo)
+    const [isPopOverOpen, setIsPopOverOpen] = useState<boolean>(false);
 
-
-    function extractTime(date: Date): string {
+    function extractTimeFromISO(isoString: string): string {
+        const date = new Date(isoString);
         const hours = date.getHours().toString().padStart(2, "0");
         const minutes = date.getMinutes().toString().padStart(2, "0");
         return `${hours}:${minutes}`;
+    }
+
+    function formatDisplayDate(isoString: string): string {
+        const date = new Date(isoString);
+        return date.toLocaleDateString();
+    }
+
+    function formatDisplayTime(isoString: string): string {
+        const date = new Date(isoString);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
     function combineDateAndTime(date: Date, time?: string): string {
@@ -37,22 +51,32 @@ export default function DueDatePopover({ todo, state }: { todo: TodoItem, state:
     }
 
     async function setDueDate() {
+        if (!date) {
+            await handleDueDateUpdate(todo.id, null, state);
+        } else {
+            const dueDateISO = combineDateAndTime(date, time);
+            // Implement setting due date logic here (Backend and Frontend)
+            await handleDueDateUpdate(todo.id, dueDateISO, state);
+        }
+        setIsPopOverOpen(false);
+    }
 
-        if (!date) return;
-        const dueDateISO = combineDateAndTime(date, time);
-
-        // Implement setting due date logic here (Backend and Frontend)
-        await handleDueDateUpdate(todo.id, dueDateISO, state);
-
+    async function clearDueDate() {
+        // Clear the due date by setting it to null
+        setDate(undefined);
+        setTime("--:--");
     }
 
     return (
-        <Popover>
+        <Popover open={isPopOverOpen} onOpenChange={setIsPopOverOpen}>
             <PopoverTrigger asChild>
                 <button
                     className="h-auto p-0 text-xs font-normal text-muted-foreground hover:cursor-pointer hover:text-foreground"
                 >
-                    Due: {date?.toLocaleDateString()} @ {time}
+                    {todo.dueDate
+                        ? `Due: ${formatDisplayDate(todo.dueDate.toString())} @ ${formatDisplayTime(todo.dueDate.toString())}`
+                        : "Due: N/A"
+                    }
                 </button>
             </PopoverTrigger>
             <PopoverContent className="w-[290px] p-2 mr-7" align="start">
@@ -64,19 +88,27 @@ export default function DueDatePopover({ todo, state }: { todo: TodoItem, state:
                         captionLayout='dropdown'
                         className="w-full bg-transparent pt-1"
                     />
-                    <div className="flex-center mx-auto gap-x-4">
+                    <div className="flex-center mx-auto gap-x-2">
                         <Input
                             id="time"
                             type="time"
                             aria-label='Set due time'
-                            defaultValue={time}
+                            value={time}
                             className="w-fit my-3"
                             onChange={(e) => setTime(e.target.value)}
                         />
                         <Button
                             onClick={setDueDate}
+                            size="sm"
                         >
-                            Set Due Date
+                            Save
+                        </Button>
+                        <Button
+                            onClick={clearDueDate}
+                            variant="outline"
+                            size="sm"
+                        >
+                            Clear
                         </Button>
                     </div>
                 </div>
