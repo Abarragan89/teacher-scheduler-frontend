@@ -212,7 +212,7 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                 {/* Table Row Data (TODO Lists) */}
                 <Table className='mt-4'>
                     <TableBody>
-                        <ScrollArea className="h-[90vh] w-full">
+                        <ScrollArea className="h-[65vh] w-full">
                             {currentList.todos.map(todo => (
                                 <TableRow key={todo.id}>
                                     <TableCell className="pt-[10px] w-5 align-top">
