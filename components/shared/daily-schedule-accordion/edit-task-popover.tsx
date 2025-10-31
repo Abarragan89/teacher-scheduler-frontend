@@ -108,7 +108,7 @@ export default function EditTaskPopover({
                                 captionLayout='dropdown'
                             />
 
-                            <div className="flex-center gap-x-4 mb-4">
+                            <div className="absolute bottom-1 flex-center gap-x-4 mb-4">
                                 <Button
                                     variant="outline"
                                     size="sm"

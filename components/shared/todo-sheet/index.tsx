@@ -29,7 +29,7 @@ export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
                     <ListTodo />
                 </Button>
             </SheetTrigger>
-            <SheetContent>
+            <SheetContent className="p-5">
                 <SheetHeader>
                     <SheetTitle className="text-muted-foreground">ToDo Lists</SheetTitle>
                 </SheetHeader>

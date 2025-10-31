@@ -26,6 +26,7 @@ import { Separator } from '@/components/ui/separator'
 import EditListPopover from './popovers/edit-list-popover'
 import DueDatePopover from './popovers/due-date-popover'
 import PriorityPopover from './popovers/priority-popover'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 interface CurrentListProps {
     lists: TodoList[]
@@ -188,12 +189,9 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                 </div>
             </div>
 
-            <Separator className='my-5' />
-
             {/* Current List Table */}
-            <div>
+            <div className='mt-6'>
                 <div className="flex-between">
-
                     <BareInput
                         className="font-bold text-lg md:text-xl bg-transparent border-none p-0"
                         value={currentList.listName}
@@ -214,48 +212,50 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                 {/* Table Row Data (TODO Lists) */}
                 <Table className='mt-4'>
                     <TableBody>
-                        {currentList.todos.map(todo => (
-                            <TableRow key={todo.id}>
-                                <TableCell className="pt-[10px] w-5 align-top">
-                                    <button
-                                        onClick={() => toggleTodoCompletion(currentList.id, todo.id, state)}
-                                        className="flex-shrink-0 rounded transition-colors"
-                                    >
-                                        {todo.completed ? (
-                                            <CheckCircle className="w-5 h-5 text-ring" />
-                                        ) : (
-                                            <Circle className="w-5 h-5 text-muted-foreground" />
-                                        )}
-                                    </button>
-                                </TableCell>
-                                <TableCell className="p-1 align-top">
-                                    <BareInput
-                                        className={`w-full text-[15px] bg-transparent border-none pt-1
+                        <ScrollArea className="h-[90vh] w-full">
+                            {currentList.todos.map(todo => (
+                                <TableRow key={todo.id}>
+                                    <TableCell className="pt-[10px] w-5 align-top">
+                                        <button
+                                            onClick={() => toggleTodoCompletion(currentList.id, todo.id, state)}
+                                            className="flex-shrink-0 rounded transition-colors"
+                                        >
+                                            {todo.completed ? (
+                                                <CheckCircle className="w-5 h-5 text-ring" />
+                                            ) : (
+                                                <Circle className="w-5 h-5 text-muted-foreground" />
+                                            )}
+                                        </button>
+                                    </TableCell>
+                                    <TableCell className="p-1 pr-[15px] align-top">
+                                        <BareInput
+                                            className={`w-full text-[15px] bg-transparent border-none pt-1
                                             ${todo.completed ? 'line-through text-muted-foreground' : ''} 
                                         `}
-                                        placeholder="Add todo..."
-                                        value={todo.text}
-                                        onChange={(e) => updateTodoItem(currentList.id, todo.id, e.target.value, state)}
-                                        onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, state)}
-                                        onBlur={() => handleTodoBlur(currentList.id, todo.id, todo.text, todo.completed, todo.priority, state)}
-                                        onFocus={() => handleTodoFocus(currentList.id, todo.id, state)}
-                                        data-todo-id={todo.id}
-                                    />
-                                    {!todo.id.startsWith("temp-") && (
-                                        <div className="flex-between text-muted-foreground opacity-70 text-xs my-1">
-                                            {/* Due Date Popover */}
-                                            <DueDatePopover
-                                                todo={todo}
-                                                state={state}
-                                            />
+                                            placeholder="Add todo..."
+                                            value={todo.text}
+                                            onChange={(e) => updateTodoItem(currentList.id, todo.id, e.target.value, state)}
+                                            onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, state)}
+                                            onBlur={() => handleTodoBlur(currentList.id, todo.id, todo.text, todo.completed, todo.priority, state)}
+                                            onFocus={() => handleTodoFocus(currentList.id, todo.id, state)}
+                                            data-todo-id={todo.id}
+                                        />
+                                        {!todo.id.startsWith("temp-") && (
+                                            <div className="flex-between text-muted-foreground opacity-70 text-xs my-1">
+                                                {/* Due Date Popover */}
+                                                <DueDatePopover
+                                                    todo={todo}
+                                                    state={state}
+                                                />
 
-                                            {/* Priority Popover */}
-                                            <PriorityPopover />
-                                        </div>
-                                    )}
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                                                {/* Priority Popover */}
+                                                <PriorityPopover />
+                                            </div>
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </ScrollArea>
                     </TableBody>
                 </Table>
             </div>

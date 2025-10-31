@@ -79,16 +79,16 @@ export default function DueDatePopover({ todo, state }: { todo: TodoItem, state:
                     }
                 </button>
             </PopoverTrigger>
-            <PopoverContent className="flex flex-col justify-between w-[290px] min-h-[367px] p-2 mr-7" align="start">
+            <PopoverContent className="flex flex-col justify-betweenw-[290px] min-h-[367px] p-2 mr-7">
                 <div className="space-y-1">
                     <Calendar
                         mode="single"
                         selected={date}
                         onSelect={(date) => setDate(date)}
                         captionLayout='dropdown'
-                        className="w-full bg-transparent pt-1"
+                        className="w-full bg-transparent"
                     />
-                    <div className="flex-center mx-auto gap-x-2">
+                    <div className="absolute bottom-1 flex-center mx-auto gap-x-2">
                         <Input
                             id="time"
                             type="time"

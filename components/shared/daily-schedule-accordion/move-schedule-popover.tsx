@@ -54,7 +54,7 @@ export default function MoveSchedulePopover({
                         captionLayout='dropdown'
                     />
 
-                    <div className="flex-center gap-x-4 mb-2">
+                    <div className="absolute bottom-1 flex-center gap-x-4 mb-2">
                         <Button
                             variant="outline"
                             size="sm"
