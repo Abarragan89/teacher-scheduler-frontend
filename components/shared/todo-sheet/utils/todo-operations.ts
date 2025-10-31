@@ -253,3 +253,33 @@ export const handleDueDateUpdate = async (
     // Here you would also add the backend update logic if needed
     await clientTodo.updateTodo(todo)
 }
+
+// Handle Priority Update (backend update and frontend update)
+export const handlePriorityUpdate = async (
+    todoId: string,
+    priority: number,
+    state: TodoState
+) => {
+    const { todoLists, setTodoLists } = state
+    const todo = todoLists
+        .flatMap(list => list.todos)
+        .find(t => t.id === todoId)
+    if (!todo) return
+
+    todo.priority = priority
+
+    // Update the priority in the UI
+    setTodoLists(prev =>
+        prev.map(list => ({
+            ...list,
+            todos: list.todos.map(todo =>
+                todo.id === todoId
+                    ? { ...todo, priority }
+                    : todo
+            ).sort((a, b) => b.priority - a.priority) // Sort by priority descending
+        }))
+    )
+
+    // Here you would also add the backend update logic if needed
+    await clientTodo.updateTodo(todo)
+}

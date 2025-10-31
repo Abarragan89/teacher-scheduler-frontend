@@ -210,9 +210,9 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                 </div>
 
                 {/* Table Row Data (TODO Lists) */}
-                <Table className='mt-4'>
-                    <TableBody>
-                        <ScrollArea className="h-[calc(100vh-250px)] w-full">
+                <ScrollArea className="h-[calc(100vh-250px)] w-full">
+                    <Table className='mt-4'>
+                        <TableBody>
                             {currentList.todos.map(todo => (
                                 <TableRow key={todo.id}>
                                     <TableCell className="pt-[10px] w-5 align-top">
@@ -241,7 +241,7 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                                             data-todo-id={todo.id}
                                         />
                                         {!todo.id.startsWith("temp-") && (
-                                            <div className="flex-between text-muted-foreground opacity-70 text-xs my-1">
+                                            <span className="flex-between text-muted-foreground opacity-70 text-xs my-1">
                                                 {/* Due Date Popover */}
                                                 <DueDatePopover
                                                     todo={todo}
@@ -249,15 +249,18 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                                                 />
 
                                                 {/* Priority Popover */}
-                                                <PriorityPopover />
-                                            </div>
+                                                <PriorityPopover
+                                                    todo={todo}
+                                                    state={state}
+                                                />
+                                            </span>
                                         )}
                                     </TableCell>
                                 </TableRow>
                             ))}
-                        </ScrollArea>
-                    </TableBody>
-                </Table>
+                        </TableBody>
+                    </Table>
+                </ScrollArea>
             </div>
 
             {/* Responsive Dialog for Creating New List */}
