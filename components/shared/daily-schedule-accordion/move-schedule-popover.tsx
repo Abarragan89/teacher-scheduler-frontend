@@ -44,8 +44,8 @@ export default function MoveSchedulePopover({
                     Copy Schedule
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className='flex flex-col justify-between ml-5 p-2 w-[290px] min-h-[367px]'>
-                <div className="space-y-3">
+            <PopoverContent className='flex flex-col space-y-2 justify-between ml-5 p-1'>
+                <div className='w-[245px] mx-auto'>
                     <Calendar
                         mode="single"
                         selected={date}
@@ -53,24 +53,24 @@ export default function MoveSchedulePopover({
                         className="rounded-md bg-transparent w-full pt-1"
                         captionLayout='dropdown'
                     />
+                </div>
 
-                    <div className="absolute bottom-1 flex-center gap-x-4 mb-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setIsOpen(false)}
-                            disabled={isSubmitting}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            size="sm"
-                            onClick={addScheduleToDate}
-                            disabled={!date || isSubmitting}
-                        >
-                            {isSubmitting ? 'Copying...' : 'Copy Schedule'}
-                        </Button>
-                    </div>
+                <div className="flex-center gap-x-4 mb-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsOpen(false)}
+                        disabled={isSubmitting}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        size="sm"
+                        onClick={addScheduleToDate}
+                        disabled={!date || isSubmitting}
+                    >
+                        {isSubmitting ? 'Copying...' : 'Copy Schedule'}
+                    </Button>
                 </div>
             </PopoverContent>
 

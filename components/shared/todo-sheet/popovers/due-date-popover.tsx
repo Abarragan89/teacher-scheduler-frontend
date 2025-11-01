@@ -18,6 +18,7 @@ export default function DueDatePopover({ todo, state }: { todo: TodoItem, state:
     );
 
     const [isPopOverOpen, setIsPopOverOpen] = useState<boolean>(false);
+    const [isSaving, setIsSaving] = useState<boolean>(false);
 
     function extractTimeFromISO(isoString: string): string {
         const date = new Date(isoString);
@@ -51,6 +52,7 @@ export default function DueDatePopover({ todo, state }: { todo: TodoItem, state:
     }
 
     async function setDueDate() {
+        setIsSaving(true);
         if (!date) {
             await handleDueDateUpdate(todo.id, null, state);
         } else {
@@ -59,6 +61,7 @@ export default function DueDatePopover({ todo, state }: { todo: TodoItem, state:
             await handleDueDateUpdate(todo.id, dueDateISO, state);
         }
         setIsPopOverOpen(false);
+        setIsSaving(false);
     }
 
     async function clearDueDate() {
@@ -79,7 +82,8 @@ export default function DueDatePopover({ todo, state }: { todo: TodoItem, state:
                     }
                 </button>
             </PopoverTrigger>
-            <PopoverContent className="flex flex-col space-y-1 justify-betweenw-[290px] min-h-[367px] p-2 mr-7">
+            <PopoverContent className="flex flex-col space-y-1 justify-between p-2 mr-7">
+                <div className='w-[245px] mx-auto'>
                     <Calendar
                         mode="single"
                         selected={date}
@@ -87,29 +91,30 @@ export default function DueDatePopover({ todo, state }: { todo: TodoItem, state:
                         captionLayout='dropdown'
                         className="w-full bg-transparent"
                     />
-                    <span className="absolute bottom-1 flex-center mx-auto gap-x-2">
-                        <Input
-                            id="time"
-                            type="time"
-                            aria-label='Set due time'
-                            value={time}
-                            className="w-fit my-3"
-                            onChange={(e) => setTime(e.target.value)}
-                        />
-                        <Button
-                            onClick={setDueDate}
-                            size="sm"
-                        >
-                            Save
-                        </Button>
-                        <Button
-                            onClick={clearDueDate}
-                            variant="outline"
-                            size="sm"
-                        >
-                            Clear
-                        </Button>
-                    </span>
+                </div>
+                <span className="flex-center mx-auto gap-x-2 mb-2">
+                    <Input
+                        id="time"
+                        type="time"
+                        aria-label='Set due time'
+                        value={time}
+                        className="w-fit"
+                        onChange={(e) => setTime(e.target.value)}
+                    />
+                    <Button
+                        onClick={setDueDate}
+                        disabled={isSaving}
+                    >
+                        {isSaving ? 'Saving...' : 'Save'}
+                    </Button>
+                    <Button
+                        onClick={clearDueDate}
+                        variant="outline"
+                        size="sm"
+                    >
+                        Clear
+                    </Button>
+                </span>
             </PopoverContent>
         </Popover>
     )
