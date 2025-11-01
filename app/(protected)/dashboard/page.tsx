@@ -13,7 +13,7 @@ export default async function Dashboard() {
   // }
 
   return (
-    <main className='px-3'>
+    <main className='wrapper'>
         {/* PWA Components */}
        
         {/* <PushNotificationManager /> */}
