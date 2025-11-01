@@ -11,10 +11,19 @@ import {
 import { ListTodo } from "lucide-react"
 import TodoLists from "./todo-lists"
 import { TodoList } from "@/types/todo"
+import { useQuery } from "@tanstack/react-query"
+import { clientTodoLists } from "@/lib/api/services/todos/client"
 
 export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
+
+    const { data: allLists } = useQuery({
+        queryKey: ['todos'],
+        queryFn: clientTodoLists.getTodoLists,
+        initialData: todoLists
+    })
+
     // Sort lists to put default list first, then by creation order or name
-    const sortedLists = todoLists.sort((a, b) => {
+    const sortedLists = allLists.sort((a: TodoList, b: TodoList) => {
         if (a.isDefault && !b.isDefault) return -1
         if (!a.isDefault && b.isDefault) return 1
         return 0  // Preserve existing order if both have same isDefault value

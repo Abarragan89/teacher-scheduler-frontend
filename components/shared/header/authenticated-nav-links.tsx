@@ -24,11 +24,11 @@ export default async function AuthenticatedNavLinks({ email }: { email: string }
                         </Button>
                     </Link>
                 </NavigationMenuItem>
-                
+
                 <NavigationMenuItem>
-                   <TodoSheet 
+                    <TodoSheet
                         todoLists={todoLists}
-                   />
+                    />
                 </NavigationMenuItem>
 
                 <ModeToggle />

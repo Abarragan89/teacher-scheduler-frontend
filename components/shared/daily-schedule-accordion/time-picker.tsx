@@ -19,9 +19,11 @@ export function TimePicker({ taskId, setTasks }: { taskId: string, setTasks: Rea
     const [startTime, setStartTime] = useState<string>("07:00");
     const [endTime, setEndTime] = useState<string>("08:00");
     const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
+    const [isSaving, setIsSaving] = useState<boolean>(false);
 
     async function updateTaskTime() {
         try {
+            setIsSaving(true);
             const response = await clientTasks.updateTaskTime(taskId, startTime, endTime);
             if (response) {
                 toast.success("Task time updated successfully");
@@ -32,10 +34,13 @@ export function TimePicker({ taskId, setTasks }: { taskId: string, setTasks: Rea
                             ? { ...task, startTime, endTime }
                             : task
                     )
-            ))}
+                ))
+            }
         } catch (error) {
             console.error("Failed to update task time:", error);
             throw error;
+        } finally {
+            setIsSaving(false);
         }
     }
 
@@ -67,8 +72,10 @@ export function TimePicker({ taskId, setTasks }: { taskId: string, setTasks: Rea
                             onChange={(e) => setEndTime(e.target.value)}
                         />
                     </div>
-                    <Button onClick={updateTaskTime}>
-                        Set Time
+                    <Button
+                        disabled={isSaving}
+                        onClick={updateTaskTime}>
+                        {isSaving ? 'Saving...' : 'Set Time'}
                     </Button>
                 </div>
             </PopoverContent>

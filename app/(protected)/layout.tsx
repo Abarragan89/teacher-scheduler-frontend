@@ -2,6 +2,8 @@ import InstallPrompt from '@/components/install-prompt';
 import Header from '@/components/shared/header';
 import { serverAuth } from '@/lib/api/services/auth/server';
 export const dynamic = 'force-dynamic';
+import ClientQueryProvider from '@/components/providers/ClientQueryProvider';
+
 
 export default async function DashboardLayout({
   children
@@ -24,14 +26,17 @@ export default async function DashboardLayout({
     throw new Error("You Must Log In")
   }
 
+
   return (
     <>
-      <Header
-        isAuthenticated={authResult.authenticated}
-        email={authResult?.user?.email || ''}
-      />
-      <InstallPrompt />
-      {children}
+      <ClientQueryProvider>
+        <Header
+          isAuthenticated={authResult.authenticated}
+          email={authResult?.user?.email || ''}
+        />
+        <InstallPrompt />
+        {children}
+      </ClientQueryProvider>
     </>
   );
 }
