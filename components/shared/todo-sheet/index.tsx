@@ -26,13 +26,13 @@ export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
     })
 
     // Sort lists to put default list first, then by creation order or name
-    const sortedLists = allLists.sort((a: TodoList, b: TodoList) => {
-        if (a.isDefault && !b.isDefault) return -1
-        if (!a.isDefault && b.isDefault) return 1
-        return 0  // Preserve existing order if both have same isDefault value
-    })
+    // const sortedLists = allLists.sort((a: TodoList, b: TodoList) => {
+    //     if (a.isDefault && !b.isDefault) return -1
+    //     if (!a.isDefault && b.isDefault) return 1
+    //     return 0  // Preserve existing order if both have same isDefault value
+    // })
 
-    const [lists, setLists] = useState<TodoList[]>(sortedLists)
+    // const [lists, setLists] = useState<TodoList[]>(sortedLists)
 
     return (
         <Sheet>
@@ -46,8 +46,8 @@ export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
                     <SheetTitle className="text-muted-foreground">ToDo Lists</SheetTitle>
                 </SheetHeader>
                 <TodoLists
-                    lists={allLists}
-                    setLists={setLists}
+                    todoLists={allLists}
+                    // setLists={setLists}
                 />
             </SheetContent>
         </Sheet>

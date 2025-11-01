@@ -28,17 +28,17 @@ import PriorityPopover from './popovers/priority-popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 interface CurrentListProps {
-    lists: TodoList[]
-    setLists: React.Dispatch<React.SetStateAction<TodoList[]>>
+    todoLists: TodoList[]
 }
 
-export default function TodoLists({ lists, setLists }: CurrentListProps) {
+export default function TodoLists({ todoLists }: CurrentListProps) {
 
     const [currentListIndex, setCurrentListIndex] = useState(0);
     const [focusedText, setFocusedText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newListName, setNewListName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
+    const [lists, setLists] = useState<TodoList[]>(todoLists);
 
     // Ensure current index is within bounds
     useEffect(() => {
@@ -162,7 +162,11 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
             {/* List Selection Buttons */}
             <div className="space-y-2 mt-5">
                 <div className="flex flex-wrap gap-2">
-                    {lists.map((list, index) => (
+                    {lists.sort((a: TodoList, b: TodoList) => {
+                        if (a.isDefault && !b.isDefault) return -1
+                        if (!a.isDefault && b.isDefault) return 1
+                        return 0  // Preserve existing order if both have same isDefault value
+                    }).map((list, index) => (
                         <Button
                             key={list.id}
                             variant={currentListIndex === index ? "default" : "secondary"}
