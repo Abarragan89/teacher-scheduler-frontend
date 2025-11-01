@@ -99,16 +99,18 @@ export default function EditTaskPopover({
                     )}
 
                     {currentView === 'moving' && (
-                        <div className="flex flex-col justify-between space-y-3 pt-1 w-[275px] min-h-[367px]">
-                            <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={setDate}
-                                className="rounded-md bg-transparent w-full pt-1"
-                                captionLayout='dropdown'
-                            />
+                        <div className="flex flex-col justify-between space-y-1 pt-1 w-[245px]">
+                            <div>
+                                <Calendar
+                                    mode="single"
+                                    selected={date}
+                                    onSelect={setDate}
+                                    className="rounded-md bg-transparent w-full pt-1"
+                                    captionLayout='dropdown'
+                                />
+                            </div>
 
-                            <div className="absolute bottom-1 flex-center gap-x-4 mb-4">
+                            <div className="flex-center gap-x-4 mb-2">
                                 <Button
                                     variant="outline"
                                     size="sm"
