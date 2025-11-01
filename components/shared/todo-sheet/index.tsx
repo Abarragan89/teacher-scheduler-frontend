@@ -19,7 +19,10 @@ export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
     const { data: allLists } = useQuery({
         queryKey: ['todos'],
         queryFn: clientTodoLists.getTodoLists,
-        initialData: todoLists
+        initialData: todoLists,
+        refetchOnWindowFocus: true,  // ← Add this
+        refetchOnMount: true,        // ← Add this
+        staleTime: 0,
     })
 
     // Sort lists to put default list first, then by creation order or name

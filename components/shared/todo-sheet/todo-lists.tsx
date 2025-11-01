@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/table"
 import { ResponsiveDialog } from '@/components/responsive-dialog'
 import { clientTodoLists } from '@/lib/api/services/todos/client'
-import { Separator } from '@/components/ui/separator'
 import EditListPopover from './popovers/edit-list-popover'
 import DueDatePopover from './popovers/due-date-popover'
 import PriorityPopover from './popovers/priority-popover'
