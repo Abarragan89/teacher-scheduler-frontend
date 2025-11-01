@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "sonner"
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const roboto = Roboto({

@@ -26,6 +26,7 @@ import EditListPopover from './popovers/edit-list-popover'
 import DueDatePopover from './popovers/due-date-popover'
 import PriorityPopover from './popovers/priority-popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import useSound from 'use-sound';
 
 interface CurrentListProps {
     todoLists: TodoList[]
@@ -33,12 +34,21 @@ interface CurrentListProps {
 
 export default function TodoLists({ todoLists }: CurrentListProps) {
 
+    const [playCompleteSound] = useSound('/sounds/todoChecked.wav', {
+        volume: 0.5
+    });
+
     const [currentListIndex, setCurrentListIndex] = useState(0);
     const [focusedText, setFocusedText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newListName, setNewListName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const [lists, setLists] = useState<TodoList[]>(todoLists);
+
+    // Sync local state with React Query updates
+    useEffect(() => {
+        setLists(todoLists);
+    }, [todoLists]);
 
     // Ensure current index is within bounds
     useEffect(() => {
@@ -220,7 +230,10 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 <TableRow key={todo.id}>
                                     <TableCell className="pt-[10px] w-5 align-top">
                                         <button
-                                            onClick={() => toggleTodoCompletion(currentList.id, todo.id, state)}
+                                            onClick={() => {
+                                                playCompleteSound();
+                                                toggleTodoCompletion(currentList.id, todo.id, state)
+                                            }}
                                             className="flex-shrink-0 rounded transition-colors"
                                         >
                                             {todo.completed ? (
