@@ -43,7 +43,7 @@ export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
                     <SheetTitle className="text-muted-foreground">ToDo Lists</SheetTitle>
                 </SheetHeader>
                 <TodoLists
-                    lists={lists}
+                    lists={allLists}
                     setLists={setLists}
                 />
             </SheetContent>
