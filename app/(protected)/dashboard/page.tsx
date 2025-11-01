@@ -13,10 +13,10 @@ export default async function Dashboard() {
   // }
 
   return (
-    <main className='wrapper'>
+    <main className='px-3'>
         {/* PWA Components */}
        
-        <PushNotificationManager />
+        {/* <PushNotificationManager /> */}
 
         {/* Test Button */}
         {/* <div className="p-4 border rounded-lg">

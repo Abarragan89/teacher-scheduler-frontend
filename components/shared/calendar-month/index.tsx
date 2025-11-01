@@ -104,7 +104,7 @@ export default function CalendarMonth() {
                 {dayNames.map(day => (
                     <div
                         key={day}
-                        className="p-3 text-center text-xs md:text-sm font-medium  border-b"
+                        className="p-3 text-center text-xs md:text-sm font-medium border-b"
                     >
                         {day}
                     </div>
@@ -116,11 +116,11 @@ export default function CalendarMonth() {
                         key={index}
                         onClick={() => handleDateClick(date)}
                         className={`
-               flex flex-col items-end h-16 md:h-18 lg:h-20 pr-1 border-b border-r
-              ${!isCurrentMonth(date) ? 'text-muted-foreground' : ''}
-              ${isToday(date) ? 'bg-accent' : ''}
-              hover:shadow-xl shadow-ring hover:scale-[1.02] transition-all
-            `}
+                            flex flex-col items-end h-16 md:h-18 lg:h-20 pr-1 border-b border-r
+                            ${!isCurrentMonth(date) ? 'text-muted-foreground' : ''}
+                            ${isToday(date) ? 'bg-accent' : ''}
+                            hover:shadow-xl shadow-ring hover:scale-[1.02] transition-all
+                        `}
                     >
                         <div className="text-xs md:text-sm">
                             {date.getDate()}
