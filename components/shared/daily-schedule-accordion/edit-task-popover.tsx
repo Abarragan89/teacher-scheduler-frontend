@@ -73,7 +73,7 @@ export default function EditTaskPopover({
                     <EllipsisVertical size={20} className="text-muted-foreground " />
                 </PopoverTrigger>
 
-                <PopoverContent className="w-fit p-2 mr-5 mt-5">
+                <PopoverContent className="p-2 mr-5 mt-5">
                     {currentView === 'menu' && (
                         <div className="flex flex-col justify-center text-center gap-1 p-2">
                             <Button
@@ -99,7 +99,7 @@ export default function EditTaskPopover({
                     )}
 
                     {currentView === 'moving' && (
-                        <div className="space-y-1 pt-1 w-[245px] min-h-[325px]">
+                        <div className="space-y-1 pt-1 w-[255px] min-h-[330px]">
                             <div>
                                 <Calendar
                                     mode="single"

@@ -83,7 +83,7 @@ export default function DueDatePopover({ todo, state }: { todo: TodoItem, state:
                 </button>
             </PopoverTrigger>
             <PopoverContent className="space-y-1 p-2 mr-7">
-                <div className='w-[245px] min-h-[325px] mx-auto'>
+                <div className='w-[255px] min-h-[330px] mx-auto'>
                     <Calendar
                         mode="single"
                         selected={date}

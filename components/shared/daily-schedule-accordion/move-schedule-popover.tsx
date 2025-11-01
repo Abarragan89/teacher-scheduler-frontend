@@ -45,7 +45,7 @@ export default function MoveSchedulePopover({
                 </Button>
             </PopoverTrigger>
             <PopoverContent className='space-y-1 ml-5 p-2'>
-                <div className='w-[245px] mx-auto min-h-[325px]'>
+                <div className='w-[255px] mx-auto min-h-[330px]'>
                     <Calendar
                         mode="single"
                         selected={date}
