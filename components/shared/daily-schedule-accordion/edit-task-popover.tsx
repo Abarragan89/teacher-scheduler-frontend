@@ -100,9 +100,8 @@ export default function EditTaskPopover({
                 )}
 
                 {currentView === 'moving' && (
-                    <PopoverContent>
-                        <div className="space-y-1 pt-1 w-[255px] min-h-[330px]">
-                            <div>
+                    <PopoverContent className='space-y-1 ml-5 p-2'>
+                        <div className="w-[255px] mx-auto min-h-[330px]">
                                 <Calendar
                                     mode="single"
                                     selected={date}
@@ -110,8 +109,6 @@ export default function EditTaskPopover({
                                     className="rounded-md bg-transparent w-full pt-1"
                                     captionLayout='dropdown'
                                 />
-                            </div>
-
                             <div className="flex-center gap-x-4 mb-2">
                                 <Button
                                     variant="outline"
