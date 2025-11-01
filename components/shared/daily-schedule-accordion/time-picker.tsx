@@ -52,6 +52,7 @@ export function TimePicker({ taskId, setTasks }: { taskId: string, setTasks: Rea
                             id="startTime"
                             type="time"
                             defaultValue={"07:00"}
+                            autoFocus={false}
                             onChange={(e) => setStartTime(e.target.value)}
                         />
                     </div>
@@ -61,6 +62,7 @@ export function TimePicker({ taskId, setTasks }: { taskId: string, setTasks: Rea
                         <Input
                             id="endTime"
                             type="time"
+                            autoFocus={false}
                             defaultValue={"08:00"}
                             onChange={(e) => setEndTime(e.target.value)}
                         />

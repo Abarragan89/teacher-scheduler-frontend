@@ -241,7 +241,7 @@ export default function TodoLists({ lists, setLists }: CurrentListProps) {
                                             data-todo-id={todo.id}
                                         />
                                         {!todo.id.startsWith("temp-") && (
-                                            <span className="flex-between text-muted-foreground opacity-70 text-xs my-1">
+                                            <span className="flex-between text-muted-foreground opacity-70 text-xs mb-1">
                                                 {/* Due Date Popover */}
                                                 <DueDatePopover
                                                     todo={todo}
