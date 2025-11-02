@@ -130,7 +130,7 @@ export const toggleTodoCompletion = async (listId: string, todoId: string, state
                 pendingDeletions.delete(todoId)
                 clientTodo.deleteTodo(todoId)
             }, 300) // 300ms for the animation to complete
-        }, 3000)
+        }, 2400)
 
         // Track the pending deletion
         pendingDeletions.set(todoId, timeoutId)

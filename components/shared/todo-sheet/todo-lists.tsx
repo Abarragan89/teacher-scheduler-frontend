@@ -230,7 +230,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 <TableRow
                                     key={todo.id}
                                     className={`transition-all duration-300 ease-in-out ${todo.deleting
-                                            ? 'opacity-0 max-h-0 overflow-hidden transform scale-95'
+                                            ? 'opacity-0 max-h-0 overflow-hidden transform scale-0'
                                             : 'opacity-100 max-h-20 transform scale-100'
                                         }`}
                                 >
@@ -253,7 +253,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                     </TableCell>
                                     <TableCell className="p-1 pr-[15px] align-top">
                                         <BareInput
-                                            className={`w-full text-[15px] bg-transparent border-none pt-1 transition-all duration-200
+                                            className={`w-full text-[15px] bg-transparent border-none pt-1 transition-all duration-500
                                             ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''} 
                                             ${todo.deleting ? 'pointer-events-none' : ''}
                                         `}
