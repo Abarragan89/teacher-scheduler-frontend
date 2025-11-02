@@ -95,9 +95,9 @@ export const toggleTodoCompletion = async (listId: string, todoId: string, state
             return
         }
 
-        // Schedule deletion after 3 seconds
+        // Schedule deletion after 3 seconds - single smooth animation
         const timeoutId = setTimeout(() => {
-            // Phase 1: Mark as deleting (starts animation)
+            // Mark as deleting and let CSS handle the smooth animation
             setTodoLists(prev =>
                 prev.map(list =>
                     list.id === listId
@@ -113,7 +113,7 @@ export const toggleTodoCompletion = async (listId: string, todoId: string, state
                 )
             )
 
-            // Phase 2: Actually remove from DOM after animation completes
+            // Remove from DOM after CSS animation completes (300ms)
             setTimeout(() => {
                 setTodoLists(prev =>
                     prev.map(list =>
@@ -129,8 +129,8 @@ export const toggleTodoCompletion = async (listId: string, todoId: string, state
                 // Clean up tracking and delete from backend
                 pendingDeletions.delete(todoId)
                 clientTodo.deleteTodo(todoId)
-            }, 300) // 300ms for the animation to complete
-        }, 2400)
+            }, 500) // Match CSS transition duration exactly
+        }, 2000)
 
         // Track the pending deletion
         pendingDeletions.set(todoId, timeoutId)

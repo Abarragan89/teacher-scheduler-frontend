@@ -14,12 +14,6 @@ import {
     handleTodoKeyDown,
     toggleTodoCompletion
 } from './utils/todo-operations'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableRow,
-} from "@/components/ui/table"
 import { ResponsiveDialog } from '@/components/responsive-dialog'
 import { clientTodoLists } from '@/lib/api/services/todos/client'
 import EditListPopover from './popovers/edit-list-popover'
@@ -222,69 +216,109 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     />
                 </div>
 
-                {/* Table Row Data (TODO Lists) */}
-                <ScrollArea className="h-[calc(100vh-250px)] w-full">
-                    <Table className='mt-4'>
-                        <TableBody>
-                            {currentList.todos.map(todo => (
-                                <TableRow
-                                    key={todo.id}
-                                    className={`transition-all duration-300 ease-in-out ${todo.deleting
-                                            ? 'opacity-0 max-h-0 overflow-hidden transform scale-0'
-                                            : 'opacity-100 max-h-20 transform scale-100'
+                {/* Flexbox Layout for TODO Lists */}
+                   <ScrollArea className="h-[calc(100vh-250px)] w-full">
+                    <div className="mt-4 space-y-0 transition-all duration-300 ease-in-out ml-1 mr-2">
+                        {currentList.todos.map(todo => (
+                            <div
+                                key={todo.id}
+                                className={`flex items-start border-b gap-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${
+                                    todo.deleting
+                                        ? 'opacity-0 scale-95 -translate-y-1'
+                                        : 'opacity-100 scale-100 translate-y-0'
+                                }`}
+                                style={{
+                                    // Remove fixed height, let content determine height
+                                    height: todo.deleting ? '0px' : 'auto',
+                                    minHeight: todo.deleting ? '0px' : '60px',
+                                    paddingTop: todo.deleting ? '0px' : '8px',
+                                    paddingBottom: todo.deleting ? '0px' : '8px',
+                                    transition: 'all 300ms cubic-bezier(0.4, 0.0, 0.2, 1)',
+                                    transformOrigin: 'top center'
+                                }}
+                            >
+                                {/* Checkbox */}
+                                <div className={`flex-shrink-0 pt-1 transition-all duration-300 ease-in-out ${
+                                    todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
+                                }`}>
+                                    <button
+                                        onClick={() => {
+                                            playCompleteSound();
+                                            toggleTodoCompletion(currentList.id, todo.id, state)
+                                        }}
+                                        className={`flex-shrink-0 rounded transition-all duration-300 ${
+                                            todo.deleting
+                                                ? 'opacity-0 pointer-events-none transform scale-50'
+                                                : 'hover:bg-muted transform scale-100'
                                         }`}
-                                >
-                                    <TableCell className="pt-[10px] w-5 align-top">
-                                        <button
-                                            onClick={() => {
-                                                playCompleteSound();
-                                                toggleTodoCompletion(currentList.id, todo.id, state)
-                                            }}
-                                            className={`flex-shrink-0 rounded transition-all duration-200 ${todo.deleting ? 'opacity-50 pointer-events-none' : 'hover:bg-muted'
-                                                }`}
-                                            disabled={todo.deleting}
-                                        >
-                                            {todo.completed ? (
-                                                <CheckCircle className="w-5 h-5 text-ring" />
-                                            ) : (
-                                                <Circle className="w-5 h-5 text-muted-foreground" />
-                                            )}
-                                        </button>
-                                    </TableCell>
-                                    <TableCell className="p-1 pr-[15px] align-top">
-                                        <BareInput
-                                            className={`w-full text-[15px] bg-transparent border-none pt-1 transition-all duration-500
-                                            ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''} 
-                                            ${todo.deleting ? 'pointer-events-none' : ''}
-                                        `}
-                                            placeholder="Add todo..."
-                                            value={todo.text}
-                                            onChange={(e) => updateTodoItem(currentList.id, todo.id, e.target.value, state)}
-                                            onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, state)}
-                                            onBlur={() => handleTodoBlur(currentList.id, todo.id, todo.text, todo.completed, todo.priority, state)}
-                                            onFocus={() => handleTodoFocus(currentList.id, todo.id, state)}
-                                            data-todo-id={todo.id}
-                                        />
-                                        {!todo.id.startsWith("temp-") && !todo.deleting && (
-                                            <span className="flex-between text-muted-foreground opacity-70 text-xs mb-1">
-                                                {/* Due Date Popover */}
-                                                <DueDatePopover
-                                                    todo={todo}
-                                                    state={state}
-                                                />
-
-                                                {/* Priority Popover */}
-                                                <PriorityPopover
-                                                    todo={todo}
-                                                    state={state}
-                                                />
-                                            </span>
+                                        disabled={todo.deleting}
+                                    >
+                                        {todo.completed ? (
+                                            <CheckCircle className="w-5 h-5 text-ring" />
+                                        ) : (
+                                            <Circle className="w-5 h-5 text-muted-foreground" />
                                         )}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                                    </button>
+                                </div>
+
+                                {/* Content */}
+                                <div className={`flex-1 min-w-0 py-1 transition-all duration-300 ease-in-out ${
+                                    todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
+                                }`}>
+                                    <textarea
+                                        className={`w-full text-[15px] bg-transparent border-none resize-none overflow-hidden transition-all duration-500 focus:outline-none ${
+                                            todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                                        } ${
+                                            todo.deleting ? 'pointer-events-none transform scale-90' : ''
+                                        }`}
+                                        placeholder="Add todo..."
+                                        value={todo.text}
+                                        onChange={(e) => {
+                                            // Auto-resize the textarea
+                                            const target = e.target as HTMLTextAreaElement
+                                            target.style.height = 'auto'
+                                            target.style.height = `${target.scrollHeight}px`
+                                            
+                                            updateTodoItem(currentList.id, todo.id, e.target.value, state)
+                                        }}
+                                        onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, state)}
+                                        onBlur={() => handleTodoBlur(currentList.id, todo.id, todo.text, todo.completed, todo.priority, state)}
+                                        onFocus={(e) => {
+                                            // Auto-resize on focus too
+                                            const target = e.target as HTMLTextAreaElement
+                                            target.style.height = 'auto'
+                                            target.style.height = `${target.scrollHeight}px`
+                                            
+                                            handleTodoFocus(currentList.id, todo.id, state)
+                                        }}
+                                        data-todo-id={todo.id}
+                                        disabled={todo.deleting}
+                                        rows={1}
+                                        style={{
+                                            minHeight: '24px',
+                                            lineHeight: '1.5',
+                                            height: 'auto'
+                                        }}
+                                    />
+                                    {!todo.id.startsWith("temp-") && !todo.deleting && (
+                                        <div className="flex justify-between text-muted-foreground opacity-70 text-xs">
+                                            {/* Due Date Popover */}
+                                            <DueDatePopover
+                                                todo={todo}
+                                                state={state}
+                                            />
+
+                                            {/* Priority Popover */}
+                                            <PriorityPopover
+                                                todo={todo}
+                                                state={state}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </ScrollArea>
             </div>
 
