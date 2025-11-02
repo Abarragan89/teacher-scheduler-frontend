@@ -227,14 +227,22 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     <Table className='mt-4'>
                         <TableBody>
                             {currentList.todos.map(todo => (
-                                <TableRow key={todo.id}>
+                                <TableRow
+                                    key={todo.id}
+                                    className={`transition-all duration-300 ease-in-out ${todo.deleting
+                                            ? 'opacity-0 max-h-0 overflow-hidden transform scale-95'
+                                            : 'opacity-100 max-h-20 transform scale-100'
+                                        }`}
+                                >
                                     <TableCell className="pt-[10px] w-5 align-top">
                                         <button
                                             onClick={() => {
                                                 playCompleteSound();
                                                 toggleTodoCompletion(currentList.id, todo.id, state)
                                             }}
-                                            className="flex-shrink-0 rounded transition-colors"
+                                            className={`flex-shrink-0 rounded transition-all duration-200 ${todo.deleting ? 'opacity-50 pointer-events-none' : 'hover:bg-muted'
+                                                }`}
+                                            disabled={todo.deleting}
                                         >
                                             {todo.completed ? (
                                                 <CheckCircle className="w-5 h-5 text-ring" />
@@ -245,8 +253,9 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                     </TableCell>
                                     <TableCell className="p-1 pr-[15px] align-top">
                                         <BareInput
-                                            className={`w-full text-[15px] bg-transparent border-none pt-1
-                                            ${todo.completed ? 'line-through text-muted-foreground' : ''} 
+                                            className={`w-full text-[15px] bg-transparent border-none pt-1 transition-all duration-200
+                                            ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''} 
+                                            ${todo.deleting ? 'pointer-events-none' : ''}
                                         `}
                                             placeholder="Add todo..."
                                             value={todo.text}
@@ -256,7 +265,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                             onFocus={() => handleTodoFocus(currentList.id, todo.id, state)}
                                             data-todo-id={todo.id}
                                         />
-                                        {!todo.id.startsWith("temp-") && (
+                                        {!todo.id.startsWith("temp-") && !todo.deleting && (
                                             <span className="flex-between text-muted-foreground opacity-70 text-xs mb-1">
                                                 {/* Due Date Popover */}
                                                 <DueDatePopover

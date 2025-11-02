@@ -95,22 +95,41 @@ export const toggleTodoCompletion = async (listId: string, todoId: string, state
             return
         }
 
-        // Schedule deletion after 2 seconds
+        // Schedule deletion after 3 seconds
         const timeoutId = setTimeout(() => {
+            // Phase 1: Mark as deleting (starts animation)
             setTodoLists(prev =>
                 prev.map(list =>
                     list.id === listId
                         ? {
                             ...list,
-                            todos: list.todos.filter(t => t.id !== todoId)
+                            todos: list.todos.map(t =>
+                                t.id === todoId
+                                    ? { ...t, deleting: true }
+                                    : t
+                            )
                         }
                         : list
                 )
             )
 
-            // Clean up tracking
-            pendingDeletions.delete(todoId)
-            clientTodo.deleteTodo(todoId)
+            // Phase 2: Actually remove from DOM after animation completes
+            setTimeout(() => {
+                setTodoLists(prev =>
+                    prev.map(list =>
+                        list.id === listId
+                            ? {
+                                ...list,
+                                todos: list.todos.filter(t => t.id !== todoId)
+                            }
+                            : list
+                    )
+                )
+
+                // Clean up tracking and delete from backend
+                pendingDeletions.delete(todoId)
+                clientTodo.deleteTodo(todoId)
+            }, 300) // 300ms for the animation to complete
         }, 3000)
 
         // Track the pending deletion
@@ -124,7 +143,7 @@ export const toggleTodoCompletion = async (listId: string, todoId: string, state
             pendingDeletions.delete(todoId)
         }
 
-        // Update UI to uncheck
+        // Update UI to uncheck and remove deleting state
         setTodoLists(prev =>
             prev.map(list =>
                 list.id === listId
@@ -132,7 +151,7 @@ export const toggleTodoCompletion = async (listId: string, todoId: string, state
                         ...list,
                         todos: list.todos.map(todo =>
                             todo.id === todoId
-                                ? { ...todo, completed: false }
+                                ? { ...todo, completed: false, deleting: false }
                                 : todo
                         )
                     }

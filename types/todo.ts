@@ -4,6 +4,7 @@ export interface TodoItem {
     completed: boolean
     priority: number
     dueDate: String | null
+    deleting?: boolean  // For smooth deletion animation
 }
 
 export interface TodoList {
