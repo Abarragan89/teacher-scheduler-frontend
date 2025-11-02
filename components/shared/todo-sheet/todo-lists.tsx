@@ -28,8 +28,11 @@ interface CurrentListProps {
 
 export default function TodoLists({ todoLists }: CurrentListProps) {
 
-    const [playCompleteSound] = useSound('/sounds/todoChecked.wav', {
-        volume: 0.2
+    const [playCompleteSound] = useSound('/sounds/todoWaterClick.wav', {
+        volume: 0.4
+    });
+    const [playTodoRemovedSound] = useSound('/sounds/todoRemoved.wav', {
+        volume: 0.3
     });
 
     const [currentListIndex, setCurrentListIndex] = useState(0);
@@ -217,16 +220,15 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 </div>
 
                 {/* Flexbox Layout for TODO Lists */}
-                   <ScrollArea className="h-[calc(100vh-250px)] w-full">
+                <ScrollArea className="h-[calc(100vh-250px)] w-full">
                     <div className="mt-4 space-y-0 transition-all duration-300 ease-in-out ml-1 mr-2">
                         {currentList.todos.map(todo => (
                             <div
                                 key={todo.id}
-                                className={`flex items-start border-b gap-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${
-                                    todo.deleting
+                                className={`flex items-start border-b gap-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
                                         ? 'opacity-0 scale-95 -translate-y-1'
                                         : 'opacity-100 scale-100 translate-y-0'
-                                }`}
+                                    }`}
                                 style={{
                                     // Remove fixed height, let content determine height
                                     height: todo.deleting ? '0px' : 'auto',
@@ -238,19 +240,14 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 }}
                             >
                                 {/* Checkbox */}
-                                <div className={`flex-shrink-0 pt-1 transition-all duration-300 ease-in-out ${
-                                    todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
-                                }`}>
+                                <div className={`flex-shrink-0 pt-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
+                                    }`}>
                                     <button
-                                        onClick={() => {
-                                            playCompleteSound();
-                                            toggleTodoCompletion(currentList.id, todo.id, state)
-                                        }}
-                                        className={`flex-shrink-0 rounded transition-all duration-300 ${
-                                            todo.deleting
+                                        onClick={() => toggleTodoCompletion(currentList.id, todo.id, state, playCompleteSound, playTodoRemovedSound)}
+                                        className={`flex-shrink-0 rounded transition-all duration-300 ${todo.deleting
                                                 ? 'opacity-0 pointer-events-none transform scale-50'
                                                 : 'hover:bg-muted transform scale-100'
-                                        }`}
+                                            }`}
                                         disabled={todo.deleting}
                                     >
                                         {todo.completed ? (
@@ -262,15 +259,12 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 </div>
 
                                 {/* Content */}
-                                <div className={`flex-1 min-w-0 py-1 transition-all duration-300 ease-in-out ${
-                                    todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
-                                }`}>
+                                <div className={`flex-1 min-w-0 py-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
+                                    }`}>
                                     <textarea
-                                        className={`w-full text-[15px] bg-transparent border-none resize-none overflow-hidden transition-all duration-500 focus:outline-none ${
-                                            todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
-                                        } ${
-                                            todo.deleting ? 'pointer-events-none transform scale-90' : ''
-                                        }`}
+                                        className={`w-full text-[15px] bg-transparent border-none resize-none overflow-hidden transition-all duration-500 focus:outline-none ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                                            } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
+                                            }`}
                                         placeholder="Add todo..."
                                         value={todo.text}
                                         onChange={(e) => {
@@ -278,7 +272,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                             const target = e.target as HTMLTextAreaElement
                                             target.style.height = 'auto'
                                             target.style.height = `${target.scrollHeight}px`
-                                            
+
                                             updateTodoItem(currentList.id, todo.id, e.target.value, state)
                                         }}
                                         onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, state)}
@@ -288,15 +282,15 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                             const target = e.target as HTMLTextAreaElement
                                             target.style.height = 'auto'
                                             target.style.height = `${target.scrollHeight}px`
-                                            
+
                                             handleTodoFocus(currentList.id, todo.id, state)
                                         }}
                                         data-todo-id={todo.id}
                                         disabled={todo.deleting}
                                         rows={1}
                                         style={{
-                                            minHeight: '24px',
-                                            lineHeight: '1.5',
+                                            minHeight: '10px',
+                                            lineHeight: '1',
                                             height: 'auto'
                                         }}
                                     />

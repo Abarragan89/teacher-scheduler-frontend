@@ -50,13 +50,20 @@ const findTodo = (listId: string, todoId: string, todoLists: TodoList[]) => {
 const pendingDeletions = new Map<string, NodeJS.Timeout>()
 
 // Toggle todo completion
-export const toggleTodoCompletion = async (listId: string, todoId: string, state: TodoState) => {
+export const toggleTodoCompletion = async (
+    listId: string,
+    todoId: string,
+    state: TodoState,
+    playSoundComplete: () => void,
+    playRemovedSound: () => void
+) => {
     const { todoLists, setTodoLists } = state
     const todo = findTodo(listId, todoId, todoLists)
     if (!todo) return
 
     if (!todo.completed) {
         // Mark as complete and schedule deletion
+        playSoundComplete();
         setTodoLists(prev =>
             prev.map(list =>
                 list.id === listId
@@ -114,6 +121,7 @@ export const toggleTodoCompletion = async (listId: string, todoId: string, state
             )
 
             // Remove from DOM after CSS animation completes (300ms)
+            playRemovedSound();
             setTimeout(() => {
                 setTodoLists(prev =>
                     prev.map(list =>
