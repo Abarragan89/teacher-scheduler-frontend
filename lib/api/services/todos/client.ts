@@ -74,7 +74,7 @@ export const clientTodo = {
             method: 'DELETE',
         });
         if (!response.ok) throw new Error('Failed to delete todo item');
-        return response.json();
+        return true;
     }
 
 }

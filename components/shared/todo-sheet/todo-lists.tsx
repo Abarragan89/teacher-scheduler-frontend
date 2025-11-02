@@ -35,7 +35,7 @@ interface CurrentListProps {
 export default function TodoLists({ todoLists }: CurrentListProps) {
 
     const [playCompleteSound] = useSound('/sounds/todoChecked.wav', {
-        volume: 0.5
+        volume: 0.2
     });
 
     const [currentListIndex, setCurrentListIndex] = useState(0);

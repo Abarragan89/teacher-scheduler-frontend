@@ -1,7 +1,6 @@
 import { TodoItem, TodoList } from '@/types/todo'
 import { TodoState, ensureEmptyTodoItem } from './todo-list-operations'
 import { clientTodo } from '@/lib/api/services/todos/client'
-import { toast } from 'sonner'
 
 // Update a todo item text on change (No backend update)
 export const updateTodoItem = (listId: string, todoId: string, text: string, state: TodoState) => {
@@ -47,64 +46,57 @@ const findTodo = (listId: string, todoId: string, todoLists: TodoList[]) => {
         ?.todos.find(todo => todo.id === todoId)
 }
 
+// Track pending deletions
+const pendingDeletions = new Map<string, NodeJS.Timeout>()
+
 // Toggle todo completion
 export const toggleTodoCompletion = async (listId: string, todoId: string, state: TodoState) => {
-    const { todoLists } = state
+    const { todoLists, setTodoLists } = state
     const todo = findTodo(listId, todoId, todoLists)
     if (!todo) return
 
     if (!todo.completed) {
-        // Handle completion with undo functionality
-        await handleTodoCompletion(listId, todoId, state)
-    } else {
-        // Handle unchecking (immediate update)
-        await handleTodoUncompletion(listId, todoId, state)
-    }
-}
-
-// Handle marking todo as complete with undo functionality
-const handleTodoCompletion = async (listId: string, todoId: string, state: TodoState) => {
-    const { setTodoLists, todoLists } = state
-
-    // Find the todo for the toast
-    const todo = findTodo(listId, todoId, todoLists)
-    if (!todo) return
-
-    // 1. Immediate optimistic UI update
-    setTodoLists(prev =>
-        prev.map(list =>
-            list.id === listId
-                ? {
-                    ...list,
-                    todos: list.todos.map(t =>
-                        t.id === todoId
-                            ? { ...t, completed: true }
-                            : t
-                    )
-                }
-                : list
+        // Mark as complete and schedule deletion
+        setTodoLists(prev =>
+            prev.map(list =>
+                list.id === listId
+                    ? {
+                        ...list,
+                        todos: list.todos.map(t =>
+                            t.id === todoId
+                                ? { ...t, completed: true }
+                                : t
+                        )
+                    }
+                    : list
+            )
         )
-    )
 
-    // 2. IMMEDIATE API call to mark as complete
-    try {
-        await clientTodo.updateTodo({
-            ...todo,
-            completed: true
-        })
+        // Update backend immediately
+        try {
+            await clientTodo.updateTodo({ ...todo, completed: true })
+        } catch (error) {
+            console.error('Failed to mark todo complete:', error)
+            // Rollback UI on error
+            setTodoLists(prev =>
+                prev.map(list =>
+                    list.id === listId
+                        ? {
+                            ...list,
+                            todos: list.todos.map(t =>
+                                t.id === todoId
+                                    ? { ...t, completed: false }
+                                    : t
+                            )
+                        }
+                        : list
+                )
+            )
+            return
+        }
 
-        // 3. Show undo toast AFTER successful API call
-        const toastId = toast.success(`"${todo.text}" completed`, {
-            duration: 3000,
-            action: {
-                label: "Undo",
-                onClick: () => undoTodoCompletion(listId, todoId, state, toastId),
-            },
-        })
-
-        // 4. Schedule removal from UI (but DB is already updated)
-        setTimeout(() => {
-            // Only remove from UI, DB is already updated
+        // Schedule deletion after 2 seconds
+        const timeoutId = setTimeout(() => {
             setTodoLists(prev =>
                 prev.map(list =>
                     list.id === listId
@@ -115,108 +107,45 @@ const handleTodoCompletion = async (listId: string, todoId: string, state: TodoS
                         : list
                 )
             )
-        }, 1000)
 
-    } catch (error) {
-        // API failed - rollback UI state
-        console.error('Failed to mark todo complete:', error)
+            // Clean up tracking
+            pendingDeletions.delete(todoId)
+            clientTodo.deleteTodo(todoId)
+        }, 3000)
+
+        // Track the pending deletion
+        pendingDeletions.set(todoId, timeoutId)
+
+    } else {
+        // Uncheck - cancel deletion if pending
+        const pendingTimeout = pendingDeletions.get(todoId)
+        if (pendingTimeout) {
+            clearTimeout(pendingTimeout)
+            pendingDeletions.delete(todoId)
+        }
+
+        // Update UI to uncheck
         setTodoLists(prev =>
             prev.map(list =>
                 list.id === listId
                     ? {
                         ...list,
-                        todos: list.todos.map(t =>
-                            t.id === todoId
-                                ? { ...t, completed: false }
-                                : t
+                        todos: list.todos.map(todo =>
+                            todo.id === todoId
+                                ? { ...todo, completed: false }
+                                : todo
                         )
                     }
                     : list
             )
         )
 
-        toast.error("Failed to mark todo complete")
-    }
-}
-
-// Handle unchecking a todo
-const handleTodoUncompletion = async (listId: string, todoId: string, state: TodoState) => {
-    const { setTodoLists, todoLists } = state
-
-    // Immediate UI update
-    setTodoLists(prev =>
-        prev.map(list =>
-            list.id === listId
-                ? {
-                    ...list,
-                    todos: list.todos.map(todo =>
-                        todo.id === todoId
-                            ? { ...todo, completed: false }
-                            : todo
-                    )
-                }
-                : list
-        )
-    )
-
-    // API call to unmark
-    try {
-        const todo = findTodo(listId, todoId, todoLists)
-        if (todo) {
-            await clientTodo.updateTodo({
-                ...todo,
-                completed: false
-            })
+        // Update backend
+        try {
+            await clientTodo.updateTodo({ ...todo, completed: false })
+        } catch (error) {
+            console.error('Failed to unmark todo:', error)
         }
-    } catch (error) {
-        console.error('Failed to unmark todo:', error)
-        toast.error("Failed to unmark todo")
-    }
-}
-
-// Handle undo completion
-const undoTodoCompletion = async (
-    listId: string,
-    todoId: string,
-    state: TodoState,
-    toastId: string | number
-) => {
-    const { setTodoLists, todoLists } = state
-
-    // Dismiss the toast immediately
-    toast.dismiss(toastId)
-
-    try {
-        // 1. Immediate API call to unmark
-        const todo = findTodo(listId, todoId, todoLists)
-        if (todo) {
-            await clientTodo.updateTodo({
-                ...todo,
-                completed: false
-            })
-        }
-
-        // 2. Update UI to show uncompleted
-        setTodoLists(prev =>
-            prev.map(list =>
-                list.id === listId
-                    ? {
-                        ...list,
-                        todos: list.todos.map(t =>
-                            t.id === todoId
-                                ? { ...t, completed: false }
-                                : t
-                        )
-                    }
-                    : list
-            )
-        )
-
-        toast.success("Task restored")
-
-    } catch (error) {
-        console.error('Failed to undo todo completion:', error)
-        toast.error("Failed to restore task")
     }
 }
 
