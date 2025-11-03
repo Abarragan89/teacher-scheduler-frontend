@@ -1,6 +1,7 @@
 import { TodoItem, TodoList } from '@/types/todo'
 import { TodoState, ensureEmptyTodoItem } from './todo-list-operations'
 import { clientTodo } from '@/lib/api/services/todos/client'
+import { QueryClient } from '@tanstack/react-query'
 
 // Update a todo item text on change (No backend update)
 export const updateTodoItem = (listId: string, todoId: string, text: string, state: TodoState) => {
@@ -55,7 +56,8 @@ export const toggleTodoCompletion = async (
     todoId: string,
     state: TodoState,
     playSoundComplete: () => void,
-    playRemovedSound: () => void
+    playRemovedSound: () => void,
+    queryClient: QueryClient
 ) => {
     const { todoLists, setTodoLists } = state
     const todo = findTodo(listId, todoId, todoLists)
@@ -122,7 +124,8 @@ export const toggleTodoCompletion = async (
 
             // Remove from DOM after CSS animation completes (300ms)
             playRemovedSound();
-            setTimeout(() => {
+            setTimeout(async () => {
+                // Remove from local state
                 setTodoLists(prev =>
                     prev.map(list =>
                         list.id === listId
@@ -134,9 +137,29 @@ export const toggleTodoCompletion = async (
                     )
                 )
 
+                // Update React Query cache directly
+                queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+                    if (!oldData) return oldData
+
+                    return oldData.map(list =>
+                        list.id === listId
+                            ? {
+                                ...list,
+                                todos: list.todos.filter(t => t.id !== todoId)
+                            }
+                            : list
+                    )
+                })
+
                 // Clean up tracking and delete from backend
                 pendingDeletions.delete(todoId)
-                clientTodo.deleteTodo(todoId)
+
+                try {
+                    await clientTodo.deleteTodo(todoId)
+                } catch (error) {
+                    console.error('Failed to delete todo from backend:', error)
+                    // Could revert the cache update here on error if needed
+                }
             }, 500) // Match CSS transition duration exactly
         }, 2000)
 

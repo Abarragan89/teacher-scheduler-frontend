@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react'
+import { useQueryClient } from "@tanstack/react-query"
 import { TodoList } from "@/types/todo"
 import { Button } from "@/components/ui/button"
 import { BareInput } from '@/components/ui/bare-bones-input'
@@ -27,6 +28,7 @@ interface CurrentListProps {
 }
 
 export default function TodoLists({ todoLists }: CurrentListProps) {
+    const queryClient = useQueryClient()
 
     const [playCompleteSound] = useSound('/sounds/todoWaterClick.wav', {
         volume: 0.4
@@ -226,8 +228,8 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                             <div
                                 key={todo.id}
                                 className={`flex items-start border-b gap-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
-                                        ? 'opacity-0 scale-95 -translate-y-1'
-                                        : 'opacity-100 scale-100 translate-y-0'
+                                    ? 'opacity-0 scale-95 -translate-y-1'
+                                    : 'opacity-100 scale-100 translate-y-0'
                                     }`}
                                 style={{
                                     // Remove fixed height, let content determine height
@@ -243,10 +245,10 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 <div className={`flex-shrink-0 pt-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
                                     }`}>
                                     <button
-                                        onClick={() => toggleTodoCompletion(currentList.id, todo.id, state, playCompleteSound, playTodoRemovedSound)}
+                                        onClick={() => toggleTodoCompletion(currentList.id, todo.id, state, playCompleteSound, playTodoRemovedSound, queryClient)}
                                         className={`flex-shrink-0 rounded transition-all duration-300 ${todo.deleting
-                                                ? 'opacity-0 pointer-events-none transform scale-50'
-                                                : 'hover:bg-muted transform scale-100'
+                                            ? 'opacity-0 pointer-events-none transform scale-50'
+                                            : 'hover:bg-muted transform scale-100'
                                             }`}
                                         disabled={todo.deleting}
                                     >
@@ -289,7 +291,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                         disabled={todo.deleting}
                                         rows={1}
                                         style={{
-                                            minHeight: '10px',
+                                            minHeight: '20px',
                                             lineHeight: '1',
                                             height: 'auto'
                                         }}

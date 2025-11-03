@@ -12,10 +12,13 @@ import TodoLists from "./todo-lists"
 import { TodoList } from "@/types/todo"
 import { useQuery } from "@tanstack/react-query"
 import { clientTodoLists } from "@/lib/api/services/todos/client"
+import { useState } from "react"
 
 export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
 
-    const { data: allLists } = useQuery({
+    const [isOpen, setIsOpen] = useState(false)
+
+    const { data: allLists, refetch } = useQuery({
         queryKey: ['todos'],
         queryFn: clientTodoLists.getTodoLists,
         initialData: todoLists,
@@ -24,8 +27,16 @@ export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
         staleTime: 0,
     })
 
+    // Force refetch when sheet opens
+    const handleOpenChange = (open: boolean) => {
+        setIsOpen(open)
+        if (open) {
+            refetch() // This will get fresh data from server
+        }
+    }
+
     return (
-        <Sheet>
+        <Sheet open={isOpen} onOpenChange={handleOpenChange}>
             <SheetTrigger asChild>
                 <Button variant={'ghost'}>
                     <ListTodo />
