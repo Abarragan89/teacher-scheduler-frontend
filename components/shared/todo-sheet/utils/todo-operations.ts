@@ -64,6 +64,18 @@ export const toggleTodoCompletion = async (
     if (!todo) return
 
     if (!todo.completed) {
+        // const updatedList = todoLists.map(list =>
+        //     list.id === listId
+        //         ? {
+        //             ...list,
+        //             todos: list.todos.map(t =>
+        //                 t.id === todoId
+        //                     ? { ...t, completed: true }
+        //                     : t
+        //             )
+        //         }
+        //         : list
+        // )
         // Mark as complete and schedule deletion
         playSoundComplete();
         setTodoLists(prev =>
@@ -80,6 +92,21 @@ export const toggleTodoCompletion = async (
                     : list
             )
         )
+        queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+            if (!oldData) return oldData
+            return oldData.map(list =>
+                list.id === listId
+                    ? {
+                        ...list,
+                        todos: list.todos.map(t =>
+                            t.id === todoId
+                                ? { ...t, completed: true }
+                                : t
+                        )
+                    }
+                    : list
+            )
+        })
 
 
         // Schedule deletion after 3 seconds - single smooth animation
@@ -99,6 +126,7 @@ export const toggleTodoCompletion = async (
                         : list
                 )
             )
+
 
             // Remove from DOM after CSS animation completes (300ms)
             playRemovedSound();
@@ -165,6 +193,21 @@ export const toggleTodoCompletion = async (
                     : list
             )
         )
+        queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+            if (!oldData) return oldData
+            return oldData.map(list =>
+                list.id === listId
+                    ? {
+                        ...list,
+                        todos: list.todos.map(todo =>
+                            todo.id === todoId
+                                ? { ...todo, completed: false, deleting: false }
+                                : todo
+                        )
+                    }
+                    : list
+            )
+        })
     }
 }
 
@@ -256,7 +299,7 @@ export const handleTodoBlur = async (
 
             setTodoLists(updatedList)
             queryClient.setQueryData(['todos'], updatedList)
-            
+
         } catch (error) {
             console.error('Error creating new todo:', error)
         }
