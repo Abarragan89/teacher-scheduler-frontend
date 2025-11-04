@@ -81,6 +81,7 @@ export const toggleTodoCompletion = async (
             )
         )
 
+
         // Schedule deletion after 3 seconds - single smooth animation
         const timeoutId = setTimeout(() => {
             // Mark as deleting and let CSS handle the smooth animation

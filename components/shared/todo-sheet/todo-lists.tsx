@@ -220,7 +220,9 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                         state={state}
                     />
                 </div>
-
+                {/* <form>
+                    <Label htmlFor="listName">New Todo</Label>
+                </form> */}
                 {/* Flexbox Layout for TODO Lists */}
                 <ScrollArea className="h-[calc(100vh-250px)] w-full">
                     <div className="mt-4 space-y-0 transition-all duration-300 ease-in-out ml-1 mr-2">
