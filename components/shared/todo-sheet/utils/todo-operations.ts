@@ -81,30 +81,6 @@ export const toggleTodoCompletion = async (
             )
         )
 
-        // Update backend immediately
-        try {
-            const savedTodo = await clientTodo.updateTodo({ ...todo, completed: true })
-            
-        } catch (error) {
-            console.error('Failed to mark todo complete:', error)
-            // Rollback UI on error
-            setTodoLists(prev =>
-                prev.map(list =>
-                    list.id === listId
-                        ? {
-                            ...list,
-                            todos: list.todos.map(t =>
-                                t.id === todoId
-                                    ? { ...t, completed: false }
-                                    : t
-                            )
-                        }
-                        : list
-                )
-            )
-            return
-        }
-
         // Schedule deletion after 3 seconds - single smooth animation
         const timeoutId = setTimeout(() => {
             // Mark as deleting and let CSS handle the smooth animation
@@ -158,7 +134,6 @@ export const toggleTodoCompletion = async (
                     await clientTodo.deleteTodo(todoId)
                 } catch (error) {
                     console.error('Failed to delete todo from backend:', error)
-                    // Could revert the cache update here on error if needed
                 }
             }, 500) // Match CSS transition duration exactly
         }, 2000)
@@ -189,13 +164,6 @@ export const toggleTodoCompletion = async (
                     : list
             )
         )
-
-        // Update backend
-        try {
-            await clientTodo.updateTodo({ ...todo, completed: false })
-        } catch (error) {
-            console.error('Failed to unmark todo:', error)
-        }
     }
 }
 

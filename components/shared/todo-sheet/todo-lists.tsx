@@ -264,6 +264,13 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 <div className={`flex-1 min-w-0 py-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
                                     }`}>
                                     <textarea
+                                        ref={(textarea) => {
+                                            if (textarea) {
+                                                // Auto-resize on mount/render
+                                                textarea.style.height = 'auto'
+                                                textarea.style.height = `${textarea.scrollHeight}px`
+                                            }
+                                        }}
                                         className={`w-full text-[15px] bg-transparent border-none resize-none overflow-hidden transition-all duration-500 focus:outline-none ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
                                             } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
                                             }`}
@@ -291,9 +298,8 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                         disabled={todo.deleting}
                                         rows={1}
                                         style={{
-                                            minHeight: '20px',
-                                            lineHeight: '1',
-                                            height: 'auto'
+                                            minHeight: 'fit-content',
+                                            lineHeight: '1.25',
                                         }}
                                     />
                                     {!todo.id.startsWith("temp-") && !todo.deleting && (
