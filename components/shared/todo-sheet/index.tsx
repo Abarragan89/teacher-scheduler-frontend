@@ -28,15 +28,15 @@ export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
     })
 
     // Force refetch when sheet opens
-    const handleOpenChange = (open: boolean) => {
-        setIsOpen(open)
-        if (open) {
-            refetch() // This will get fresh data from server
-        }
-    }
+    // const handleOpenChange = (open: boolean) => {
+    //     setIsOpen(open)
+    //     if (open) {
+    //         refetch() // This will get fresh data from server
+    //     }
+    // }
 
     return (
-        <Sheet open={isOpen} onOpenChange={handleOpenChange}>
+        <Sheet>
             <SheetTrigger asChild>
                 <Button variant={'ghost'}>
                     <ListTodo />

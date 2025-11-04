@@ -278,7 +278,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                             updateTodoItem(currentList.id, todo.id, e.target.value, state)
                                         }}
                                         onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, state)}
-                                        onBlur={() => handleTodoBlur(currentList.id, todo.id, todo.text, todo.completed, todo.priority, state)}
+                                        onBlur={() => handleTodoBlur(currentList.id, todo.id, todo.text, todo.completed, todo.priority, state, queryClient)}
                                         onFocus={(e) => {
                                             // Auto-resize on focus too
                                             const target = e.target as HTMLTextAreaElement

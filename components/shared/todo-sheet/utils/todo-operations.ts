@@ -83,7 +83,8 @@ export const toggleTodoCompletion = async (
 
         // Update backend immediately
         try {
-            await clientTodo.updateTodo({ ...todo, completed: true })
+            const savedTodo = await clientTodo.updateTodo({ ...todo, completed: true })
+            
         } catch (error) {
             console.error('Failed to mark todo complete:', error)
             // Rollback UI on error
@@ -140,7 +141,6 @@ export const toggleTodoCompletion = async (
                 // Update React Query cache directly
                 queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
                     if (!oldData) return oldData
-
                     return oldData.map(list =>
                         list.id === listId
                             ? {
@@ -216,7 +216,8 @@ export const handleTodoBlur = async (
     text: string,
     completed: boolean,
     priority: number,
-    state: TodoState
+    state: TodoState,
+    queryClient: QueryClient
 ) => {
     const { todoLists, setTodoLists, focusedText } = state
     const list = todoLists.find(l => l.id === listId)
@@ -249,7 +250,6 @@ export const handleTodoBlur = async (
                     return l
                 })
             )
-
             if (!isTemporary) {
                 // Delete from backend
                 await clientTodo.deleteTodo(todoId)
@@ -263,34 +263,62 @@ export const handleTodoBlur = async (
             // update it on the backend
             const savedTodo = await clientTodo.createTodoItem(listId, text.trim())
 
-            // Update UI with real ID
-            setTodoLists(prev =>
-                prev.map(list => {
-                    if (list.id === listId) {
-                        const updatedTodos = list.todos.map((todo, index) => {
-                            if (todo.id === todoId) {
-                                return {
-                                    ...todo,
-                                    id: savedTodo.id,
-                                    position: index
-                                }
+            const updatedList = todoLists.map(l => {
+                if (l.id === listId) {
+                    const updatedTodos = l.todos.map((todo, index) => {
+                        if (todo.id === todoId) {
+                            return {
+                                ...todo,
+                                id: savedTodo.id,
+                                text: text.trim(),
+                                completed,
+                                priority,
+                                position: index
                             }
-                            return { ...todo, position: index }
-                        })
+                        }
+                        return { ...todo, position: index }
+                    })
 
-                        ensureEmptyTodoItem(updatedTodos)
-                        return { ...list, todos: updatedTodos }
-                    }
-                    return list
-                })
-            )
+                    ensureEmptyTodoItem(updatedTodos)
+                    return { ...l, todos: updatedTodos }
+                }
+                return l
+            })
+
+            setTodoLists(updatedList)
+            queryClient.setQueryData(['todos'], updatedList)
+            
         } catch (error) {
             console.error('Error creating new todo:', error)
         }
     } else if (hasTextChanged) {
         // Update existing todo in backend
         try {
-            await clientTodo.updateTodo(todo)
+            const savedTodo = await clientTodo.updateTodo(todo)
+            const updatedList = todoLists.map(l => {
+                if (l.id === listId) {
+                    const updatedTodos = l.todos.map((todo, index) => {
+                        if (todo.id === todoId) {
+                            return {
+                                ...todo,
+                                id: savedTodo.id,
+                                text: text.trim(),
+                                completed,
+                                priority,
+                                position: index
+                            }
+                        }
+                        return { ...todo, position: index }
+                    })
+
+                    ensureEmptyTodoItem(updatedTodos)
+                    return { ...l, todos: updatedTodos }
+                }
+                return l
+            })
+
+            setTodoLists(updatedList)
+            queryClient.setQueryData(['todos'], updatedList)
         } catch (error) {
             console.error('Error updating todo:', error)
         }
