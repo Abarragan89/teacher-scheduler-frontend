@@ -39,7 +39,7 @@ export default function PriorityPopover({ todo, state, queryClient }: { todo: To
                             size="sm"
                             className={`w-full justify-start ${bgColor} ${color}`}
                             onClick={() => {
-                                handlePriorityUpdate(todo.id, level, state, queryClient);
+                                handlePriorityUpdate(todo.id, level, queryClient);
                                 setIsPopOverOpen(false);
                             }}
                         >

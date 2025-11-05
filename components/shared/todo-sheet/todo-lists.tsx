@@ -289,7 +289,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                                 [todo.id]: e.target.value
                                             }))
                                         }}
-                                        onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, state, queryClient)}
+                                        onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, queryClient)}
                                         onBlur={() => {
                                             const currentText = localTodoTexts[todo.id] || todo.text
                                             updateTodoItem(currentList.id, todo.id, currentText, queryClient)

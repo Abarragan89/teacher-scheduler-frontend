@@ -314,7 +314,6 @@ export const handleTodoKeyDown = (
     e: React.KeyboardEvent<HTMLTextAreaElement>,
     listId: string,
     todoId: string,
-    state: TodoState,
     queryClient: QueryClient
 ) => {
     if (e.key === 'Enter') {
@@ -370,7 +369,6 @@ export const handleTodoKeyDown = (
 export const handleDueDateUpdate = async (
     todoId: string,
     dueDate: String | null,
-    state: TodoState,
     queryClient: QueryClient
 ) => {
     // Get fresh data from cache instead of stale state
@@ -409,7 +407,6 @@ export const handleDueDateUpdate = async (
 export const handlePriorityUpdate = async (
     todoId: string,
     priority: number,
-    state: TodoState,
     queryClient: QueryClient
 ) => {
     // Get fresh data from cache instead of stale state

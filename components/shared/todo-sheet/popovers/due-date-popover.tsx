@@ -55,11 +55,11 @@ export default function DueDatePopover({ todo, state, queryClient }: { todo: Tod
     async function setDueDate() {
         setIsSaving(true);
         if (!date) {
-            await handleDueDateUpdate(todo.id, null, state, queryClient);
+            await handleDueDateUpdate(todo.id, null, queryClient);
         } else {
             const dueDateISO = combineDateAndTime(date, time);
             // Implement setting due date logic here (Backend and Frontend)
-            await handleDueDateUpdate(todo.id, dueDateISO, state, queryClient);
+            await handleDueDateUpdate(todo.id, dueDateISO, queryClient);
         }
         setIsPopOverOpen(false);
         setIsSaving(false);
