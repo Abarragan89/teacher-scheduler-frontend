@@ -42,6 +42,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newListName, setNewListName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
+    const [localTodoTexts, setLocalTodoTexts] = useState<Record<string, string>>({});
 
     // Ensure current index is within bounds
     useEffect(() => {
@@ -51,6 +52,19 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     }, [todoLists.length, currentListIndex])
 
     const currentList = todoLists[currentListIndex]
+
+    // Sync local todo texts when todos change from external sources
+    useEffect(() => {
+        const newLocalTexts: Record<string, string> = {}
+        currentList?.todos.forEach(todo => {
+            if (!localTodoTexts[todo.id]) {
+                newLocalTexts[todo.id] = todo.text
+            }
+        })
+        if (Object.keys(newLocalTexts).length > 0) {
+            setLocalTodoTexts(prev => ({ ...prev, ...newLocalTexts }))
+        }
+    }, [currentList?.todos])
 
     // Ensure there's always an empty todo at the end of the current list
     useEffect(() => {
@@ -261,40 +275,30 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 </div>
 
                                 {/* Content */}
-                                <div className={`flex-1 min-w-0 py-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
+                                <div className={`flex-1 min-w-0 pt-[2px] transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
                                     }`}>
                                     <textarea
-                                        // ref={(textarea) => {
-                                        //     if (textarea) {
-                                        //         // Auto-resize on mount/render
-                                        //         textarea.style.height = 'auto'
-                                        //         textarea.style.height = `${textarea.scrollHeight}px`
-                                        //     }
-                                        // }}
-                                        className={`w-full text-[15px] bg-transparent border-none resize-none overflow-hidden transition-all duration-500 focus:outline-none ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                                        className={`w-full field-sizing-content h-fit leading-normal text-[15px] bg-transparent border-none resize-none overflow-hidden transition-all duration-500 focus:outline-none ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
                                             } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
                                             }`}
                                         placeholder="Add todo..."
-                                        value={todo.text}
-                                        onChange={(e) => updateTodoItem(currentList.id, todo.id, e.target.value, queryClient)}
-                                        onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, state, queryClient)}
-                                        onBlur={() => handleTodoBlur(currentList.id, todo.id, todo.text, state, queryClient)}
-                                        onFocus={(e) => {
-                                            // Auto-resize on focus too
-                                            const target = e.target as HTMLTextAreaElement
-                                            target.style.height = 'auto'
-                                            // target.style.height = `${target.scrollHeight}px`
-
-                                            handleTodoFocus(currentList.id, todo.id, state, queryClient)
+                                        value={localTodoTexts[todo.id] || todo.text}
+                                        onChange={(e) => {
+                                            setLocalTodoTexts(prev => ({
+                                                ...prev,
+                                                [todo.id]: e.target.value
+                                            }))
                                         }}
+                                        onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, state, queryClient)}
+                                        onBlur={() => {
+                                            const currentText = localTodoTexts[todo.id] || todo.text
+                                            updateTodoItem(currentList.id, todo.id, currentText, queryClient)
+                                            handleTodoBlur(currentList.id, todo.id, currentText, state, queryClient)
+                                        }}
+                                        onFocus={(e) => handleTodoFocus(currentList.id, todo.id, state, queryClient)}
                                         data-todo-id={todo.id}
                                         disabled={todo.deleting}
                                         rows={1}
-                                        style={{
-                                            minHeight: 'fit-content',
-                                            // fieldSizing: 'content', 
-                                            lineHeight: '1.25',
-                                        }}
                                     />
                                     {!todo.id.startsWith("temp-") && !todo.deleting && (
                                         <div className="flex justify-between text-muted-foreground opacity-70 text-xs">
