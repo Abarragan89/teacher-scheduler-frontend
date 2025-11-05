@@ -305,14 +305,12 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                             {/* Due Date Popover */}
                                             <DueDatePopover
                                                 todo={todo}
-                                                state={state}
                                                 queryClient={queryClient}
                                             />
 
                                             {/* Priority Popover */}
                                             <PriorityPopover
                                                 todo={todo}
-                                                state={state}
                                                 queryClient={queryClient}
                                             />
                                         </div>

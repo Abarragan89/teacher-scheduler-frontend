@@ -8,7 +8,7 @@ import { TodoItem } from '@/types/todo'
 import { TodoState } from '../utils/todo-list-operations'
 import { QueryClient } from '@tanstack/react-query'
 
-export default function DueDatePopover({ todo, state, queryClient }: { todo: TodoItem, state: TodoState, queryClient: QueryClient }) {
+export default function DueDatePopover({ todo, queryClient }: { todo: TodoItem, queryClient: QueryClient }) {
 
     // Initialize with todo's due date if it exists, otherwise use current date
     const [date, setDate] = useState<Date | undefined>(

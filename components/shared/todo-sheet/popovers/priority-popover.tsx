@@ -7,7 +7,7 @@ import { TodoState } from '../utils/todo-list-operations'
 import { TodoItem } from '@/types/todo'
 import { QueryClient } from '@tanstack/react-query'
 
-export default function PriorityPopover({ todo, state, queryClient }: { todo: TodoItem, state: TodoState, queryClient: QueryClient }) {
+export default function PriorityPopover({ todo, queryClient }: { todo: TodoItem, queryClient: QueryClient }) {
 
     const [isPopOverOpen, setIsPopOverOpen] = useState<boolean>(false);
 
