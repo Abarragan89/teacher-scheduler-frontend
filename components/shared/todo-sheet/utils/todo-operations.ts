@@ -5,7 +5,6 @@ import { QueryClient } from '@tanstack/react-query'
 
 // Update a todo item text on change (No backend update)
 export const updateTodoItem = (listId: string, todoId: string, text: string, queryClient: QueryClient) => {
-    // const { setTodoLists } = state
 
     queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
         if (!oldData) return oldData
@@ -39,38 +38,6 @@ export const updateTodoItem = (listId: string, todoId: string, text: string, que
             return list;
         })
     })
-
-    // setTodoLists(prev =>
-    //     prev.map(list => {
-    //         if (list.id === listId) {
-    //             const updatedTodos = list.todos.map(todo =>
-    //                 todo.id === todoId
-    //                     ? { ...todo, text }
-    //                     : todo
-    //             )
-
-    //             // If user is typing in the last item and it now has text, add a new empty item at the end
-    //             const todoIndex = updatedTodos.findIndex(todo => todo.id === todoId)
-    //             const isLastItem = todoIndex === updatedTodos.length - 1
-    //             const hasText = text.trim() !== ''
-    //             const wasLastItemEmpty = list.todos[todoIndex]?.text.trim() === ''
-
-    //             if (hasText && isLastItem && wasLastItemEmpty) {
-    //                 // User started typing in the last empty item, add a new empty item at the end
-    //                 updatedTodos.push({
-    //                     id: `temp-todo-${Date.now()}`,
-    //                     text: '',
-    //                     completed: false,
-    //                     priority: 1,
-    //                     dueDate: null,
-    //                 })
-    //             }
-
-    //             return { ...list, todos: updatedTodos }
-    //         }
-    //         return list
-    //     })
-    // )
 }
 
 // Helper function to find a todo
