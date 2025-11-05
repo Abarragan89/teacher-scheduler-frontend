@@ -1,5 +1,5 @@
 import { TodoItem, TodoList } from '@/types/todo'
-import { TodoState, ensureEmptyTodoItem } from './todo-list-operations'
+import { TodoState } from './todo-list-operations'
 import { clientTodo } from '@/lib/api/services/todos/client'
 import { QueryClient } from '@tanstack/react-query'
 
@@ -229,7 +229,6 @@ export const handleTodoBlur = async (
                         const newTodos = l.todos
                             .filter(todo => todo.id !== todoId)
                             .map((todo, index) => ({ ...todo, position: index }))
-                        ensureEmptyTodoItem(newTodos)
                         return { ...l, todos: newTodos }
                     }
                     return l
@@ -243,43 +242,11 @@ export const handleTodoBlur = async (
         return
     }
 
-    if (isTemporary) {
-        try {
-            // update it on the backend
-            const savedTodo = await clientTodo.createTodoItem(listId, text.trim())
-
-            // Update cache with fresh data, keeping existing properties
-            queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-                if (!oldData) return oldData
-                return oldData.map(l => {
-                    if (l.id === listId) {
-                        const updatedTodos = l.todos.map((t, index) => {
-                            if (t.id === todoId) {
-                                return {
-                                    ...t, // Keep existing properties like completed status
-                                    id: savedTodo.id,
-                                    text: text.trim(),
-                                    position: index
-                                }
-                            }
-                            return { ...t, position: index }
-                        })
-
-                        ensureEmptyTodoItem(updatedTodos)
-                        return { ...l, todos: updatedTodos }
-                    }
-                    return l
-                })
-            })
-
-        } catch (error) {
-            console.error('Error creating new todo:', error)
-        }
-    } else if (hasTextChanged) {
+    if (hasTextChanged) {
         // Update existing todo in backend
         try {
             const updatedTodo = { ...todo, text: text.trim() }
-            const savedTodo = await clientTodo.updateTodo(updatedTodo)
+            await clientTodo.updateTodo(updatedTodo)
 
             // Update cache with fresh data, keeping existing properties
             queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
@@ -296,8 +263,7 @@ export const handleTodoBlur = async (
                             }
                             return { ...t, position: index }
                         })
-
-                        ensureEmptyTodoItem(updatedTodos)
+                        
                         return { ...l, todos: updatedTodos }
                     }
                     return l

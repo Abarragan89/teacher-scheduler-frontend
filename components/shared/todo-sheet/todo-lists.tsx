@@ -7,7 +7,7 @@ import { BareInput } from '@/components/ui/bare-bones-input'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { CheckCircle, Circle, Plus, BookmarkCheckIcon } from 'lucide-react'
-import { TodoState, ensureEmptyTodoItem, updateTodoListTitle, handleTodoListTitleBlur, handleTodoListTitleFocus } from './utils/todo-list-operations'
+import { TodoState, updateTodoListTitle, handleTodoListTitleBlur, handleTodoListTitleFocus } from './utils/todo-list-operations'
 import {
     updateTodoItem,
     handleTodoFocus,
@@ -22,6 +22,7 @@ import DueDatePopover from './popovers/due-date-popover'
 import PriorityPopover from './popovers/priority-popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import useSound from 'use-sound';
+import AddTodoForm from './add-todo-form'
 
 interface CurrentListProps {
     todoLists: TodoList[]
@@ -70,7 +71,6 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     useEffect(() => {
         if (currentList) {
             const updatedTodos = [...currentList.todos]
-            ensureEmptyTodoItem(updatedTodos)
 
             if (updatedTodos.length !== currentList.todos.length) {
                 queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
@@ -232,11 +232,8 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                         queryClient={queryClient}
                     />
                 </div>
-                {/* <form>
-                    <Label htmlFor="listName">New Todo</Label>
-                </form> */}
                 {/* Flexbox Layout for TODO Lists */}
-                <ScrollArea className="h-[calc(100vh-250px)] w-full">
+                <ScrollArea className="h-[calc(100vh-300px)] w-full">
                     <div className="mt-4 space-y-0 transition-all duration-300 ease-in-out ml-1 mr-2">
                         {currentList.todos.map(todo => (
                             <div
@@ -321,6 +318,9 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     </div>
                 </ScrollArea>
             </div>
+            <AddTodoForm
+                listId={currentList.id}
+            />
 
             {/* Responsive Dialog for Creating New List */}
             <ResponsiveDialog

@@ -44,10 +44,10 @@ export const clientTodoLists = {
 }
 
 export const clientTodo = {
-    async createTodoItem(todoListId: string, todoText: string) {
+    async createTodoItem(todoListId: string, todoText: string, dueDate: string, priority: number) {
         const response = await clientFetch('/todo/create-list-item', {
             method: 'POST',
-            body: JSON.stringify({ todoListId, todoText }),
+            body: JSON.stringify({ todoListId, todoText, dueDate, priority }),
         });
         if (!response.ok) throw new Error('Failed to create todo item');
         return response.json();
