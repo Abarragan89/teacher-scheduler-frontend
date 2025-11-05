@@ -44,6 +44,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const [newListName, setNewListName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const [localTodoTexts, setLocalTodoTexts] = useState<Record<string, string>>({});
+    const [sortBy, setSortBy] = useState<'priority' | 'due-date'>('priority');
 
     // Ensure current index is within bounds
     useEffect(() => {
@@ -54,10 +55,34 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
 
     const currentList = todoLists[currentListIndex]
 
+    // Sort todos based on selected criteria
+    const sortTodos = (todos: any[]) => {
+        const sortedTodos = [...todos]
+
+        switch (sortBy) {
+            case 'priority':
+                return sortedTodos.sort((a, b) => b.priority - a.priority)
+            case 'due-date':
+                return sortedTodos.sort((a, b) => {
+                    if (!a.dueDate && !b.dueDate) return 0
+                    if (!a.dueDate) return 1
+                    if (!b.dueDate) return -1
+                    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+                })
+            default:
+                return sortedTodos
+        }
+    }
+
+    const sortedCurrentList = currentList ? {
+        ...currentList,
+        todos: sortTodos(currentList.todos)
+    } : currentList
+
     // Sync local todo texts when todos change from external sources
     useEffect(() => {
         const newLocalTexts: Record<string, string> = {}
-        currentList?.todos.forEach(todo => {
+        sortedCurrentList?.todos.forEach(todo => {
             if (!localTodoTexts[todo.id]) {
                 newLocalTexts[todo.id] = todo.text
             }
@@ -65,7 +90,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
         if (Object.keys(newLocalTexts).length > 0) {
             setLocalTodoTexts(prev => ({ ...prev, ...newLocalTexts }))
         }
-    }, [currentList?.todos])
+    }, [sortedCurrentList?.todos])
 
     // Ensure there's always an empty todo at the end of the current list
     useEffect(() => {
@@ -232,10 +257,34 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                         queryClient={queryClient}
                     />
                 </div>
+
+                {/* Sort Buttons */}
+                <div className="flex items-center gap-3 mb-2">
+                    <Label className="text-sm text-muted-foreground">Sort by:</Label>
+                    <Button
+                        onClick={() => setSortBy('priority')}
+                        className={`hover:cursor-pointer p-0 font-bold
+                            ${sortBy === 'priority' ? '' : 'text-muted-foreground'}    
+                        `}
+                        variant={'link'}
+                    >
+                        Priority
+                    </Button>
+                    <Button
+                        onClick={() => setSortBy('due-date')}
+                        className={`hover:cursor-pointer p-0 font-bold
+                            ${sortBy === 'due-date' ? 'underline' : 'text-muted-foreground'}    
+                        `}
+                        variant={'link'}
+                    >
+                        Due Date
+                    </Button>
+                </div>
+
                 {/* Flexbox Layout for TODO Lists */}
-                <ScrollArea className="h-[calc(100vh-300px)] w-full">
-                    <div className="mt-4 space-y-0 transition-all duration-300 ease-in-out ml-1 mr-2">
-                        {currentList.todos.map(todo => (
+                <ScrollArea className="h-[calc(100vh-335px)] w-full">
+                    <div className="space-y-0 transition-all duration-300 ease-in-out ml-1 mr-3">
+                        {sortedCurrentList.todos.map(todo => (
                             <div
                                 key={todo.id}
                                 className={`flex items-start border-b gap-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
@@ -246,8 +295,8 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                     // Remove fixed height, let content determine height
                                     height: todo.deleting ? '0px' : 'auto',
                                     minHeight: todo.deleting ? '0px' : '60px',
-                                    paddingTop: todo.deleting ? '0px' : '8px',
-                                    paddingBottom: todo.deleting ? '0px' : '8px',
+                                    paddingTop: todo.deleting ? '0px' : '4px',
+                                    paddingBottom: todo.deleting ? '0px' : '4px',
                                     transition: 'all 300ms cubic-bezier(0.4, 0.0, 0.2, 1)',
                                     transformOrigin: 'top center'
                                 }}

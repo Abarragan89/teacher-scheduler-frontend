@@ -6,9 +6,10 @@ import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { CalendarIcon } from 'lucide-react'
 import { BsFillBookmarkFill } from 'react-icons/bs'
-import { QueryClient, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { TodoList } from '@/types/todo'
 import { clientTodo } from '@/lib/api/services/todos/client'
+import { toast } from 'sonner'
 
 interface AddTodoFormProps {
     listId: string
@@ -59,9 +60,12 @@ export default function AddTodoForm({ listId }: AddTodoFormProps) {
                             !todo.id.startsWith('temp-') || todo.text.trim() !== ''
                         )
 
+                        // Add the new todo and sort by priority (descending)
+                        const updatedTodos = [...filteredTodos, newTodo].sort((a, b) => b.priority - a.priority)
+
                         return {
                             ...list,
-                            todos: [...filteredTodos, newTodo]
+                            todos: updatedTodos
                         }
                     }
                     return list
@@ -74,10 +78,11 @@ export default function AddTodoForm({ listId }: AddTodoFormProps) {
             setTime('07:00')
             setPriority(1)
             // Focus back to input
-            inputRef.current?.focus()
+            toast.success(`Todo added successfully${dueDate ? `, due ${formatDisplayDate(dueDate)}` : ''}`)
         } catch (error) {
             console.error('Failed to create todo:', error)
         } finally {
+            inputRef.current?.focus()
             setIsCreating(false)
         }
     }
@@ -104,6 +109,7 @@ export default function AddTodoForm({ listId }: AddTodoFormProps) {
                 disabled={isCreating}
             />
             <div className="flex items-center justify-end gap-2 w-full mt-2">
+                
                 {/* Due Date Popover */}
                 <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
                     <PopoverTrigger asChild>
@@ -142,23 +148,23 @@ export default function AddTodoForm({ listId }: AddTodoFormProps) {
                                 />
                             </div>
 
-                            
-                                <div className="flex gap-x-4 -mt-3">
-                                    <Input
-                                        type="time"
-                                        value={time}
-                                        onChange={(e) => setTime(e.target.value)}
-                                        className="flex-2"
-                                    />
-                                    <Button
-                                        type="button"
-                                        onClick={() => setIsDatePopoverOpen(false)}
-                                        className="flex-2"
-                                    >
-                                        Done
-                                    </Button>
-                                </div>
-                          
+
+                            <div className="flex gap-x-4 -mt-3">
+                                <Input
+                                    type="time"
+                                    value={time}
+                                    onChange={(e) => setTime(e.target.value)}
+                                    className="flex-2"
+                                />
+                                <Button
+                                    type="button"
+                                    onClick={() => setIsDatePopoverOpen(false)}
+                                    className="flex-2"
+                                >
+                                    Done
+                                </Button>
+                            </div>
+
 
                             {/* <div className="text-xs text-muted-foreground">
                                         Due: {formatDisplayDate(dueDate)} at {time}
