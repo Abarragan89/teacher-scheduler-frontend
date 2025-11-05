@@ -1,16 +1,18 @@
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Bookmark, EllipsisVertical, Trash2Icon } from 'lucide-react'
-import React, {useState} from 'react'
-import { deleteTodoList, setDefaultTodoList, TodoState } from '../utils/todo-list-operations';
+import React, { useState } from 'react'
+import { deleteTodoList, setDefaultTodoList, TodoState } from '../utils/todo-list-operations'
+import { QueryClient } from '@tanstack/react-query'
 
-export default function EditListPopover({currentListId, currentListIndex, state}: {
+export default function EditListPopover({ currentListId, currentListIndex, state, queryClient }: {
     currentListId: string,
     currentListIndex: number,
-    state: TodoState
+    state: TodoState,
+    queryClient: QueryClient
 }) {
 
-    
+
     const [isPopOverOpen, setIsPopoverOpen] = useState<boolean>(false);
     const [confirmDeleteList, setConfirmDeleteList] = useState<boolean>(false);
 
@@ -34,7 +36,7 @@ export default function EditListPopover({currentListId, currentListIndex, state}
                             variant="destructive"
                             size="sm"
                             onClick={() => {
-                                deleteTodoList(currentListId, state, currentListIndex)
+                                deleteTodoList(currentListId, state, queryClient, currentListIndex)
                                 setConfirmDeleteList(false)
                                 setIsPopoverOpen(false)
                             }}
@@ -46,7 +48,7 @@ export default function EditListPopover({currentListId, currentListIndex, state}
             ) : (
                 <PopoverContent className="w-fit flex flex-col gap-y-1 p-3 px-6 mr-5 z-50">
                     <Button
-                        onClick={() => setDefaultTodoList(currentListId, state)}
+                        onClick={() => setDefaultTodoList(currentListId, state, queryClient)}
                         variant={"ghost"}
                     >
                         <Bookmark /> Make Default

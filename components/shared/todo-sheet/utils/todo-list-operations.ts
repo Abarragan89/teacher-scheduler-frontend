@@ -1,9 +1,9 @@
 import { clientTodoLists } from '@/lib/api/services/todos/client'
 import { TodoList, TodoItem } from '@/types/todo'
+import { QueryClient } from '@tanstack/react-query'
 
 export interface TodoState {
     todoLists: TodoList[]
-    setTodoLists: React.Dispatch<React.SetStateAction<TodoList[]>>
     setCurrentListIndex: React.Dispatch<React.SetStateAction<number>>
     focusedText?: string
     setFocusedText?: React.Dispatch<React.SetStateAction<string>>
@@ -30,9 +30,7 @@ export const ensureEmptyTodoItem = (todos: TodoItem[]) => {
 }
 
 // Add a new todo list
-export const addNewTodoList = (state: TodoState) => {
-    const { setTodoLists } = state
-
+export const addNewTodoList = (state: TodoState, queryClient: QueryClient) => {
     const newList: TodoList = {
         id: `temp-list-${Date.now()}`,
         listName: 'Untitled List',
@@ -45,12 +43,16 @@ export const addNewTodoList = (state: TodoState) => {
             dueDate: null,
         }],
     }
-    setTodoLists(prev => [...prev, newList])
+
+    queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+        if (!oldData) return [newList]
+        return [...oldData, newList]
+    })
 }
 
 // Delete a todo list
-export const deleteTodoList = async (listId: string, state: TodoState, currentListIndex?: number) => {
-    const { todoLists, setTodoLists, setCurrentListIndex } = state
+export const deleteTodoList = async (listId: string, state: TodoState, queryClient: QueryClient, currentListIndex?: number) => {
+    const { todoLists, setCurrentListIndex } = state
 
     // Add API call to delete the list
     await clientTodoLists.deleteTodoList(listId)
@@ -60,6 +62,9 @@ export const deleteTodoList = async (listId: string, state: TodoState, currentLi
 
     // Remove the list from the array
     const updatedLists = todoLists.filter(list => list.id !== listId)
+
+    // Update React Query cache
+    queryClient.setQueryData(['todos'], updatedLists)
 
     // Determine the new current list index
     if (updatedLists.length === 0) {
@@ -73,12 +78,10 @@ export const deleteTodoList = async (listId: string, state: TodoState, currentLi
         // A list before the current one was deleted, adjust index
         setCurrentListIndex(currentListIndex - 1)
     }
-    // Update the lists
-    setTodoLists(updatedLists)
 }
 
-export const setDefaultTodoList = async (listId: string, state: TodoState) => {
-    const { todoLists, setTodoLists, setCurrentListIndex } = state
+export const setDefaultTodoList = async (listId: string, state: TodoState, queryClient: QueryClient) => {
+    const { todoLists, setCurrentListIndex } = state
 
     // Call API to set default list
     await clientTodoLists.setDefaultList(listId)
@@ -95,29 +98,31 @@ export const setDefaultTodoList = async (listId: string, state: TodoState) => {
         return 0  // Preserve existing order if both have same isDefault value
     })
 
+    // Update React Query cache
+    queryClient.setQueryData(['todos'], sortedLists)
+
     // Update current list index to point to the default list (which is now at index 0)
     setCurrentListIndex(0)
-    setTodoLists(sortedLists)
 }
 
 // Update todo list title
-export const updateTodoListTitle = (listId: string, listName: string, state: TodoState) => {
-    const { setTodoLists } = state
-
-    setTodoLists(prev =>
-        prev.map(list =>
+export const updateTodoListTitle = (listId: string, listName: string, state: TodoState, queryClient: QueryClient) => {
+    queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+        if (!oldData) return oldData
+        return oldData.map(list =>
             list.id === listId
                 ? { ...list, listName }
                 : list
         )
-    )
+    })
 }
 
 // Handle todo list title blur
 export const handleTodoListTitleBlur = async (
     listId: string,
     title: string,
-    state: TodoState
+    state: TodoState,
+    queryClient: QueryClient
 ) => {
     const { focusedText } = state
 
@@ -127,26 +132,25 @@ export const handleTodoListTitleBlur = async (
 
     if (title.trim() === '') {
         // Reset to previous title if empty
-        updateTodoListTitle(listId, focusedText || 'Untitled List', state)
+        updateTodoListTitle(listId, focusedText || 'Untitled List', state, queryClient)
         return
     }
 
     if (isTemporary) {
-
         //  Create new list in backend)
         const newList = await clientTodoLists.createTodoList(title)
 
-        // Update UI with real ID for frontend demo
-        const { setTodoLists } = state
+        // Update React Query cache with real ID
         const newListId = newList.id
 
-        setTodoLists(prev =>
-            prev.map(list =>
+        queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+            if (!oldData) return oldData
+            return oldData.map(list =>
                 list.id === listId
                     ? { ...list, id: newListId }
                     : list
             )
-        )
+        })
     } else if (hasTextChanged) {
         // Update existing list in backend
         await clientTodoLists.updateTodoListTitle(listId, title)

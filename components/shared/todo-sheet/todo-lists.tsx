@@ -42,21 +42,15 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newListName, setNewListName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
-    const [lists, setLists] = useState<TodoList[]>(todoLists);
-
-    // Sync local state with React Query updates
-    useEffect(() => {
-        setLists(todoLists);
-    }, [todoLists]);
 
     // Ensure current index is within bounds
     useEffect(() => {
-        if (currentListIndex >= lists.length && lists.length > 0) {
+        if (currentListIndex >= todoLists.length && todoLists.length > 0) {
             setCurrentListIndex(0)
         }
-    }, [lists.length, currentListIndex])
+    }, [todoLists.length, currentListIndex])
 
-    const currentList = lists[currentListIndex]
+    const currentList = todoLists[currentListIndex]
 
     // Ensure there's always an empty todo at the end of the current list
     useEffect(() => {
@@ -65,21 +59,21 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
             ensureEmptyTodoItem(updatedTodos)
 
             if (updatedTodos.length !== currentList.todos.length) {
-                setLists(prev =>
-                    prev.map(list =>
+                queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+                    if (!oldData) return oldData
+                    return oldData.map(list =>
                         list.id === currentList.id
                             ? { ...list, todos: updatedTodos }
                             : list
                     )
-                )
+                })
             }
         }
-    }, [currentList?.todos.length, currentList?.id])
+    }, [currentList?.todos.length, currentList?.id, queryClient])
 
     // Create state object for todo operations
     const state: TodoState = {
-        todoLists: lists,
-        setTodoLists: setLists,
+        todoLists,
         focusedText,
         setFocusedText,
         setCurrentListIndex
@@ -97,11 +91,14 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
             // Create list on backend
             const newList = await clientTodoLists.createTodoList(newListName.trim())
 
-            // Update local state
-            setLists(prev => [...prev, newList])
+            // Update React Query cache
+            queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+                if (!oldData) return [newList]
+                return [...oldData, newList]
+            })
 
             // Select the new list
-            setCurrentListIndex(lists.length)
+            setCurrentListIndex(todoLists.length)
 
             // Close modal and reset form
             setIsModalOpen(false)
@@ -114,7 +111,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
         }
     }
 
-    if (!currentList || lists.length === 0) {
+    if (!currentList || todoLists.length === 0) {
         return (
             <div className="p-4 text-center text-muted-foreground space-y-4">
                 <p>No todo lists available</p>
@@ -171,7 +168,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
             {/* List Selection Buttons */}
             <div className="space-y-2 mt-5">
                 <div className="flex flex-wrap gap-2">
-                    {lists.sort((a: TodoList, b: TodoList) => {
+                    {todoLists.sort((a: TodoList, b: TodoList) => {
                         if (a.isDefault && !b.isDefault) return -1
                         if (!a.isDefault && b.isDefault) return 1
                         return 0  // Preserve existing order if both have same isDefault value
@@ -207,8 +204,8 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     <BareInput
                         className="font-bold text-lg md:text-xl bg-transparent border-none p-0"
                         value={currentList.listName}
-                        onChange={(e) => updateTodoListTitle(currentList.id, e.target.value, state)}
-                        onBlur={() => handleTodoListTitleBlur(currentList.id, currentList.listName, state)}
+                        onChange={(e) => updateTodoListTitle(currentList.id, e.target.value, state, queryClient)}
+                        onBlur={() => handleTodoListTitleBlur(currentList.id, currentList.listName, state, queryClient)}
                         onFocus={() => handleTodoListTitleFocus(currentList.id, state)}
                         placeholder="List Name"
                     />
@@ -218,6 +215,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                         currentListId={currentList.id}
                         currentListIndex={currentListIndex}
                         state={state}
+                        queryClient={queryClient}
                     />
                 </div>
                 {/* <form>
@@ -247,7 +245,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 <div className={`flex-shrink-0 pt-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
                                     }`}>
                                     <button
-                                        onClick={() => toggleTodoCompletion(currentList.id, todo.id, state, playCompleteSound, playTodoRemovedSound, queryClient)}
+                                        onClick={() => toggleTodoCompletion(currentList.id, todo.id, playCompleteSound, playTodoRemovedSound, queryClient)}
                                         className={`flex-shrink-0 rounded transition-all duration-300 ${todo.deleting
                                             ? 'opacity-0 pointer-events-none transform scale-50'
                                             : 'hover:bg-muted transform scale-100'
@@ -284,17 +282,17 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                             target.style.height = 'auto'
                                             target.style.height = `${target.scrollHeight}px`
 
-                                            updateTodoItem(currentList.id, todo.id, e.target.value, state)
+                                            updateTodoItem(currentList.id, todo.id, e.target.value, queryClient)
                                         }}
-                                        onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, state)}
-                                        onBlur={() => handleTodoBlur(currentList.id, todo.id, todo.text, todo.completed, todo.priority, state, queryClient)}
+                                        onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, state, queryClient)}
+                                        onBlur={() => handleTodoBlur(currentList.id, todo.id, todo.text, state, queryClient)}
                                         onFocus={(e) => {
                                             // Auto-resize on focus too
                                             const target = e.target as HTMLTextAreaElement
                                             target.style.height = 'auto'
                                             target.style.height = `${target.scrollHeight}px`
 
-                                            handleTodoFocus(currentList.id, todo.id, state)
+                                            handleTodoFocus(currentList.id, todo.id, state, queryClient)
                                         }}
                                         data-todo-id={todo.id}
                                         disabled={todo.deleting}
@@ -310,12 +308,14 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                             <DueDatePopover
                                                 todo={todo}
                                                 state={state}
+                                                queryClient={queryClient}
                                             />
 
                                             {/* Priority Popover */}
                                             <PriorityPopover
                                                 todo={todo}
                                                 state={state}
+                                                queryClient={queryClient}
                                             />
                                         </div>
                                     )}

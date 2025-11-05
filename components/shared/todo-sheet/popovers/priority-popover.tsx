@@ -1,12 +1,13 @@
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import React, { useState} from 'react'
+import React, { useState } from 'react'
 import { BsFillBookmarkFill } from 'react-icons/bs'
 import { handlePriorityUpdate } from '../utils/todo-operations'
 import { TodoState } from '../utils/todo-list-operations'
 import { TodoItem } from '@/types/todo'
+import { QueryClient } from '@tanstack/react-query'
 
-export default function PriorityPopover({ todo, state }: { todo: TodoItem, state: TodoState }) {
+export default function PriorityPopover({ todo, state, queryClient }: { todo: TodoItem, state: TodoState, queryClient: QueryClient }) {
 
     const [isPopOverOpen, setIsPopOverOpen] = useState<boolean>(false);
 
@@ -38,7 +39,7 @@ export default function PriorityPopover({ todo, state }: { todo: TodoItem, state
                             size="sm"
                             className={`w-full justify-start ${bgColor} ${color}`}
                             onClick={() => {
-                                handlePriorityUpdate(todo.id, level, state);
+                                handlePriorityUpdate(todo.id, level, state, queryClient);
                                 setIsPopOverOpen(false);
                             }}
                         >

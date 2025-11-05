@@ -16,24 +16,25 @@ import { useState } from "react"
 
 export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
 
-    const [isOpen, setIsOpen] = useState(false)
-
-    const { data: allLists, refetch } = useQuery({
+    const { data: allLists } = useQuery({
+        // queryKey: ['todos'],
+        // queryFn: clientTodoLists.getTodoLists,
+        // initialData: todoLists,
+        // refetchOnWindowFocus: true,  // ← Add this
+        // refetchOnMount: true,        // ← Add this
+        // staleTime: 0,
         queryKey: ['todos'],
         queryFn: clientTodoLists.getTodoLists,
         initialData: todoLists,
-        refetchOnWindowFocus: true,  // ← Add this
-        refetchOnMount: true,        // ← Add this
-        staleTime: 0,
-    })
+        // Remove these aggressive refetch options:
+        // refetchOnWindowFocus: true,  // ← Remove this
+        // refetchOnMount: true,        // ← Remove this
+        // staleTime: 0,                // ← Remove this
 
-    // Force refetch when sheet opens
-    // const handleOpenChange = (open: boolean) => {
-    //     setIsOpen(open)
-    //     if (open) {
-    //         refetch() // This will get fresh data from server
-    //     }
-    // }
+        // Add more reasonable caching:
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        // cacheTime: 10 * 60 * 1000, // 10 minutes
+    })
 
     return (
         <Sheet>
