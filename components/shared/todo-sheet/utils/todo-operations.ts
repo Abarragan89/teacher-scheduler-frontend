@@ -275,62 +275,6 @@ export const handleTodoBlur = async (
     }
 }
 
-// Handle keyboard events for todos
-export const handleTodoKeyDown = (
-    e: React.KeyboardEvent<HTMLTextAreaElement>,
-    listId: string,
-    todoId: string,
-    queryClient: QueryClient
-) => {
-    if (e.key === 'Enter') {
-        e.preventDefault()
-
-        // Get fresh data from cache
-        const todoLists = queryClient.getQueryData(['todos']) as TodoList[]
-        if (!todoLists) return
-
-        const list = todoLists.find(l => l.id === listId)
-        if (!list) return
-
-        const currentIndex = list.todos.findIndex(todo => todo.id === todoId)
-        if (currentIndex === -1) return
-
-        // Add a new empty todo after the current one
-        const newTodo: TodoItem = {
-            id: `temp-todo-${Date.now()}`,
-            text: '',
-            completed: false,
-            priority: 1,
-            dueDate: null,
-        }
-
-        queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-            if (!oldData) return oldData
-            return oldData.map(l => {
-                if (l.id === listId) {
-                    const newTodos = [...l.todos]
-                    // Insert the new todo after the current one
-                    newTodos.splice(currentIndex + 1, 0, newTodo)
-                    // Update positions
-                    return {
-                        ...l,
-                        todos: newTodos.map((todo, index) => ({ ...todo, position: index }))
-                    }
-                }
-                return l
-            })
-        })
-
-        // Focus the new input after a brief delay
-        setTimeout(() => {
-            const newInput = document.querySelector(`[data-todo-id="${newTodo.id}"]`) as HTMLInputElement
-            if (newInput) {
-                newInput.focus()
-            }
-        }, 10)
-    }
-}
-
 // Handle Due Date Update (backend update and frontend update)
 export const handleDueDateUpdate = async (
     todoId: string,

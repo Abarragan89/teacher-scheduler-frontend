@@ -82,15 +82,17 @@ export default function AddTodoForm({ listId }: AddTodoFormProps) {
         } catch (error) {
             console.error('Failed to create todo:', error)
         } finally {
-            inputRef.current?.focus()
+            setTimeout(() => {
+                inputRef.current?.focus()
+            }, 0)
             setIsCreating(false)
         }
     }
 
-    const clearDueDate = () => {
-        setDueDate(undefined)
-        setIsDatePopoverOpen(false)
-    }
+    // const clearDueDate = () => {
+    //     setDueDate(undefined)
+    //     setIsDatePopoverOpen(false)
+    // }
 
     const clearPriority = () => {
         setPriority(1)
@@ -109,7 +111,7 @@ export default function AddTodoForm({ listId }: AddTodoFormProps) {
                 disabled={isCreating}
             />
             <div className="flex items-center justify-end gap-2 w-full mt-2">
-                
+
                 {/* Due Date Popover */}
                 <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
                     <PopoverTrigger asChild>
@@ -124,20 +126,6 @@ export default function AddTodoForm({ listId }: AddTodoFormProps) {
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-4" align="end">
                         <div className="space-y-4">
-                            {/* <div className="flex items-center justify-between">
-                                {dueDate && (
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={clearDueDate}
-                                        className="text-xs text-muted-foreground hover:text-foreground"
-                                    >
-                                        Clear
-                                    </Button>
-                                )}
-                            </div> */}
-
                             <div className='w-[255px] mx-auto min-h-[330px]'>
                                 <Calendar
                                     mode="single"

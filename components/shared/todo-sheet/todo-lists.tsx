@@ -12,7 +12,6 @@ import {
     updateTodoItem,
     handleTodoFocus,
     handleTodoBlur,
-    handleTodoKeyDown,
     toggleTodoCompletion
 } from './utils/todo-operations'
 import { ResponsiveDialog } from '@/components/responsive-dialog'
@@ -92,23 +91,6 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
         }
     }, [sortedCurrentList?.todos])
 
-    // Ensure there's always an empty todo at the end of the current list
-    useEffect(() => {
-        if (currentList) {
-            const updatedTodos = [...currentList.todos]
-
-            if (updatedTodos.length !== currentList.todos.length) {
-                queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-                    if (!oldData) return oldData
-                    return oldData.map(list =>
-                        list.id === currentList.id
-                            ? { ...list, todos: updatedTodos }
-                            : list
-                    )
-                })
-            }
-        }
-    }, [currentList?.todos.length, currentList?.id, queryClient])
 
     // Create state object for todo operations
     const state: TodoState = {
@@ -208,7 +190,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
             <div className="space-y-2 mt-5">
                 <div className="space-y-2">
                     {/* Horizontally scrollable list buttons */}
-                    <ScrollArea className="flex-1 whitespace-nowrap">
+                    <ScrollArea className="flex-1 whitespace-nowrap pb-1">
                         <div className="flex gap-2 pb-2">
                             {todoLists.sort((a: TodoList, b: TodoList) => {
                                 if (a.isDefault && !b.isDefault) return -1
@@ -341,7 +323,6 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                                 [todo.id]: e.target.value
                                             }))
                                         }}
-                                        onKeyDown={(e) => handleTodoKeyDown(e, currentList.id, todo.id, queryClient)}
                                         onBlur={() => {
                                             const currentText = localTodoTexts[todo.id] || todo.text
                                             updateTodoItem(currentList.id, todo.id, currentText, queryClient)
