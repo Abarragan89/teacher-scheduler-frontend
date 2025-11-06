@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useQueryClient } from "@tanstack/react-query"
 import { TodoList } from "@/types/todo"
 import { Button } from "@/components/ui/button"
@@ -44,6 +44,15 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const [isCreating, setIsCreating] = useState(false);
     const [localTodoTexts, setLocalTodoTexts] = useState<Record<string, string>>({});
     const [sortBy, setSortBy] = useState<'priority' | 'due-date'>('priority');
+
+    // Ref for managing textarea auto-resize
+    const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
+
+    // Auto-resize function for textareas
+    const resizeTextarea = (textarea: HTMLTextAreaElement) => {
+        textarea.style.height = 'auto'
+        textarea.style.height = `${textarea.scrollHeight}px`
+    }
 
     // Ensure current index is within bounds
     useEffect(() => {
@@ -312,12 +321,25 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 <div className={`flex-1 min-w-0 pt-[2px] transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
                                     }`}>
                                     <textarea
-                                        className={`w-full field-sizing-content h-fit leading-normal text-[15px] bg-transparent border-none resize-none overflow-hidden transition-all duration-500 focus:outline-none ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                                        ref={(el) => {
+                                            textareaRefs.current[todo.id] = el
+                                            if (el) {
+                                                // Auto-resize on mount/content change
+                                                requestAnimationFrame(() => resizeTextarea(el))
+                                            }
+                                        }}
+                                        className={`w-full min-h-[24px] leading-normal text-[15px] bg-transparent border-none resize-none overflow-hidden transition-all duration-500 focus:outline-none ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
                                             } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
                                             }`}
                                         placeholder="Add todo..."
                                         value={localTodoTexts[todo.id] || todo.text}
                                         onChange={(e) => {
+                                            const textarea = e.target as HTMLTextAreaElement
+
+                                            // Auto-resize
+                                            resizeTextarea(textarea)
+
+                                            // Update local state
                                             setLocalTodoTexts(prev => ({
                                                 ...prev,
                                                 [todo.id]: e.target.value
@@ -328,10 +350,19 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                             updateTodoItem(currentList.id, todo.id, currentText, queryClient)
                                             handleTodoBlur(currentList.id, todo.id, currentText, state, queryClient)
                                         }}
-                                        onFocus={() => handleTodoFocus(currentList.id, todo.id, state, queryClient)}
+                                        onFocus={(e) => {
+                                            const textarea = e.target as HTMLTextAreaElement
+                                            resizeTextarea(textarea)
+                                            handleTodoFocus(currentList.id, todo.id, state, queryClient)
+                                        }}
                                         data-todo-id={todo.id}
                                         disabled={todo.deleting}
                                         rows={1}
+                                        style={{
+                                            lineHeight: '1.5',
+                                            wordWrap: 'break-word',
+                                            whiteSpace: 'pre-wrap'
+                                        }}
                                     />
                                     {!todo.id.startsWith("temp-") && !todo.deleting && (
                                         <div className="flex justify-between text-muted-foreground opacity-70 text-xs">
