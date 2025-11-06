@@ -20,7 +20,7 @@ import { clientTodoLists } from '@/lib/api/services/todos/client'
 import EditListPopover from './popovers/edit-list-popover'
 import DueDatePopover from './popovers/due-date-popover'
 import PriorityPopover from './popovers/priority-popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import useSound from 'use-sound';
 import AddTodoForm from './add-todo-form'
 
@@ -206,29 +206,35 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
         <div className="space-y-4">
             {/* List Selection Buttons */}
             <div className="space-y-2 mt-5">
-                <div className="flex flex-wrap gap-2">
-                    {todoLists.sort((a: TodoList, b: TodoList) => {
-                        if (a.isDefault && !b.isDefault) return -1
-                        if (!a.isDefault && b.isDefault) return 1
-                        return 0  // Preserve existing order if both have same isDefault value
-                    }).map((list, index) => (
-                        <Button
-                            key={list.id}
-                            variant={currentListIndex === index ? "default" : "secondary"}
-                            size="sm"
-                            onClick={() => handleListSelect(index)}
-                            className="text-sm border"
-                        >
-                            {list.listName}
-                            {list.isDefault && <BookmarkCheckIcon className="w-4 h-4 ml-1" />}
-                        </Button>
-                    ))}
+                <div className="space-y-2">
+                    {/* Horizontally scrollable list buttons */}
+                    <ScrollArea className="flex-1 whitespace-nowrap">
+                        <div className="flex gap-2 pb-2">
+                            {todoLists.sort((a: TodoList, b: TodoList) => {
+                                if (a.isDefault && !b.isDefault) return -1
+                                if (!a.isDefault && b.isDefault) return 1
+                                return 0  // Preserve existing order if both have same isDefault value
+                            }).map((list, index) => (
+                                <Button
+                                    key={list.id}
+                                    variant={currentListIndex === index ? "default" : "secondary"}
+                                    size="sm"
+                                    onClick={() => handleListSelect(index)}
+                                    className="text-sm border shrink-0"
+                                >
+                                    {list.listName}
+                                    {list.isDefault && <BookmarkCheckIcon className="w-4 h-4 ml-1" />}
+                                </Button>
+                            ))}
+                        </div>
+                        <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
 
-                    {/* Add New List Button */}
+                    {/* Always visible New List Button - outside scroll area */}
                     <Button
                         variant="outline"
                         size="sm"
-                        className="text-sm border-dashed text-muted-foreground hover:text-foreground"
+                        className="text-sm border-dashed text-muted-foreground hover:text-foreground shrink-0"
                         onClick={() => setIsModalOpen(true)}
                     >
                         <Plus className="w-4 h-4 mr-1" />
@@ -282,7 +288,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 </div>
 
                 {/* Flexbox Layout for TODO Lists */}
-                <ScrollArea className="h-[calc(100vh-335px)] w-full">
+                <ScrollArea className="h-[calc(100vh-360px)] w-full">
                     <div className="space-y-0 transition-all duration-300 ease-in-out ml-1 mr-3">
                         {sortedCurrentList.todos.map(todo => (
                             <div
@@ -341,7 +347,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                             updateTodoItem(currentList.id, todo.id, currentText, queryClient)
                                             handleTodoBlur(currentList.id, todo.id, currentText, state, queryClient)
                                         }}
-                                        onFocus={(e) => handleTodoFocus(currentList.id, todo.id, state, queryClient)}
+                                        onFocus={() => handleTodoFocus(currentList.id, todo.id, state, queryClient)}
                                         data-todo-id={todo.id}
                                         disabled={todo.deleting}
                                         rows={1}
