@@ -127,6 +127,10 @@ export default function DashboardContent() {
                     {todo.text}
                 </p>
 
+                <p className="text-xs text-muted-foreground mt-1">
+                    {todo.listName}
+                </p>
+
                 {!todo.deleting && (
                     <div className="flex justify-between text-muted-foreground opacity-70 text-xs mt-1">
                         {/* Due Date Popover */}
@@ -143,19 +147,16 @@ export default function DashboardContent() {
                     </div>
                 )}
 
-                <p className="text-xs text-muted-foreground mt-1">
-                    {todo.listName}
-                </p>
             </div>
         </div>
     )
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-28">
             {/* Upcoming Todos by Due Date */}
             <Card>
-                <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center gap-2 text-lg">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-x-2 text-lg">
                         <Calendar className="w-5 h-5 text-blue-500" />
                         Upcoming Todos
                     </CardTitle>
@@ -176,7 +177,7 @@ export default function DashboardContent() {
 
             {/* High Priority Todos */}
             <Card>
-                <CardHeader className="pb-4">
+                <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg">
                         <Flag className="w-5 h-5 text-red-500" />
                         Priority Todos

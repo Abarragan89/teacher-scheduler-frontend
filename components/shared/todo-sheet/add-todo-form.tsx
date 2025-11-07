@@ -111,6 +111,17 @@ export default function AddTodoForm({ listId }: AddTodoFormProps) {
                 disabled={isCreating}
             />
             <div className="flex items-center justify-end gap-2 w-full mt-2">
+                <div className="text-xs text-muted-foreground">
+                    {dueDate ? (
+                        <p>
+                            Due: {formatDisplayDate(dueDate)} at {time}
+                        </p>
+                    ): (
+                        <p>
+                            Due: N/A
+                        </p>
+                    )}
+                </div>
 
                 {/* Due Date Popover */}
                 <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
@@ -152,11 +163,6 @@ export default function AddTodoForm({ listId }: AddTodoFormProps) {
                                     Done
                                 </Button>
                             </div>
-
-
-                            {/* <div className="text-xs text-muted-foreground">
-                                        Due: {formatDisplayDate(dueDate)} at {time}
-                                    </div> */}
                         </div>
                     </PopoverContent>
                 </Popover>
