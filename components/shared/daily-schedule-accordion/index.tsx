@@ -25,7 +25,7 @@ import { useRouter } from 'next/navigation'
 import { ChevronsDownUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AccordionState } from './utils/types'
-import { addNewTask } from './utils/task-operations'
+import { handleCreateNewTask } from './utils/task-operations'
 import { handleDragStart, handleDragEnd } from './utils/drag-drop-handlers'
 import MoveSchedulePopover from './move-schedule-popover'
 import SchedulePrintView from './schedule-print-view'
@@ -61,12 +61,7 @@ export default function DailyScheduleAccordion({
 
     const [tasks, setTasks] = useState<Task[]>(() => {
         return scheduleData?.tasks?.map(task => {
-            const taskWithClient = {
-                ...task,
-                clientKey: `client-${task.id}`
-            }
-            // Ensure each task has exactly one empty outline item at the end
-            const outlineItems = [...taskWithClient.outlineItems]
+            const outlineItems = [...task.outlineItems]
             const lastItem = outlineItems[outlineItems.length - 1]
             const isLastItemEmpty = lastItem && lastItem.text.trim() === ''
 
@@ -80,8 +75,8 @@ export default function DailyScheduleAccordion({
                 })
             }
 
-            taskWithClient.outlineItems = outlineItems
-            return taskWithClient
+            task.outlineItems = outlineItems
+            return task
         }) || []
     })
 
@@ -224,7 +219,7 @@ export default function DailyScheduleAccordion({
                     >
                         {tasks.map(task => (
                             <DynamicTaskItem
-                                key={task.clientKey}
+                                key={task.id}
                                 task={task}
                                 isEditable={isEditable}
                                 state={accordionState}
@@ -263,8 +258,8 @@ export default function DailyScheduleAccordion({
 
                 {isEditable && (
                     <button
-                        onClick={() => addNewTask(accordionState)}
-                        className="print:hidden w-full mt-4 mb-14 p-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 hover:bg-border hover:text-ring"
+                        onClick={() => handleCreateNewTask(accordionState)}
+                        className="print:hidden w-full mt-5 mb-36 p-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 hover:bg-border hover:text-ring"
                     >
                         <span className="text-lg">+</span>
                         <span>Add Task</span>

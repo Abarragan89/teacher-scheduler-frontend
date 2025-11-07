@@ -1,12 +1,11 @@
 import { clientFetch } from '../../client';
 
 export const clientTasks = {
-    async createTask(scheduleId: string, title: string, position: number, completed: boolean) {
+    async createTask(scheduleId: string, position: number, completed: boolean) {
         const response = await clientFetch('/task/create', {
             method: 'POST',
             body: JSON.stringify({
                 scheduleId,
-                title,
                 position,
                 completed
             }),

@@ -10,9 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Clock } from "lucide-react"
 import { clientTasks } from '@/lib/api/services/tasks/client'
 import { toast } from 'sonner'
-import { AccordionState } from './utils/types'
 import { Task } from '@/types/tasks'
-import { previousDay } from 'date-fns'
 
 export function TimePicker({ taskId, setTasks }: { taskId: string, setTasks: React.Dispatch<React.SetStateAction<Task[]>> }) {
 

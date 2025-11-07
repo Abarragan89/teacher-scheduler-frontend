@@ -22,8 +22,8 @@ export default function SchedulePrintView({
 
     // Filter out empty tasks and outline items
     const activeTasks = scheduleData.tasks?.filter(task =>
-        task.title.trim() !== '' ||
-        (task.outlineItems && task.outlineItems.some(item => item.text.trim() !== ''))
+        task?.title?.trim() !== '' ||
+        (task.outlineItems && task.outlineItems.some(item => item?.text?.trim() !== ''))
     ) || []
 
     return (
@@ -49,9 +49,9 @@ export default function SchedulePrintView({
             </div>
 
             {/* Tasks/Periods */}
-            {scheduleData.tasks.length > 0 && (
+            {activeTasks?.length > 0 && (
                 <div className="space-y-6">
-                    {scheduleData.tasks.map(task => (
+                    {activeTasks?.map(task => (
                         <div key={task.id} className="relative border-2 border-gray-300 rounded-sm p-4 print-avoid-break">
                             {/* Task/Period Header */}
                             <div className={`

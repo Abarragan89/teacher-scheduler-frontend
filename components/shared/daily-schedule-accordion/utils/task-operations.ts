@@ -60,46 +60,62 @@ export const handleTaskDelete = async (taskId: string, setTasks: React.Dispatch<
     }
 }
 
+export const handleCreateNewTask = async (state: AccordionState) => {
+    const { tasks, setTasks, setOpenAccordions, focusedText, scheduleId } = state
+
+    try {
+        const newTask = await clientTasks.createTask(
+            scheduleId,
+            tasks.length,
+            false
+        )
+
+        // create and emtpy outline item task
+        const tempOutlineItem = {
+            id: `temp-outline-${newTask.id}-${Date.now()}`,
+            text: '',
+            completed: false,
+            indentLevel: 0,
+            position: newTask?.outlineItems?.length,
+        }
+
+        // Update the task ID but preserve accordion state
+        setTasks(prev => [...prev, {...newTask, outlineItems: [tempOutlineItem]}])
+
+        // Update open accordion IDs
+        setOpenAccordions(prev =>
+            prev.map(id => id === newTask.id ? newTask.id : id)
+        )
+
+         // Focus the new task title input after component re-renders
+        setTimeout(() => {
+            const newTaskInput = document.querySelector(
+                `[data-task-id="${newTask.id}"] .task-title-input`
+            ) as HTMLTextAreaElement
+            
+            if (newTaskInput) {
+                newTaskInput.focus()
+                newTaskInput.select() // Select all text (empty in this case)
+            }
+        }, 100) // Give time for accordion animation and DOM update
+
+
+    } catch (error) {
+        console.error('Error creating new task:', error)
+    }
+}
+
 export const handleTaskBlur = async (
     taskId: string,
     title: string,
     state: AccordionState
 ) => {
-    const { tasks, setTasks, setOpenAccordions, focusedText, scheduleId } = state
+    const { tasks, focusedText } = state
 
-    if (title.trim() === '') return
-
-    const isTemporary = taskId.startsWith('temp-')
+    if (title?.trim() === '') return
     const hasChanged = title !== focusedText
 
-    if (isTemporary) {
-        // Create new task in backend
-        try {
-            const newTask = await clientTasks.createTask(
-                scheduleId,
-                title.trim(),
-                tasks.length,
-                false
-            )
-
-            // Update the task ID but preserve accordion state
-            setTasks(prev =>
-                prev.map(task =>
-                    task.id === taskId
-                        ? { ...task, id: newTask.id, clientKey: `client-${newTask.id}` }
-                        : task
-                )
-            )
-
-            // Update open accordion IDs
-            setOpenAccordions(prev =>
-                prev.map(id => id === taskId ? newTask.id : id)
-            )
-
-        } catch (error) {
-            console.error('Error creating new task:', error)
-        }
-    } else if (hasChanged) {
+    if (hasChanged) {
         // Update existing task
         try {
             const task = tasks.find(t => t.id === taskId)
@@ -118,35 +134,6 @@ export const handleTaskFocus = (taskId: string, state: AccordionState) => {
     if (task) {
         if (setFocusedText) setFocusedText(task.title)
     }
-}
-
-export const addNewTask = (state: AccordionState) => {
-    const { tasks, setTasks } = state
-    const tempId = `temp-${Date.now()}`  // Temporary ID
-    const newTask: Task = {
-        id: tempId,  // Mark as temporary
-        title: '',
-        clientKey: `client-${tempId}`,
-        position: tasks.length,
-        completed: false,
-        outlineItems: [{
-            id: `temp-outline-${tempId}`,
-            text: '',
-            completed: false,
-            indentLevel: 0,
-            position: 0,
-        }]
-    }
-    setTasks(prev => [...prev, newTask])
-
-    // Focus the new task title input after a short delay
-    setTimeout(() => {
-        const newTaskInput = document.querySelector(`[data-task-id="${tempId}"] .task-title-input`) as HTMLTextAreaElement
-        if (newTaskInput) {
-            newTaskInput.focus()
-            newTaskInput.select()
-        }
-    }, 50) // Shorter delay since we don't need to wait for accordion to open
 }
 
 export const updateTaskPositions = async (reorderedTasks: Task[]) => {
