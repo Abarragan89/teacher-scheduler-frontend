@@ -1,11 +1,11 @@
 'use client'
 import { BareInput } from "@/components/ui/bare-bones-input"
-import { GripVertical, Square, SquareCheckBig } from 'lucide-react'
+import { GripVertical, Square, SquareCheckBig, ChevronRight, ChevronLeft } from 'lucide-react'
 import { OutlineItem } from '@/types/outline-item'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from "@dnd-kit/utilities"
 import { AccordionState } from './utils/types'
-import { toggleOutlineItemCompletion, updateOutlineItem, handleOutlineBlur, handleOutlineFocus } from './utils/outline-operations'
+import { toggleOutlineItemCompletion, updateOutlineItem, handleOutlineBlur, handleOutlineFocus, indentOutlineItem, unindentOutlineItem } from './utils/outline-operations'
 import { handleOutlineKeyDown } from './utils/keyboard-handlers'
 
 interface SortableOutlineItemProps {
@@ -45,6 +45,27 @@ export default function SortableOutlineItem({
             style={style}
             className={`flex items-start gap-1 mb-2`}
         >
+            {/* Indent/Unindent chevron buttons - temporarily visible on all screens for testing */}
+            <div className="flex items-center gap-1 opacity-80 lg:hidden">
+                {item.indentLevel > 0 && (
+                    <button
+                        onClick={() => unindentOutlineItem(taskId, item.id, state)}
+                        className="flex items-center justify-center w-3 h-3 text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
+                        title="Unindent"
+                    >
+                        <ChevronLeft className="w-3 h-3" />
+                    </button>
+                )}
+                {item.indentLevel < 1 && (
+                    <button
+                        onClick={() => indentOutlineItem(taskId, item.id, state)}
+                        className="flex items-center justify-center w-3 h-3 text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
+                        title="Indent"
+                    >
+                        <ChevronRight className="w-3 h-3" />
+                    </button>
+                )}
+            </div>
             <div
                 {...attributes}
                 {...listeners}

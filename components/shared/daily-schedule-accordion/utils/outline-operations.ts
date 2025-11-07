@@ -315,3 +315,83 @@ export const reorderOutlineItems = (taskId: string, reorderedItems: OutlineItem[
     // Update backend positions
     updateOutlineItemPositions(taskId, reorderedItems)
 }
+
+// Indent an outline item (increase indent level)
+export const indentOutlineItem = async (taskId: string, itemId: string, state: AccordionState) => {
+    const { tasks, setTasks } = state
+    const task = tasks.find(t => t.id === taskId)
+    const item = task?.outlineItems.find(i => i.id === itemId)
+
+    if (!item || item.indentLevel >= 1) return // Max indent level of 1
+
+    const newIndentLevel = item.indentLevel + 1
+
+    // Update UI immediately
+    setTasks(prev =>
+        prev.map(task =>
+            task.id === taskId
+                ? {
+                    ...task,
+                    outlineItems: task.outlineItems.map(outlineItem =>
+                        outlineItem.id === itemId
+                            ? { ...outlineItem, indentLevel: newIndentLevel }
+                            : outlineItem
+                    )
+                }
+                : task
+        )
+    )
+
+    // Update backend
+    try {
+        await clientOutlineItems.updateOutlineItem(
+            itemId,
+            item.text,
+            item.position,
+            newIndentLevel,
+            item.completed
+        )
+    } catch (error) {
+        console.error('Failed to update outline item indent:', error)
+    }
+}
+
+// Unindent an outline item (decrease indent level)
+export const unindentOutlineItem = async (taskId: string, itemId: string, state: AccordionState) => {
+    const { tasks, setTasks } = state
+    const task = tasks.find(t => t.id === taskId)
+    const item = task?.outlineItems.find(i => i.id === itemId)
+
+    if (!item || item.indentLevel <= 0) return // Can't unindent beyond level 0
+
+    const newIndentLevel = item.indentLevel - 1
+
+    // Update UI immediately
+    setTasks(prev =>
+        prev.map(task =>
+            task.id === taskId
+                ? {
+                    ...task,
+                    outlineItems: task.outlineItems.map(outlineItem =>
+                        outlineItem.id === itemId
+                            ? { ...outlineItem, indentLevel: newIndentLevel }
+                            : outlineItem
+                    )
+                }
+                : task
+        )
+    )
+
+    // Update backend
+    try {
+        await clientOutlineItems.updateOutlineItem(
+            itemId,
+            item.text,
+            item.position,
+            newIndentLevel,
+            item.completed
+        )
+    } catch (error) {
+        console.error('Failed to update outline item unindent:', error)
+    }
+}
