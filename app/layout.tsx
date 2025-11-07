@@ -3,6 +3,7 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Toaster } from "sonner";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -35,6 +36,7 @@ export default function RootLayout({
           <ScrollArea className="h-screen w-screen print:h-auto print:overflow-visible">
             {children}
           </ScrollArea>
+          <Toaster className="print:hidden" position="bottom-right" />
         </ThemeProvider>
       </body>
     </html>

@@ -276,7 +276,7 @@ export default function DailyScheduleAccordion({
                             className="print:hidden w-full mt-5 mb-36 p-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 hover:bg-border hover:text-ring disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <span className="text-lg">+</span>
-                            <span>{isCreatingTask ? 'Adding Task...' : 'Add Task'}</span>
+                            <span>{isCreatingTask ? 'Adding Activity...' : 'Add Activity'}</span>
                         </button>
 
                     </>

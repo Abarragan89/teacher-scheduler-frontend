@@ -41,7 +41,7 @@ export default function SchedulePrintView({
             {/* Header */}
             <div className="pb-2 mb-2 print-avoid-break">
                 <h1 className="text-2xl font-bold text-center">
-                    Daily Lesson Plan
+                    Daily Schedule
                 </h1>
                 <p className="text-center">
                     {currentDay ? formatDate(currentDay) : 'Today'}

@@ -94,7 +94,7 @@ export default function TaskItem({
 
                 <BareInput
                     className={`task-title-input flex-1 mr-2 font-bold ${task.completed ? 'line-through text-muted-foreground' : ''} ${!isEditable ? 'cursor-default' : ''}`}
-                    placeholder="Subject or Period..."
+                    placeholder="Activity..."
                     value={task?.title || ''}
                     onChange={(e) => updateTaskTitle(task.id, e.target.value, state)}
                     onBlur={() => handleTaskBlur(task.id, task.title, state)}

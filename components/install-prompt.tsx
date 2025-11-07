@@ -73,8 +73,17 @@ function InstallPrompt() {
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
 
+        // Track when user installs the app
+        const handleAppInstalled = () => {
+            localStorage.setItem('pwa-installed', 'true')
+            localStorage.setItem('pwa-install-date', Date.now().toString())
+        }
+
+        window.addEventListener('appinstalled', handleAppInstalled)
+
         return () => {
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+            window.removeEventListener('appinstalled', handleAppInstalled)
         }
     }, [])
 

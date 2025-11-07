@@ -88,7 +88,7 @@ export default function SortableOutlineItem({
                         ${!isEditable ? 'cursor-default' : ''}
                         ${item.indentLevel > 0 ? 'bg-muted' : 'pl-0 border-none'}
                     `}
-                    placeholder="Add Talking Point..."
+                    placeholder="Add Detail..."
                     value={item.text}
                     onChange={(e) => updateOutlineItem(taskId, item.id, e.target.value, state)}
                     onKeyDown={(e) => handleOutlineKeyDown(e, taskId, item.id, state)}
