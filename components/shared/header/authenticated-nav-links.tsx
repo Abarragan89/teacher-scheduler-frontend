@@ -7,6 +7,7 @@ import { CalendarDays } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { TodoSheet } from '../todo-sheet'
 import { serverTodoLists } from '@/lib/api/services/todos/server'
+import InstallPrompt from '@/components/install-prompt'
 
 export default async function AuthenticatedNavLinks({ email }: { email: string }) {
 
@@ -15,6 +16,10 @@ export default async function AuthenticatedNavLinks({ email }: { email: string }
     return (
         <NavigationMenu>
             <NavigationMenuList className="gap-x-2">
+
+                <NavigationMenuItem className='absolute top-10 left-[105px]'>
+                    <InstallPrompt />
+                </NavigationMenuItem>
                 <NavigationMenuItem>
                     <Link href="/dashboard">
                         <Button variant={"ghost"} className='hover:cursor-pointer'>

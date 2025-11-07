@@ -72,7 +72,7 @@ export default function CalendarMonth() {
                 {/* Navigation Arrows */}
                 <div className="flex items-end gap-2">
                     {/* Today shortcut button */}
-                    <div className="mt-4 text-center">
+                    <div className="mt-2 text-center">
                         <Button
                             variant={'ghost'}
                             onClick={() => setCurrentDate(new Date())}

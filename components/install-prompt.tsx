@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dock, MonitorDownIcon, Share } from 'lucide-react'
@@ -200,11 +199,10 @@ function InstallPrompt() {
     const instructions = getInstallInstructions()
 
     return (
-        <div className='max-w-6xl mx-auto pl-6 -mt-2 print:!hidden'>
-            <Button className='text-sm' variant={'outline'} onClick={handleInstallClick}>
+        <div className='print:!hidden ml-0 flex-end'>
+            <Button title='Install App' variant={'link'} onClick={handleInstallClick}>
                 Install App
             </Button>
-
             <ResponsiveDialog
                 isOpen={showModal}
                 setIsOpen={setShowModal}

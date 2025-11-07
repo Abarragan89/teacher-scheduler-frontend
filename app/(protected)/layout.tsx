@@ -1,4 +1,3 @@
-import InstallPrompt from '@/components/install-prompt';
 import Header from '@/components/shared/header';
 import { serverAuth } from '@/lib/api/services/auth/server';
 export const dynamic = 'force-dynamic';
@@ -34,7 +33,6 @@ export default async function DashboardLayout({
           isAuthenticated={authResult.authenticated}
           email={authResult?.user?.email || ''}
         />
-        <InstallPrompt />
         {children}
       </ClientQueryProvider>
     </>

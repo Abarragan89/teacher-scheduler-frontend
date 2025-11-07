@@ -31,6 +31,7 @@ export default function Header({
         </div>
       </Link>
 
+
       {/* Navigation Link */}
       {isAuthenticated ? (
         <AuthenticatedNavLinks
