@@ -61,9 +61,14 @@ export const handleTaskDelete = async (taskId: string, setTasks: React.Dispatch<
 }
 
 export const handleCreateNewTask = async (state: AccordionState) => {
-    const { tasks, setTasks, setOpenAccordions, focusedText, scheduleId } = state
+    const { tasks, setTasks, setOpenAccordions, focusedText, scheduleId, setIsCreatingTask } = state
 
     try {
+        // Set loading state
+        if (setIsCreatingTask) {
+            setIsCreatingTask(true)
+        }
+
         const newTask = await clientTasks.createTask(
             scheduleId,
             tasks.length,
@@ -80,28 +85,36 @@ export const handleCreateNewTask = async (state: AccordionState) => {
         }
 
         // Update the task ID but preserve accordion state
-        setTasks(prev => [...prev, {...newTask, outlineItems: [tempOutlineItem]}])
+        setTasks(prev => [...prev, { ...newTask, outlineItems: [tempOutlineItem] }])
 
         // Update open accordion IDs
         setOpenAccordions(prev =>
             prev.map(id => id === newTask.id ? newTask.id : id)
         )
 
-         // Focus the new task title input after component re-renders
+        // Focus the new task title input after component re-renders
         setTimeout(() => {
             const newTaskInput = document.querySelector(
                 `[data-task-id="${newTask.id}"] .task-title-input`
             ) as HTMLTextAreaElement
-            
+
             if (newTaskInput) {
                 newTaskInput.focus()
                 newTaskInput.select() // Select all text (empty in this case)
             }
         }, 100) // Give time for accordion animation and DOM update
 
+        // Clear loading state
+        if (setIsCreatingTask) {
+            setIsCreatingTask(false)
+        }
 
     } catch (error) {
         console.error('Error creating new task:', error)
+        // Clear loading state on error
+        if (setIsCreatingTask) {
+            setIsCreatingTask(false)
+        }
     }
 }
 

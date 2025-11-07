@@ -55,7 +55,7 @@ export default function DailyScheduleAccordion({
     dayId: string
 }) {
 
-    
+
 
     const router = useRouter();
 
@@ -87,6 +87,7 @@ export default function DailyScheduleAccordion({
     const [activeItem, setActiveItem] = useState<Task | OutlineItem | null>(null)
     const [focusedText, setFocusedText] = useState<string>('')
     const [focusedIndentLevel, setFocusedIndentLevel] = useState<number>(0)
+    const [isCreatingTask, setIsCreatingTask] = useState<boolean>(false)
 
     // Create state object for utility functions
     const accordionState: AccordionState = {
@@ -98,7 +99,9 @@ export default function DailyScheduleAccordion({
         setFocusedText,
         focusedIndentLevel,
         setFocusedIndentLevel,
-        scheduleId: scheduleData.id
+        scheduleId: scheduleData.id,
+        isCreatingTask,
+        setIsCreatingTask
     }
 
     const sensors = useSensors(
@@ -257,13 +260,26 @@ export default function DailyScheduleAccordion({
                 </DragOverlay>
 
                 {isEditable && (
-                    <button
-                        onClick={() => handleCreateNewTask(accordionState)}
-                        className="print:hidden w-full mt-5 mb-36 p-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 hover:bg-border hover:text-ring"
-                    >
-                        <span className="text-lg">+</span>
-                        <span>Add Task</span>
-                    </button>
+                    <>
+                        {isCreatingTask && (
+                            <div className="border rounded-lg p-4 space-y-3">
+                                <div className="flex items-center gap-3">
+                                    <Skeleton className="h-7 w-3 rounded" />
+                                    <Skeleton className="h-6 flex-1" />
+                                </div>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={() => handleCreateNewTask(accordionState)}
+                            disabled={isCreatingTask}
+                            className="print:hidden w-full mt-5 mb-36 p-2 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 hover:bg-border hover:text-ring disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <span className="text-lg">+</span>
+                            <span>{isCreatingTask ? 'Adding Task...' : 'Add Task'}</span>
+                        </button>
+
+                    </>
                 )}
             </DndContext>
 

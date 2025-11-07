@@ -11,4 +11,6 @@ export interface AccordionState {
     focusedIndentLevel?: number
     setFocusedIndentLevel?: React.Dispatch<React.SetStateAction<number>>
     scheduleId: string
+    isCreatingTask?: boolean
+    setIsCreatingTask?: React.Dispatch<React.SetStateAction<boolean>>
 }
