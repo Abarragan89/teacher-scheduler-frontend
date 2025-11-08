@@ -50,6 +50,6 @@ export function useDashboardTodos() {
         ...dashboardData,
         isLoading,
         error,
-        refetch: () => { } // If you need to manually refetch
+        refetch: () => { }
     }
 }

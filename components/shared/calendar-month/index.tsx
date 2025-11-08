@@ -95,7 +95,7 @@ export default function CalendarMonth() {
                 {dayReminders.displayReminders.map((reminder, index) => (
                     <div
                         key={reminder.id}
-                        className={`text-[.71rem] sm:text-[.75rem] px-0.5 py-0.3 rounded border text-left truncate ${getPriorityColor(reminder.priority)}`}
+                        className={`text-[.65rem] sm:text-[.75rem] px-0.5 py-0.3 rounded text-left truncate ${getPriorityColor(reminder.priority)}`}
                         title={reminder.text} // Show full text on hover
                     >
                         {reminder.text}
@@ -149,7 +149,7 @@ export default function CalendarMonth() {
             </div>
 
             {/* Calendar Grid */}
-            <div className="grid grid-cols-7  rounded-lg border">
+            <div className="grid grid-cols-7 md:rounded-lg border-y md:border">
                 {/* Day names header */}
                 {dayNames.map(day => (
                     <div
@@ -166,7 +166,8 @@ export default function CalendarMonth() {
                         key={index}
                         onClick={() => handleDateClick(date)}
                         className={`
-                            flex flex-col items-start p-1 h-24 md:h-32 
+                            flex flex-col items-start px-2 py-1 h-24 md:h-32
+                            ${index < 35 ? 'border-b' : ''} 
                             ${!isCurrentMonth(date) ? 'text-muted-foreground' : ''}
                             ${isToday(date) ? '' : ''}
                             hover:shadow-xl transition-all
@@ -174,7 +175,7 @@ export default function CalendarMonth() {
                         `}
                     >
                         {/* Date number */}
-                        <div className="text-xs md:text-sm  self-end">
+                        <div className="text-xs md:text-sm self-end">
                             {date.getDate()}
                         </div>
 
