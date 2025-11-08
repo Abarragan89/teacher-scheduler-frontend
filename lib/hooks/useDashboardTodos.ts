@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useTodoLists } from './useTodoLists'
-import { TodoItem, TodoList } from '@/types/todo'
+import { TodoList } from '@/types/todo'
 
 export function useDashboardTodos() {
     const { data: todoLists, isLoading, error } = useTodoLists()

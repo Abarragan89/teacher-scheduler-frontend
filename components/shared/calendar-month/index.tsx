@@ -3,10 +3,18 @@ import React, { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { useCalendarReminders } from '@/lib/hooks/useCalendarReminders'
 
 export default function CalendarMonth() {
     const router = useRouter()
     const [currentDate, setCurrentDate] = useState(new Date())
+
+    // Get calendar reminders for the current month
+    const { getRemindersForDate, isLoading } = useCalendarReminders(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 1 // Convert to 1-indexed month
+    )
+
 
     // Get the first day of the current month
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
@@ -62,6 +70,48 @@ export default function CalendarMonth() {
         year: 'numeric'
     })
 
+    // Helper function to get priority color class
+    const getPriorityColor = (priority: number) => {
+        switch (priority) {
+            case 4: return 'bg-red-100 text-red-800 border-red-200' // High
+            case 3: return 'bg-orange-100 text-orange-800 border-orange-200' // Medium
+            case 2: return 'bg-yellow-100 text-yellow-800 border-yellow-200' // Low
+            default: return 'bg-blue-100 text-blue-800 border-blue-200' // None
+        }
+    }
+
+    // Helper function to render todos for a specific date
+    const renderDateTodos = (date: Date) => {
+        const dateString = date.toISOString().split('T')[0] // YYYY-MM-DD
+        const dayReminders = getRemindersForDate(dateString)
+
+        if (!dayReminders || dayReminders.reminders.length === 0) {
+            return null
+        }
+
+        return (
+            <div className="mt-1 space-y-1 w-full">
+                {/* Display first 3 reminders */}
+                {dayReminders.displayReminders.map((reminder, index) => (
+                    <div
+                        key={reminder.id}
+                        className={`text-[.75rem] px-0.5 py-0.3 rounded border text-left truncate ${getPriorityColor(reminder.priority)}`}
+                        title={reminder.text} // Show full text on hover
+                    >
+                        {reminder.text}
+                    </div>
+                ))}
+
+                {/* Show overflow count if there are more than 3 */}
+                {dayReminders.overflowCount > 0 && (
+                    <div className="text-xs px-1 py-0.5 bg-gray-100 text-gray-600 rounded border border-gray-200 text-center">
+                        +{dayReminders.overflowCount}
+                    </div>
+                )}
+            </div>
+        )
+    }
+
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
     return (
@@ -116,20 +166,20 @@ export default function CalendarMonth() {
                         key={index}
                         onClick={() => handleDateClick(date)}
                         className={`
-                            flex flex-col items-end h-18 md:h-20 lg:h-22 pr-1 border-b border-r
+                            flex flex-col items-start p-1 h-24 md:h-32 border-b border-r
                             ${!isCurrentMonth(date) ? 'text-muted-foreground' : ''}
                             ${isToday(date) ? 'bg-accent' : ''}
-                            hover:shadow-xl shadow-ring hover:scale-[1.02] transition-all
+                            hover:shadow-xl shadow-ring hover:scale-[1.025] transition-all
+                            overflow-hidden
                         `}
                     >
-                        <div className="text-xs md:text-sm">
+                        {/* Date number */}
+                        <div className="text-xs md:text-sm  self-end">
                             {date.getDate()}
                         </div>
 
-                        {/* Space for future features like task indicators */}
-                        <div className="mt-1 space-y-1">
-                            {/* You can add task indicators here later */}
-                        </div>
+                        {/* Todo reminders */}
+                        {!isLoading && renderDateTodos(date)}
 
                     </button>
                 ))}
