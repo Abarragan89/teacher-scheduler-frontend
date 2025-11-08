@@ -152,7 +152,7 @@ export default function DashboardContent() {
     )
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-28">
+        <div className="wrapper grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-28">
             {/* Upcoming Todos by Due Date */}
             <Card>
                 <CardHeader>

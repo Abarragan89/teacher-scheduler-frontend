@@ -91,18 +91,18 @@ export default function CalendarMonth() {
 
         return (
             <div className="mt-1 space-y-1 w-full">
-                {/* Display first 3 reminders */}
+                {/* Display todos based on new logic: all if ≤3, first 2 if >3 */}
                 {dayReminders.displayReminders.map((reminder, index) => (
                     <div
                         key={reminder.id}
-                        className={`text-[.75rem] px-0.5 py-0.3 rounded border text-left truncate ${getPriorityColor(reminder.priority)}`}
+                        className={`text-[.71rem] sm:text-[.75rem] px-0.5 py-0.3 rounded border text-left truncate ${getPriorityColor(reminder.priority)}`}
                         title={reminder.text} // Show full text on hover
                     >
                         {reminder.text}
                     </div>
                 ))}
 
-                {/* Show overflow count if there are more than 3 */}
+                {/* Show overflow count if there are more than 3 todos */}
                 {dayReminders.overflowCount > 0 && (
                     <div className="text-xs px-1 py-0.5 bg-gray-100 text-gray-600 rounded border border-gray-200 text-center">
                         +{dayReminders.overflowCount}
@@ -149,7 +149,7 @@ export default function CalendarMonth() {
             </div>
 
             {/* Calendar Grid */}
-            <div className="grid grid-cols-7 rounded-lg border">
+            <div className="grid grid-cols-7  rounded-lg border">
                 {/* Day names header */}
                 {dayNames.map(day => (
                     <div
@@ -166,10 +166,10 @@ export default function CalendarMonth() {
                         key={index}
                         onClick={() => handleDateClick(date)}
                         className={`
-                            flex flex-col items-start p-1 h-24 md:h-32 border-b border-r
+                            flex flex-col items-start p-1 h-24 md:h-32 
                             ${!isCurrentMonth(date) ? 'text-muted-foreground' : ''}
-                            ${isToday(date) ? 'bg-accent' : ''}
-                            hover:shadow-xl shadow-ring hover:scale-[1.025] transition-all
+                            ${isToday(date) ? '' : ''}
+                            hover:shadow-xl transition-all
                             overflow-hidden
                         `}
                     >
