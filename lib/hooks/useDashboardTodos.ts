@@ -17,11 +17,8 @@ export function useDashboardTodos() {
             }))
         )
 
-        // Filter for active todos (not completed unless deleting for animation)
-        const activeTodos = allTodos.filter(todo => !todo.completed || todo.deleting)
-
         // Top 8 by due date (earliest first)
-        const upcomingTodos = activeTodos
+        const upcomingTodos = allTodos
             .filter((todo) => todo.dueDate) // Only todos with due dates
             .sort((a, b) => {
                 const dateA = new Date(String(a.dueDate!)).getTime()
@@ -31,7 +28,7 @@ export function useDashboardTodos() {
             .slice(0, 8)
 
         // Top 8 by priority (only priority > 1: Low=2, Medium=3, High=4)
-        const priorityTodos = activeTodos
+        const priorityTodos = allTodos
             .filter((todo) => todo.priority > 1) // Only show todos with priority higher than 1
             .sort((a, b) => {
                 // Sort by priority (4=High, 3=Medium, 2=Low)

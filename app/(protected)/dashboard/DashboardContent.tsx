@@ -70,11 +70,11 @@ export default function DashboardContent() {
         return null
     }
 
-    const handleTodoToggle = async (todoId: string) => {
+    const handleTodoToggle = (todoId: string) => {
         const listId = findListIdForTodo(todoId)
         if (!listId) return
 
-        await toggleTodoCompletion(
+        toggleTodoCompletion(
             listId,
             todoId,
             playCompleteSound,

@@ -77,17 +77,12 @@ export const toggleTodoCompletion = async (
                         ...list,
                         todos: list.todos.map(t =>
                             t.id === todoId
-                                ? { ...t, completed: true }
+                                ? { ...t, completed: true, }
                                 : t
                         )
                     }
                     : list
             )
-        })
-
-        // Backend API call (don't await - let it run in background)
-        clientTodo.updateTodo({ ...todo, completed: true }).catch(error => {
-            console.error('Failed to mark todo complete:', error)
         })
 
         // Schedule deletion after delay
