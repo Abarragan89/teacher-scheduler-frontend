@@ -21,7 +21,7 @@ import DueDatePopover from './popovers/due-date-popover'
 import PriorityPopover from './popovers/priority-popover'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import useSound from 'use-sound';
-import AddTodoForm from './add-todo-form'
+// import AddTodoForm from '../../forms/add-todo-form'
 
 interface CurrentListProps {
     todoLists: TodoList[]
@@ -385,9 +385,9 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     </div>
                 </ScrollArea>
             </div>
-            <AddTodoForm
+            {/* <AddTodoForm
                 listId={currentList.id}
-            />
+            /> */}
 
             {/* Responsive Dialog for Creating New List */}
             <ResponsiveDialog

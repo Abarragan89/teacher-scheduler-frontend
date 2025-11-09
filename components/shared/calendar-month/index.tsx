@@ -121,7 +121,7 @@ export default function CalendarMonth() {
     return (
         <div className="w-full max-w-4xl mx-auto">
             {/* Header with navigation */}
-            <div className="flex items-end justify-between mb-3 mx-2 sm:mx-4 pt-5">
+            <div className="flex items-end justify-between mb-1 mx-2 sm:mx-6 pt-4">
                 <h1 className=" text-xl md:text-2xl font-bold py-1">{monthYear}</h1>
                 {/* Navigation Arrows */}
                 <div className="flex items-end gap-2">
@@ -153,7 +153,7 @@ export default function CalendarMonth() {
             </div>
 
             {/* Calendar Grid */}
-            <div className="grid grid-cols-7 sm:rounded-lg border sm:mx-3">
+            <div className="grid grid-cols-7 sm:rounded-lg border sm:mx-5">
                 {/* Day names header */}
                 {dayNames.map(day => (
                     <div

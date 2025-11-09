@@ -4,7 +4,7 @@ import { useDailyTodos } from '@/lib/hooks/useDailyTodos'
 import { useDefaultTodoList } from '@/lib/hooks/useDefaultTodoList'
 import { useQueryClient } from '@tanstack/react-query'
 import { toggleTodoCompletion, updateTodoItem } from '@/components/shared/todo-sheet/utils/todo-operations'
-import AddTodoForm from '@/components/shared/todo-sheet/add-todo-form'
+import AddTodoForm from '@/components/forms/add-todo-form'
 import DueDatePopover from '@/components/shared/todo-sheet/popovers/due-date-popover'
 import PriorityPopover from '@/components/shared/todo-sheet/popovers/priority-popover'
 import useSound from 'use-sound'
@@ -80,8 +80,8 @@ export default function TodoList({ dateString }: TodoListProps) {
         <div
             key={todo.id}
             className={`flex items-start border-b gap-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
-                    ? 'opacity-0 scale-95 -translate-y-1'
-                    : 'opacity-100 scale-100 translate-y-0'
+                ? 'opacity-0 scale-95 -translate-y-1'
+                : 'opacity-100 scale-100 translate-y-0'
                 }`}
             style={{
                 height: todo.deleting ? '0px' : 'auto',
@@ -98,8 +98,8 @@ export default function TodoList({ dateString }: TodoListProps) {
                 <button
                     onClick={() => handleTodoToggle(todo.id, todo.listId)}
                     className={`flex-shrink-0 rounded transition-all duration-300 ${todo.deleting
-                            ? 'opacity-0 pointer-events-none transform scale-50'
-                            : 'hover:bg-muted transform scale-100'
+                        ? 'opacity-0 pointer-events-none transform scale-50'
+                        : 'hover:bg-muted transform scale-100'
                         }`}
                     disabled={todo.deleting}
                 >
