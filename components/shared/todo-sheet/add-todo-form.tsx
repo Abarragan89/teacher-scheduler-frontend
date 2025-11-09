@@ -78,7 +78,7 @@ export default function AddTodoForm({ listId }: AddTodoFormProps) {
             setTime('07:00')
             setPriority(1)
             // Focus back to input
-            toast.success(`Todo added successfully${dueDate ? `, due ${formatDisplayDate(dueDate)}` : ''}`)
+            toast.success(`Todo added successfully${dueDate ? `, due ${formatDisplayDate(dueDate)}` : ''}` )
         } catch (error) {
             console.error('Failed to create todo:', error)
         } finally {

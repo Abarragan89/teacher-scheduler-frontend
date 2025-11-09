@@ -143,19 +143,7 @@ export default function DailyScheduleAccordion({
         )
     }
 
-    function goToYesterday() {
-        const yesterday = new Date(currentDay)
-        yesterday.setDate(yesterday.getDate() - 1)
-        const formattedDate = yesterday.toISOString().split('T')[0]
-        router.push(`/dashboard/daily/${formattedDate}`)
-    }
 
-    function goToTomorrow() {
-        const tomorrow = new Date(currentDay)
-        tomorrow.setDate(tomorrow.getDate() + 1)
-        const formattedDate = tomorrow.toISOString().split('T')[0]
-        router.push(`/dashboard/daily/${formattedDate}`)
-    }
 
 
     return (
@@ -170,10 +158,7 @@ export default function DailyScheduleAccordion({
             />
 
             <div className="print:!hidden flex-between mb-3 mr-3">
-                <YesterdayTomorrowNav
-                    goToTomorrow={goToTomorrow}
-                    goToYesterday={goToYesterday}
-                />
+               
                 <div className="flex text-sm items-center justify-end gap-x-2">
                     <Button title="Close all tasks" onClick={() => setOpenAccordions([])} variant={'ghost'}>
                         <ChevronsDownUp
