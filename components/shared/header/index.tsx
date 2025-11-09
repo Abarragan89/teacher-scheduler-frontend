@@ -13,7 +13,7 @@ export default function Header({
 }) {
 
   return (
-    <header className="print:!hidden p-6 flex-between max-w-6xl mx-auto">
+    <header className="print:!hidden py-6 flex-between max-w-6xl mx-auto wrapper">
       <Link
         href={"/"}
         className='flex justify-center items-end'
@@ -25,7 +25,7 @@ export default function Header({
           alt="Company Logo"
           priority
         />
-        <div className='text-xs ml-2 mb-1 text-primary tracking-wider invisible sm:visible'>
+        <div className='text-xs mb-1 text-primary tracking-wider invisible sm:visible'>
           <p className='font-bold'>Teacher</p>
           <p>Scheduler</p>
         </div>

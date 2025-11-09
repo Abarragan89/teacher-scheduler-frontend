@@ -95,8 +95,12 @@ export default function CalendarMonth() {
                 {dayReminders.displayReminders.map((reminder, index) => (
                     <div
                         key={reminder.id}
-                        className={`text-[.65rem] sm:text-[.75rem] px-0.5 py-0.3 rounded text-left truncate ${getPriorityColor(reminder.priority)}`}
+                        className={`text-[.65rem] sm:text-[.75rem] px-0.5 py-0.3 rounded text-left relative overflow-hidden whitespace-nowrap ${getPriorityColor(reminder.priority)}`}
                         title={reminder.text} // Show full text on hover
+                        style={{
+                            maskImage: 'linear-gradient(to right, black 80%, transparent 100%)',
+                            WebkitMaskImage: 'linear-gradient(to right, black 80%, transparent 100%)'
+                        }}
                     >
                         {reminder.text}
                     </div>
@@ -117,7 +121,7 @@ export default function CalendarMonth() {
     return (
         <div className="w-full max-w-4xl mx-auto">
             {/* Header with navigation */}
-            <div className="flex items-end justify-between mb-3">
+            <div className="flex items-end justify-between mb-3 mx-2 sm:mx-4 pt-5">
                 <h1 className=" text-xl md:text-2xl font-bold py-1">{monthYear}</h1>
                 {/* Navigation Arrows */}
                 <div className="flex items-end gap-2">
@@ -149,12 +153,12 @@ export default function CalendarMonth() {
             </div>
 
             {/* Calendar Grid */}
-            <div className="grid grid-cols-7 md:rounded-lg border-y md:border">
+            <div className="grid grid-cols-7 sm:rounded-lg border sm:mx-3">
                 {/* Day names header */}
                 {dayNames.map(day => (
                     <div
                         key={day}
-                        className="p-3 text-center text-xs md:text-sm font-medium border-b"
+                        className="p-3 text-center text-md font-medium border-b"
                     >
                         {day}
                     </div>
@@ -166,7 +170,7 @@ export default function CalendarMonth() {
                         key={index}
                         onClick={() => handleDateClick(date)}
                         className={`
-                            flex flex-col items-start px-2 py-1 h-24 md:h-32
+                            flex flex-col items-start px-1 py-1 h-28 md:h-32
                             ${index < 35 ? 'border-b' : ''} 
                             ${!isCurrentMonth(date) ? 'text-muted-foreground' : ''}
                             ${isToday(date) ? '' : ''}
@@ -175,7 +179,9 @@ export default function CalendarMonth() {
                         `}
                     >
                         {/* Date number */}
-                        <div className="text-xs md:text-sm self-end">
+                        <div className={`text-md self-center flex items-center justify-center
+                            ${isToday(date) ? 'bg-ring text-accent rounded-full w-7 h-7 font-bold' : ''}
+                        `}>
                             {date.getDate()}
                         </div>
 

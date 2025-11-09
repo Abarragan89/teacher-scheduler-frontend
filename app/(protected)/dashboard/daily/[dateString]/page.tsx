@@ -23,9 +23,10 @@ export default async function page({ params }: pageProps) {
     return (
         <main className='wrapper'>
             <Tabs defaultValue="schedule" className="w-full">
-                <div className="flex flex-col items-start gap-y-2 print:!hidden">
+                <div className="flex flex-col items-start print:!hidden">
                     <h1 className='h1-bold mr-5'>{formatDateDisplay(new Date(currentDay.dayDate.replace(/-/g, "/")))}</h1>
-                    <TabsList>
+                    <YesterdayTomorrowNav dateString={dateString} />
+                    <TabsList className='mt-4'>
                         <TabsTrigger value="schedule">Schedule</TabsTrigger>
                         <TabsTrigger value="todos">ToDos</TabsTrigger>
                         <TabsTrigger value="notes">Notes</TabsTrigger>
@@ -52,7 +53,6 @@ export default async function page({ params }: pageProps) {
                     <p>These are the Notes</p>
                 </TabsContent>
             </Tabs>
-            <YesterdayTomorrowNav dateString={dateString} />
         </main>
     )
 }

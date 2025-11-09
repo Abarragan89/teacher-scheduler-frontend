@@ -39,7 +39,7 @@ export default function MoveSchedulePopover({
             <PopoverTrigger asChild className='print:hidden'>
                 <Button
                     variant={"link"}
-                    className='m-0 p-0 pl-2 mb-1 hover:cursor-pointer'
+                    className='p-0 hover:cursor-pointer'
                 >
                     Copy Schedule
                 </Button>

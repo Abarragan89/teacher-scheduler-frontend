@@ -169,7 +169,7 @@
 
 @layer utilities {
   .wrapper {
-    @apply p-3 md:px-8 lg:px-20 lg:py-5 max-w-5xl mx-auto;
+    @apply p-3 sm:p-5 md:px-8 lg:px-20 lg:py-6 max-w-5xl mx-auto;
   }
 
   .flex-center {

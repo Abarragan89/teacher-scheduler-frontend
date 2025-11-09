@@ -153,11 +153,11 @@ export default function DailyScheduleAccordion({
                 currentDay={currentDay}
             />
 
+
+            <div className="print:!hidden flex-between mb-3 mx-3">
             <MoveSchedulePopover
                 scheduleId={scheduleData.id}
             />
-
-            <div className="print:!hidden flex-between mb-3 mr-3">
                
                 <div className="flex text-sm items-center justify-end gap-x-2">
                     <Button title="Close all tasks" onClick={() => setOpenAccordions([])} variant={'ghost'}>
