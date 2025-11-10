@@ -21,7 +21,6 @@ import DueDatePopover from './popovers/due-date-popover'
 import PriorityPopover from './popovers/priority-popover'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import useSound from 'use-sound';
-// import AddTodoForm from '../../forms/add-todo-form'
 
 interface CurrentListProps {
     todoLists: TodoList[]
@@ -279,7 +278,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 </div>
 
                 {/* Flexbox Layout for TODO Lists */}
-                <ScrollArea className="h-[calc(100vh-360px)] w-full">
+                <ScrollArea className="h-[calc(100vh-280px)] w-full">
                     <div className="space-y-0 transition-all duration-300 ease-in-out ml-1 mr-3">
                         {sortedCurrentList.todos.map(todo => (
                             <div
