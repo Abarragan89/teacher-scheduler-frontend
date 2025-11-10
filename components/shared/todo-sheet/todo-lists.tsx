@@ -255,25 +255,34 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 </div>
 
                 {/* Sort Buttons */}
-                <div className="flex items-center gap-3 mb-2">
-                    <Label className="text-sm text-muted-foreground">Sort by:</Label>
-                    <Button
-                        onClick={() => setSortBy('priority')}
-                        className={`hover:cursor-pointer p-0 font-bold
+                <div className="flex-between mb-2">
+                    <div className='flex items-center gap-x-3'>
+                        <Label className="text-sm text-muted-foreground">Sort by:</Label>
+                        <Button
+                            onClick={() => setSortBy('priority')}
+                            className={`hover:cursor-pointer p-0 font-bold
                             ${sortBy === 'priority' ? '' : 'text-muted-foreground'}    
                         `}
-                        variant={'link'}
-                    >
-                        Priority
-                    </Button>
-                    <Button
-                        onClick={() => setSortBy('due-date')}
-                        className={`hover:cursor-pointer p-0 font-bold
+                            variant={'link'}
+                        >
+                            Priority
+                        </Button>
+                        <Button
+                            onClick={() => setSortBy('due-date')}
+                            className={`hover:cursor-pointer p-0 font-bold
                             ${sortBy === 'due-date' ? 'underline' : 'text-muted-foreground'}    
                         `}
+                            variant={'link'}
+                        >
+                            Due Date
+                        </Button>
+                    </div>
+                    <Button
+                        onClick={() => console.log("hi")}
+                        className={`hover:cursor-pointer p-0 gap-x-1`}
                         variant={'link'}
                     >
-                        Due Date
+                        <Plus className='' /> Add Todo
                     </Button>
                 </div>
 
