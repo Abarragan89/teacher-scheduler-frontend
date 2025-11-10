@@ -16,6 +16,8 @@ export default function EditListPopover({ currentListId, currentListIndex, state
     const [isPopOverOpen, setIsPopoverOpen] = useState<boolean>(false);
     const [confirmDeleteList, setConfirmDeleteList] = useState<boolean>(false);
 
+    const listName = state.todoLists.find(list => list.id === currentListId)?.listName || "this list";
+
     return (
         <Popover open={isPopOverOpen} onOpenChange={setIsPopoverOpen}>
             <PopoverTrigger>
@@ -53,13 +55,15 @@ export default function EditListPopover({ currentListId, currentListIndex, state
                     >
                         <Bookmark /> Make Default
                     </Button>
-                    <Button
-                        variant='ghost'
-                        className='text-destructive hover:text-destructive'
-                        onClick={() => setConfirmDeleteList(true)}
-                    >
-                        <Trash2Icon size={14} /> Delete
-                    </Button>
+                    {listName !== "Unlisted" && (
+                        <Button
+                            variant='ghost'
+                            className='text-destructive hover:text-destructive'
+                            onClick={() => setConfirmDeleteList(true)}
+                        >
+                            <Trash2Icon size={14} /> Delete
+                        </Button>
+                    )}
                 </PopoverContent>
             )}
         </Popover>
