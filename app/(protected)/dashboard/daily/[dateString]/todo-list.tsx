@@ -200,7 +200,6 @@ export default function TodoList({ dateString }: TodoListProps) {
 
     return (
         <div className='mx-5 mt-10 space-y-6 mb-36'>
-
             {/* Todos List */}
             {todos.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
@@ -213,9 +212,6 @@ export default function TodoList({ dateString }: TodoListProps) {
                     {todos.map(renderTodoItem)}
                 </div>
             )}
-
-            {/* Add Todo Form */}
-            <AddTodoForm listId={defaultListId!} />
         </div>
     )
 }

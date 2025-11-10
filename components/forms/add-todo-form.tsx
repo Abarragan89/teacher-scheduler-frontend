@@ -22,8 +22,6 @@ export default function AddTodoForm({ listId }: AddTodoFormProps) {
     // Get all todo lists from React Query cache
     const todoLists = (queryClient.getQueryData(['todos']) as TodoList[]) || []
 
-    console.log('Todo Lists in AddTodoForm:', todoLists)
-
     const [text, setText] = useState('')
     const [dueDate, setDueDate] = useState<Date | undefined>()
     const [time, setTime] = useState<string>('07:00')
@@ -110,19 +108,16 @@ export default function AddTodoForm({ listId }: AddTodoFormProps) {
     }
 
     return (
-        <div className="space-y-4 p-4 border rounded-lg">
-            {/* Header */}
-            <h3 className="text-lg font-semibold">Add New Task</h3>
-
+        <div className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Task Title */}
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Task Title</label>
+                    <label className="text-sm font-medium">Todo</label>
                     <Input
                         ref={inputRef}
                         value={text}
                         onChange={(e) => setText(e.target.value)}
-                        placeholder="Enter task title..."
+                        placeholder="Enter todo..."
                         className="w-full"
                         disabled={isCreating}
                     />
