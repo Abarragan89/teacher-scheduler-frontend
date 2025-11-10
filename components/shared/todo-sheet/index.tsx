@@ -27,7 +27,7 @@ export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
     return (
         <Sheet>
             <SheetTrigger asChild>
-                <Button variant={'ghost'}>
+                <Button variant={'ghost'} className='hover:cursor-pointer'>
                     <ListTodo />
                 </Button>
             </SheetTrigger>

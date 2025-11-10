@@ -59,7 +59,7 @@ export default function AuthenticatedNavLinks({ email }: { email: string }) {
         <NavigationMenu>
             <NavigationMenuList className="gap-x-2">
                 <NavigationMenuItem>
-                    <Button variant={'ghost'} onClick={() => setShowAddTodoModal(true)}>
+                    <Button className='hover:cursor-pointer' variant={'ghost'} onClick={() => setShowAddTodoModal(true)}>
                         <Plus />
                     </Button>
                 </NavigationMenuItem>

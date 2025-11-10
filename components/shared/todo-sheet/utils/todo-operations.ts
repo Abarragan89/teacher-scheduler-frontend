@@ -1,4 +1,4 @@
-import { TodoItem, TodoList } from '@/types/todo'
+import { TodoList } from '@/types/todo'
 import { TodoState } from './todo-list-operations'
 import { clientTodo } from '@/lib/api/services/todos/client'
 import { QueryClient } from '@tanstack/react-query'
@@ -258,7 +258,7 @@ export const handleTodoBlur = async (
                             }
                             return { ...t, position: index }
                         })
-                        
+
                         return { ...l, todos: updatedTodos }
                     }
                     return l
@@ -343,5 +343,39 @@ export const handlePriorityUpdate = async (
         await clientTodo.updateTodo(updatedTodo)
     } catch (error) {
         console.error('Failed to update priority:', error)
+    }
+}
+
+// Add a new todo item
+export const addTodoItem = async (
+    listId: string,
+    text: string,
+    dueDate: string,
+    priority: number,
+    queryClient: QueryClient
+) => {
+    try {
+        const newTodo = await clientTodo.createTodoItem(
+            listId,
+            text,
+            dueDate,
+            priority,
+        )
+
+        // Update cache with the new todo
+        queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+            if (!oldData) return oldData
+            return oldData.map(list => {
+                if (list.id === listId) {
+                    return {
+                        ...list,
+                        todos: [newTodo, ...list.todos]
+                    }
+                }
+                return list
+            })
+        })
+    } catch (error) {
+        console.error('Failed to add todo:', error)
     }
 }
