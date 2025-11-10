@@ -199,7 +199,7 @@ export default function TodoList({ dateString }: TodoListProps) {
     }
 
     return (
-        <div className='mx-5 mt-10 space-y-6'>
+        <div className='mx-5 mt-10 space-y-6 mb-36'>
 
             {/* Todos List */}
             {todos.length === 0 ? (
@@ -215,20 +215,7 @@ export default function TodoList({ dateString }: TodoListProps) {
             )}
 
             {/* Add Todo Form */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-lg">Add New Todo</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {defaultListId ? (
-                        <AddTodoForm listId={defaultListId} />
-                    ) : (
-                        <div className="text-center py-4 text-muted-foreground">
-                            <p>Please create a todo list first to add todos</p>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+            <AddTodoForm listId={defaultListId!} />
         </div>
     )
 }
