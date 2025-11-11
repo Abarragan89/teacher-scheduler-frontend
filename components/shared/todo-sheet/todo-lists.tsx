@@ -195,7 +195,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                         }).map((list, index) => (
                             <CarouselItem
                                 key={index}
-                                className="basis-auto pl-3"
+                                className="basis-auto"
                             >
                                 <Button
                                     key={list.id}
