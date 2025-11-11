@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useQueryClient } from "@tanstack/react-query"
 import { TodoList } from "@/types/todo"
 import { Button } from "@/components/ui/button"
@@ -21,11 +21,10 @@ import { clientTodoLists } from '@/lib/api/services/todos/client'
 import EditListPopover from './popovers/edit-list-popover'
 import DueDatePopover from './popovers/due-date-popover'
 import PriorityPopover from './popovers/priority-popover'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import useSound from 'use-sound';
 import { Separator } from '@radix-ui/react-select'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
-import { Card, CardContent } from '@/components/ui/card'
 
 interface CurrentListProps {
     todoLists: TodoList[]
@@ -196,7 +195,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                         }).map((list, index) => (
                             <CarouselItem
                                 key={index}
-                                className="pl-3 basis-auto"
+                                className="basis-auto pl-3"
                             >
                                 <Button
                                     key={list.id}

@@ -1,5 +1,5 @@
 import { clientTodoLists } from '@/lib/api/services/todos/client'
-import { TodoList, TodoItem } from '@/types/todo'
+import { TodoList } from '@/types/todo'
 import { QueryClient } from '@tanstack/react-query'
 
 export interface TodoState {
@@ -8,26 +8,6 @@ export interface TodoState {
     focusedText?: string
     setFocusedText?: React.Dispatch<React.SetStateAction<string>>
 }
-
-// Helper function to ensure there's always exactly one empty todo item at the end
-// export const ensureEmptyTodoItem = (todos: TodoItem[]) => {
-//     const lastItem = todos[todos.length - 1]
-//     const isLastItemEmpty = lastItem && lastItem.text.trim() === ''
-
-//     // If the last item is already empty, we're good - don't mess with it
-//     if (isLastItemEmpty) {
-//         return
-//     }
-
-//     // Only if there's no empty item at the end, add one
-//     todos.push({
-//         id: `temp-todo-${Date.now()}`,
-//         text: '',
-//         completed: false,
-//         priority: 1,
-//         dueDate: null,
-//     })
-// }
 
 // Add a new todo list
 export const addNewTodoList = (state: TodoState, queryClient: QueryClient) => {
@@ -53,6 +33,8 @@ export const addNewTodoList = (state: TodoState, queryClient: QueryClient) => {
 // Delete a todo list
 export const deleteTodoList = async (listId: string, state: TodoState, queryClient: QueryClient, currentListIndex?: number) => {
     const { todoLists, setCurrentListIndex } = state
+
+    console.log('list id', listId)
 
     // Add API call to delete the list
     await clientTodoLists.deleteTodoList(listId)
