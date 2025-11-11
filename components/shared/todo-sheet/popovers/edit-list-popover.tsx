@@ -48,7 +48,7 @@ export default function EditListPopover({ currentListId, currentListIndex, state
                     </div>
                 </PopoverContent>
             ) : (
-                <PopoverContent className="w-fit flex flex-col gap-y-1 p-3 px-6 mr-5 z-50">
+                <PopoverContent className="w-fit flex flex-col gap-y-1 p-4 mr-5 z-50">
                     <Button
                         onClick={() => setDefaultTodoList(currentListId, state, queryClient)}
                         variant={"ghost"}
