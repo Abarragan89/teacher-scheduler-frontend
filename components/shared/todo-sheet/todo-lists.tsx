@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useQueryClient } from "@tanstack/react-query"
 import { TodoList } from "@/types/todo"
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,7 @@ import {
     toggleTodoCompletion,
     addTodoItem
 } from './utils/todo-operations'
+import { getSortFunction, SortBy } from './utils/todo-sorting'
 import { ResponsiveDialog } from '@/components/responsive-dialog'
 import { clientTodoLists } from '@/lib/api/services/todos/client'
 import EditListPopover from './popovers/edit-list-popover'
@@ -43,7 +44,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const [newListName, setNewListName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const [localTodoTexts, setLocalTodoTexts] = useState<Record<string, string>>({});
-    const [sortBy, setSortBy] = useState<'priority' | 'due-date'>('priority');
+    const [sortBy, setSortBy] = useState<'priority' | 'due-date' | 'created'>('created');
 
     // Ref for managing textarea auto-resize
     const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
@@ -63,42 +64,17 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
 
     const currentList = todoLists[currentListIndex]
 
-    // Sort todos based on selected criteria
-    const sortTodos = (todos: any[]) => {
-        const sortedTodos = [...todos]
+    // Use the memoized sort function from utils
+    const sortFunction = useMemo(() => getSortFunction(sortBy as SortBy), [sortBy])
 
-        switch (sortBy) {
-            case 'priority':
-                return sortedTodos.sort((a, b) => b.priority - a.priority)
-            case 'due-date':
-                return sortedTodos.sort((a, b) => {
-                    if (!a.dueDate && !b.dueDate) return 0
-                    if (!a.dueDate) return 1
-                    if (!b.dueDate) return -1
-                    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-                })
-            default:
-                return sortedTodos
+    // Memoize the sorted current list
+    const sortedCurrentList = useMemo(() => {
+        if (!currentList) return currentList
+        return {
+            ...currentList,
+            todos: sortFunction(currentList.todos)
         }
-    }
-
-    const sortedCurrentList = currentList ? {
-        ...currentList,
-        todos: sortTodos(currentList.todos)
-    } : currentList
-
-    // Sync local todo texts when todos change from external sources
-    useEffect(() => {
-        const newLocalTexts: Record<string, string> = {}
-        sortedCurrentList?.todos.forEach(todo => {
-            if (!localTodoTexts[todo.id]) {
-                newLocalTexts[todo.id] = todo.text
-            }
-        })
-        if (Object.keys(newLocalTexts).length > 0) {
-            setLocalTodoTexts(prev => ({ ...prev, ...newLocalTexts }))
-        }
-    }, [sortedCurrentList?.todos])
+    }, [currentList, sortFunction])
 
 
     // Create state object for todo operations
@@ -249,6 +225,15 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     <div className='flex items-center gap-x-3'>
                         <Label className="text-sm text-muted-foreground">Sort by:</Label>
                         <Button
+                            onClick={() => setSortBy('created')}
+                            className={`hover:cursor-pointer p-0 font-bold
+                            ${sortBy === 'created' ? '' : 'text-muted-foreground'}    
+                        `}
+                            variant={'link'}
+                        >
+                            Newest
+                        </Button>
+                        <Button
                             onClick={() => setSortBy('priority')}
                             className={`hover:cursor-pointer p-0 font-bold
                             ${sortBy === 'priority' ? '' : 'text-muted-foreground'}    
@@ -260,7 +245,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                         <Button
                             onClick={() => setSortBy('due-date')}
                             className={`hover:cursor-pointer p-0 font-bold
-                            ${sortBy === 'due-date' ? 'underline' : 'text-muted-foreground'}    
+                            ${sortBy === 'due-date' ? '' : 'text-muted-foreground'}    
                         `}
                             variant={'link'}
                         >
@@ -316,7 +301,11 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 key={todo.id}
                                 className={`flex items-start border-b gap-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
                                     ? 'opacity-0 scale-95 -translate-y-1'
-                                    : 'opacity-100 scale-100 translate-y-0'
+                                    : todo.isNew
+                                        ? 'animate-slide-in-from-top'
+                                        : todo.slideDown
+                                            ? 'animate-slide-down'
+                                            : 'opacity-100 scale-100 translate-y-0'
                                     }`}
                                 style={{
                                     // Remove fixed height, let content determine height
@@ -325,7 +314,16 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                     paddingTop: todo.deleting ? '0px' : '4px',
                                     paddingBottom: todo.deleting ? '0px' : '4px',
                                     transition: 'all 300ms cubic-bezier(0.4, 0.0, 0.2, 1)',
-                                    transformOrigin: 'top center'
+                                    transformOrigin: 'top center',
+                                    // Animation for new items
+                                    ...(todo.isNew && {
+                                        animation: 'slideInFromTop 300ms ease-out forwards'
+                                    }),
+                                    // Animation for existing items sliding down
+                                    ...(todo.slideDown && {
+                                        transform: 'translateY(60px)',
+                                        transition: 'transform 300ms ease-out'
+                                    })
                                 }}
                             >
                                 {/* Checkbox */}

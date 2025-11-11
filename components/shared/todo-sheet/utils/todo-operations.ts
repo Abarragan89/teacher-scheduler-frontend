@@ -2,6 +2,7 @@ import { TodoList } from '@/types/todo'
 import { TodoState } from './todo-list-operations'
 import { clientTodo } from '@/lib/api/services/todos/client'
 import { QueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 // Update a todo item text on change (No backend update)
 export const updateTodoItem = (listId: string, todoId: string, text: string, queryClient: QueryClient) => {
@@ -325,7 +326,7 @@ export const handlePriorityUpdate = async (
 
     // Don't mutate the todo directly
 
-    // Update the priority in the UI
+    // Update the priority in the UI (NO SORTING)
     queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
         if (!oldData) return oldData
         return oldData.map(list => ({
@@ -334,7 +335,8 @@ export const handlePriorityUpdate = async (
                 todo.id === todoId
                     ? { ...todo, priority }
                     : todo
-            ).sort((a, b) => b.priority - a.priority) // Sort by priority descending
+            )
+            // REMOVED: .sort((a, b) => b.priority - a.priority)
         }))
     })
 
@@ -354,7 +356,34 @@ export const addTodoItem = async (
     priority: number,
     queryClient: QueryClient
 ) => {
+    // Generate a temporary ID for immediate UI feedback
+    const tempId = `temp-new-${Date.now()}`
+    const tempTodo = {
+        id: tempId,
+        text,
+        dueDate,
+        priority,
+        completed: false,
+        deleting: false,
+        createdAt: new Date().toISOString() // Add current timestamp
+    }
+
+    // Immediately add to beginning of list (newest first)
+    queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+        if (!oldData) return oldData
+        return oldData.map(list => {
+            if (list.id === listId) {
+                return {
+                    ...list,
+                    todos: [tempTodo, ...list.todos] // Add to beginning
+                }
+            }
+            return list
+        })
+    })
+
     try {
+        // Create on backend
         const newTodo = await clientTodo.createTodoItem(
             listId,
             text,
@@ -362,14 +391,18 @@ export const addTodoItem = async (
             priority,
         )
 
-        // Update cache with the new todo
+        toast.success('Todo added!');
+
+        // Replace temp todo with real todo from backend
         queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
             if (!oldData) return oldData
             return oldData.map(list => {
                 if (list.id === listId) {
                     return {
                         ...list,
-                        todos: [newTodo, ...list.todos]
+                        todos: list.todos.map(todo =>
+                            todo.id === tempId ? newTodo : todo
+                        )
                     }
                 }
                 return list
@@ -377,5 +410,19 @@ export const addTodoItem = async (
         })
     } catch (error) {
         console.error('Failed to add todo:', error)
+
+        // Remove temp todo on error
+        queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+            if (!oldData) return oldData
+            return oldData.map(list => {
+                if (list.id === listId) {
+                    return {
+                        ...list,
+                        todos: list.todos.filter(todo => todo.id !== tempId)
+                    }
+                }
+                return list
+            })
+        })
     }
 }

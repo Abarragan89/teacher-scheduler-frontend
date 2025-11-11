@@ -237,3 +237,46 @@
     justify-content: center;
   }
 }
+
+/* Animation keyframes for todo list items */
+@keyframes slideInFromTop {
+  0% {
+    opacity: 0;
+    transform: translateY(-60px);
+    height: 0px;
+    min-height: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(-30px);
+    height: auto;
+    min-height: 30px;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    height: auto;
+    min-height: 60px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+}
+
+@keyframes slideDown {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(60px);
+  }
+}
+
+.animate-slide-in-from-top {
+  animation: slideInFromTop 300ms ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 300ms ease-out forwards;
+}

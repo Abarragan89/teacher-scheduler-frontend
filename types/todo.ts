@@ -4,7 +4,10 @@ export interface TodoItem {
     completed: boolean
     priority: number
     dueDate: String | null
+    createdAt?: string   // For sorting by creation date
     deleting?: boolean  // For smooth deletion animation
+    isNew?: boolean      // For new item slide-in animation
+    slideDown?: boolean  // For existing items slide-down animation
 }
 
 export interface TodoList {
