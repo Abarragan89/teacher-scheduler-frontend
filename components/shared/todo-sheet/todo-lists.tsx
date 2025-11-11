@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { BareInput } from '@/components/ui/bare-bones-input'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { CheckCircle, Circle, Plus, BookmarkCheckIcon } from 'lucide-react'
+import { CheckCircle, Circle, Plus, BookmarkCheckIcon, SendHorizonal } from 'lucide-react'
 import { TodoState, updateTodoListTitle, handleTodoListTitleBlur, handleTodoListTitleFocus } from './utils/todo-list-operations'
 import {
     updateTodoItem,
@@ -23,6 +23,7 @@ import DueDatePopover from './popovers/due-date-popover'
 import PriorityPopover from './popovers/priority-popover'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import useSound from 'use-sound';
+import { Separator } from '@radix-ui/react-select'
 
 interface CurrentListProps {
     todoLists: TodoList[]
@@ -43,6 +44,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newListName, setNewListName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
+    const [newTodoText, setNewTodoText] = useState('');
     const [localTodoTexts, setLocalTodoTexts] = useState<Record<string, string>>({});
     const [sortBy, setSortBy] = useState<'priority' | 'due-date' | 'created'>('created');
 
@@ -176,7 +178,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 <div className="space-y-2">
                     {/* Horizontally scrollable list buttons */}
                     <ScrollArea className="flex-1 whitespace-nowrap pb-1">
-                        <div className="flex gap-2 pb-2">
+                        <div className="flex gap-2">
                             {todoLists.sort((a: TodoList, b: TodoList) => {
                                 if (a.isDefault && !b.isDefault) return -1
                                 if (!a.isDefault && b.isDefault) return 1
@@ -199,7 +201,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     <Button
                         variant="outline"
                         size="sm"
-                        className="text-sm border-dashed text-muted-foreground hover:text-foreground"
+                        className="text-sm border-dashed text-muted-foreground hover:text-foreground shadow-none"
                         onClick={() => setIsModalOpen(true)}
                     >
                         <Plus />
@@ -208,8 +210,9 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 </div>
             </div>
 
+            <Separator />
             {/* Current List Table */}
-            <div className='mt-4'>
+            <div className='mt-7'>
                 <div className="flex-between">
                     <BareInput
                         className="font-bold text-lg md:text-xl bg-transparent border-none p-0"
@@ -264,20 +267,15 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 </div>
 
                 {/* Make a simple form to add another todo to this list */}
-                <div className="flex items-start border-b gap-3 py-1 px-4 shadow-lg border rounded-lg my-3">
-                    {/* Plus icon instead of checkbox */}
-                    {/* <div className="flex-shrink-0 pt-1">
-                        <Plus className="w-5 h-5 text-muted-foreground/50" />
-                    </div> */}
-
+                <div className="flex items-stretch gap-3 my-3 rounded-bl-lg">
                     {/* Input that matches textarea styling */}
-                    <div className="flex-1 min-w-0 pt-[2px]">
+                    <div className="flex-1 flex min-w-0 pt-[2px] rounded-tl-lg ">
                         <textarea
-                            className="w-full min-h-[24px] leading-normal text-[15px] bg-transparent border-none resize-none overflow-hidden focus:outline-none placeholder:text-muted-foreground/60"
+                            className=" w-full p-2 px-4 h-auto text-md leading-normal bg-transparent border rounded-tl-lg rounded-bl-lg border-r-0 resize-none overflow-hidden focus:outline-none placeholder:text-muted-foreground/60"
                             placeholder="Add new todo..."
                             rows={1}
+                            value={newTodoText}
                             style={{
-                                lineHeight: '1.5',
                                 wordWrap: 'break-word',
                                 whiteSpace: 'pre-wrap'
                             }}
@@ -287,23 +285,31 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                     // Handle add todo logic here
                                     const target = e.target as HTMLTextAreaElement
                                     if (target.value.trim()) {
-                                        addTodoItem(currentList.id, target.value.trim(), '', 1, queryClient)
+                                        addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText)
                                         target.value = ''
                                         target.style.height = 'auto'
                                     }
                                 }
                             }}
                             onChange={(e) => {
+                                setNewTodoText(e.target.value)
                                 const textarea = e.target as HTMLTextAreaElement
-                                textarea.style.height = 'auto'
-                                textarea.style.height = `${textarea.scrollHeight}px`
+                                textarea.style.height = `${textarea.scrollHeight + 2}px`
                             }}
                         />
+
+                        <Button
+                            onClick={() => addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText)}
+                            className='h-auto rounded-l-none border-l-0 flex-shrink-0 shadow-none'
+                            variant={'outline'}
+                        >
+                            <SendHorizonal />
+                        </Button>
                     </div>
                 </div>
 
                 {/* Flexbox Layout for TODO Lists */}
-                <ScrollArea className="h-[calc(100vh-280px)] w-full">
+                <ScrollArea className="h-[calc(100vh-330px)] w-full">
                     <div className="space-y-0 transition-all duration-300 ease-in-out ml-1 mr-3">
                         {sortedCurrentList.todos.map(todo => (
                             <div

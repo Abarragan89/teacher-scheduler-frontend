@@ -354,7 +354,8 @@ export const addTodoItem = async (
     text: string,
     dueDate: string,
     priority: number,
-    queryClient: QueryClient
+    queryClient: QueryClient,
+    setNewTodoText: (text: string) => void
 ) => {
     // Generate a temporary ID for immediate UI feedback
     const tempId = `temp-new-${Date.now()}`
@@ -386,12 +387,13 @@ export const addTodoItem = async (
         // Create on backend
         const newTodo = await clientTodo.createTodoItem(
             listId,
-            text,
+            text.trim(),
             dueDate,
             priority,
         )
 
         toast.success('Todo added!');
+        setNewTodoText(" ")
 
         // Replace temp todo with real todo from backend
         queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
