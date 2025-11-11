@@ -196,6 +196,15 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                         </div>
                         <ScrollBar orientation="horizontal" />
                     </ScrollArea>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-sm border-dashed text-muted-foreground hover:text-foreground"
+                        onClick={() => setIsModalOpen(true)}
+                    >
+                        <Plus />
+                        New List
+                    </Button>
                 </div>
             </div>
 
@@ -255,11 +264,11 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 </div>
 
                 {/* Make a simple form to add another todo to this list */}
-                <div className="flex items-start border-b gap-3 py-1 shadow-lg">
+                <div className="flex items-start border-b gap-3 py-1 px-4 shadow-lg border rounded-lg my-3">
                     {/* Plus icon instead of checkbox */}
-                    <div className="flex-shrink-0 pt-1">
+                    {/* <div className="flex-shrink-0 pt-1">
                         <Plus className="w-5 h-5 text-muted-foreground/50" />
-                    </div>
+                    </div> */}
 
                     {/* Input that matches textarea styling */}
                     <div className="flex-1 min-w-0 pt-[2px]">
@@ -413,10 +422,6 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     </div>
                 </ScrollArea>
             </div>
-            {/* <AddTodoForm
-                listId={currentList.id}
-            /> */}
-
             {/* Responsive Dialog for Creating New List */}
             <ResponsiveDialog
                 isOpen={isModalOpen}
