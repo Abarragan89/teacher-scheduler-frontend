@@ -355,8 +355,13 @@ export const addTodoItem = async (
     dueDate: string,
     priority: number,
     queryClient: QueryClient,
-    setNewTodoText: (text: string) => void
+    setNewTodoText: (text: string) => void,
+    newTodoTextareaRef: React.RefObject<HTMLTextAreaElement | null>
 ) => {
+    if (text.trim() === '') {
+        toast.error('Todo text cannot be empty.');
+        return;
+    }
     // Generate a temporary ID for immediate UI feedback
     const tempId = `temp-new-${Date.now()}`
     const tempTodo = {
@@ -384,6 +389,8 @@ export const addTodoItem = async (
     })
 
     try {
+        setNewTodoText(" ")
+
         // Create on backend
         const newTodo = await clientTodo.createTodoItem(
             listId,
@@ -393,7 +400,11 @@ export const addTodoItem = async (
         )
 
         toast.success('Todo added!');
-        setNewTodoText(" ")
+
+        // Focus the textarea again
+        setTimeout(() => {
+            newTodoTextareaRef.current?.focus()
+        }, 100)
 
         // Replace temp todo with real todo from backend
         queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {

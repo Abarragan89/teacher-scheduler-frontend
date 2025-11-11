@@ -47,6 +47,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const [newTodoText, setNewTodoText] = useState('');
     const [localTodoTexts, setLocalTodoTexts] = useState<Record<string, string>>({});
     const [sortBy, setSortBy] = useState<'priority' | 'due-date' | 'created'>('created');
+    const newTodoTextareaRef = useRef<HTMLTextAreaElement>(null);
 
     // Ref for managing textarea auto-resize
     const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
@@ -275,6 +276,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                             placeholder="Add new todo..."
                             rows={1}
                             value={newTodoText}
+                            ref={newTodoTextareaRef}
                             style={{
                                 wordWrap: 'break-word',
                                 whiteSpace: 'pre-wrap'
@@ -283,12 +285,12 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault()
                                     // Handle add todo logic here
-                                    const target = e.target as HTMLTextAreaElement
-                                    if (target.value.trim()) {
-                                        addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText)
-                                        target.value = ''
-                                        target.style.height = 'auto'
-                                    }
+                                    addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText, newTodoTextareaRef)
+                                    // const target = e.target as HTMLTextAreaElement
+                                    // if (target.value.trim()) {
+                                    //     target.value = ''
+                                    //     target.style.height = 'auto'
+                                    // }
                                 }
                             }}
                             onChange={(e) => {
@@ -299,7 +301,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                         />
 
                         <Button
-                            onClick={() => addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText)}
+                            onClick={() => addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText, newTodoTextareaRef)}
                             className='h-auto rounded-l-none border-l-0 flex-shrink-0 shadow-none'
                             variant={'outline'}
                         >
