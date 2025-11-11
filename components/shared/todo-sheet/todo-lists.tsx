@@ -268,9 +268,9 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 </div>
 
                 {/* Make a simple form to add another todo to this list */}
-                <div className="flex items-stretch gap-3 my-3 rounded-bl-lg">
+                <div className="flex items-stretch gap-3 my-3 rounded-lg shadow-lg">
                     {/* Input that matches textarea styling */}
-                    <div className="flex-1 flex min-w-0 pt-[2px] rounded-tl-lg ">
+                    <div className="flex-1 flex min-w-0 rounded-tl-lg ">
                         <textarea
                             className=" w-full p-2 px-4 h-auto text-md leading-normal bg-transparent border rounded-tl-lg rounded-bl-lg border-r-0 resize-none overflow-hidden focus:outline-none placeholder:text-muted-foreground/60"
                             placeholder="Add new todo..."
@@ -284,13 +284,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault()
-                                    // Handle add todo logic here
                                     addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText, newTodoTextareaRef)
-                                    // const target = e.target as HTMLTextAreaElement
-                                    // if (target.value.trim()) {
-                                    //     target.value = ''
-                                    //     target.style.height = 'auto'
-                                    // }
                                 }
                             }}
                             onChange={(e) => {
@@ -302,7 +296,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
 
                         <Button
                             onClick={() => addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText, newTodoTextareaRef)}
-                            className='h-auto rounded-l-none border-l-0 flex-shrink-0 shadow-none'
+                            className='h-auto rounded-l-none flex-shrink-0 shadow-none'
                             variant={'outline'}
                         >
                             <SendHorizonal />
