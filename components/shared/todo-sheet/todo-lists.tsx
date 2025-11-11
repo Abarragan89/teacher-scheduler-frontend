@@ -24,6 +24,8 @@ import PriorityPopover from './popovers/priority-popover'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import useSound from 'use-sound';
 import { Separator } from '@radix-ui/react-select'
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
+import { Card, CardContent } from '@/components/ui/card'
 
 interface CurrentListProps {
     todoLists: TodoList[]
@@ -173,18 +175,29 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     }
 
     return (
-        <div className="space-y-4">
-            {/* List Selection Buttons */}
-            <div className="space-y-2 mt-5">
-                <div className="space-y-2">
-                    {/* Horizontally scrollable list buttons */}
-                    <ScrollArea className="flex-1 whitespace-nowrap pb-1">
-                        <div className="flex gap-2">
-                            {todoLists.sort((a: TodoList, b: TodoList) => {
-                                if (a.isDefault && !b.isDefault) return -1
-                                if (!a.isDefault && b.isDefault) return 1
-                                return 0  // Preserve existing order if both have same isDefault value
-                            }).map((list, index) => (
+        <div className="space-y-4 mt-4">
+
+            <div className="w-full">
+                {/* The Carousel itself */}
+                <Carousel
+                    opts={{
+                        align: "start",
+                        loop: false,
+                        skipSnaps: true,
+                        dragFree: true,
+                        slidesToScroll: 2,
+                    }}
+                >
+                    <CarouselContent>
+                        {todoLists.sort((a: TodoList, b: TodoList) => {
+                            if (a.isDefault && !b.isDefault) return -1
+                            if (!a.isDefault && b.isDefault) return 1
+                            return 0  // Preserve existing order if both have same isDefault value
+                        }).map((list, index) => (
+                            <CarouselItem
+                                key={index}
+                                className="pl-3 basis-auto"
+                            >
                                 <Button
                                     key={list.id}
                                     variant={currentListIndex === index ? "default" : "secondary"}
@@ -193,27 +206,33 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                     className="text-sm border shrink-0"
                                 >
                                     {list.listName}
-                                    {list.isDefault && <BookmarkCheckIcon className="w-4 h-4 ml-1" />}
+                                    {list.isDefault && <BookmarkCheckIcon className="w-4 h-4" />}
                                 </Button>
-                            ))}
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    {/* Buttons Underneath, Right-Aligned */}
+                    <div className="flex-between mt-4 gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-sm border-dashed text-muted-foreground hover:text-foreground shrink-0"
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            <Plus className="w-4 h-4 mr-1" />
+                            New List
+                        </Button>
+                        <div className='space-x-5'>
+                            <CarouselPrevious className="static translate-y-0 translate-x-0" />
+                            <CarouselNext className="static translate-y-0 translate-x-0" />
                         </div>
-                        <ScrollBar orientation="horizontal" />
-                    </ScrollArea>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-sm border-dashed text-muted-foreground hover:text-foreground shadow-none"
-                        onClick={() => setIsModalOpen(true)}
-                    >
-                        <Plus />
-                        New List
-                    </Button>
-                </div>
+                    </div>
+                </Carousel>
             </div>
 
             <Separator />
             {/* Current List Table */}
-            <div className='mt-7'>
+            <div className='mt-9'>
                 <div className="flex-between">
                     <BareInput
                         className="font-bold text-lg md:text-xl bg-transparent border-none p-0"
