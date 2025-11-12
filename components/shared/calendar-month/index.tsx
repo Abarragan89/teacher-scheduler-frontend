@@ -108,7 +108,7 @@ export default function CalendarMonth() {
 
                 {/* Show overflow count if there are more than 3 todos */}
                 {dayReminders.overflowCount > 0 && (
-                    <div className="text-xs px-1 py-0.5 bg-gray-100 text-gray-600 rounded border border-gray-200 text-center">
+                    <div className="text-sm pt-[1px] text-ring text-center">
                         +{dayReminders.overflowCount}
                     </div>
                 )}
@@ -122,9 +122,9 @@ export default function CalendarMonth() {
         <div className="w-full max-w-4xl mx-auto">
             {/* Header with navigation */}
             <div className="flex items-end justify-between mb-1 mx-2 sm:mx-6 pt-4">
-                <h1 className=" text-xl md:text-2xl font-bold py-1">{monthYear}</h1>
+                <h1 className=" text-2xl md:text-3xl font-bold py-1">{monthYear}</h1>
                 {/* Navigation Arrows */}
-                <div className="flex items-end gap-2">
+                <div className="flex items-end">
                     {/* Today shortcut button */}
                     <div className="mt-2 text-center">
                         <Button

@@ -64,7 +64,7 @@ export default function AuthenticatedNavLinks({ email }: { email: string }) {
                     </Button>
                 </NavigationMenuItem>
 
-                <NavigationMenuItem className='absolute top-10 left-[105px]'>
+                <NavigationMenuItem className='absolute top-10 -right-2'>
                     <InstallPrompt />
                 </NavigationMenuItem>
                 <NavigationMenuItem>
