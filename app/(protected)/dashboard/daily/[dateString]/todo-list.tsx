@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DailyTodoItem } from '@/lib/hooks/useDailyTodos'
 import { useState, useEffect, useRef } from 'react'
+import { match } from 'assert'
 
 interface TodoListProps {
     dateString: string
@@ -76,106 +77,98 @@ export default function TodoList({ dateString }: TodoListProps) {
         )
     }
 
-    const renderTodoItem = (todo: DailyTodoItem) => (
-        <div
-            key={todo.id}
-            className={`flex items-start border-b gap-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
-                ? 'opacity-0 scale-95 -translate-y-1'
-                : 'opacity-100 scale-100 translate-y-0'
-                }`}
-            style={{
-                height: todo.deleting ? '0px' : 'auto',
-                minHeight: todo.deleting ? '0px' : '60px',
-                paddingTop: todo.deleting ? '0px' : '4px',
-                paddingBottom: todo.deleting ? '0px' : '4px',
-                transition: 'all 300ms cubic-bezier(0.4, 0.0, 0.2, 1)',
-                transformOrigin: 'top center'
-            }}
-        >
-            {/* Checkbox */}
-            <div className={`flex-shrink-0 pt-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
-                }`}>
-                <button
-                    onClick={() => handleTodoToggle(todo.id, todo.listId)}
-                    className={`flex-shrink-0 rounded transition-all duration-300 ${todo.deleting
-                        ? 'opacity-0 pointer-events-none transform scale-50'
-                        : 'hover:bg-muted transform scale-100'
-                        }`}
-                    disabled={todo.deleting}
-                >
-                    {todo.completed ? (
-                        <CheckCircle className="w-5 h-5 text-ring" />
-                    ) : (
-                        <Circle className="w-5 h-5 text-muted-foreground" />
-                    )}
-                </button>
-            </div>
+    const renderTodoItem = (todo: DailyTodoItem, time: string) => {
+        // Extract hour and period from the time block (e.g., "10 PM" -> hour: 10, period: "PM")
+        const [blockHour, blockPeriod] = time.split(" ")
 
-            {/* Content - Textarea approach */}
-            <div className={`flex-1 min-w-0 pt-[2px] transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
-                }`}>
-                {/* Textarea - Exactly like todo-sheet */}
-                <textarea
-                    ref={(el) => {
-                        textareaRefs.current[todo.id] = el
-                        if (el) {
-                            // Auto-resize on mount/content change
-                            requestAnimationFrame(() => resizeTextarea(el))
-                        }
-                    }}
-                    className={`w-full min-h-[24px] leading-normal text-[15px] bg-transparent border-none resize-none overflow-hidden transition-all duration-500 focus:outline-none ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
-                        } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
-                        }`}
-                    placeholder="Add todo..."
-                    value={localTodoTexts[todo.id] || todo.text}
-                    onChange={(e) => {
-                        const textarea = e.target as HTMLTextAreaElement
+        // Get the todo's due date
+        const todoDate = new Date(todo.dueDate as string)
+        let todoHour = todoDate.getHours()
 
-                        // Auto-resize
-                        resizeTextarea(textarea)
+        // Convert todo hour to 12-hour format for comparison
+        let todoHour12: number
+        let todoPeriod: string
 
-                        // Update local state
-                        setLocalTodoTexts(prev => ({
-                            ...prev,
-                            [todo.id]: e.target.value
-                        }))
-                    }}
-                    onBlur={() => {
-                        const currentText = localTodoTexts[todo.id] || todo.text
-                        updateTodoItem(todo.listId, todo.id, currentText, queryClient)
-                    }}
-                    onFocus={(e) => {
-                        const textarea = e.target as HTMLTextAreaElement
-                        resizeTextarea(textarea)
-                    }}
-                    disabled={todo.deleting}
-                    rows={1}
-                    style={{
-                        lineHeight: '1.5',
-                        wordWrap: 'break-word',
-                        whiteSpace: 'pre-wrap'
-                    }}
-                />
+        if (todoHour === 0) {
+            todoHour12 = 12
+            todoPeriod = "AM"
+        } else if (todoHour === 12) {
+            todoHour12 = 12
+            todoPeriod = "PM"
+        } else if (todoHour > 12) {
+            todoHour12 = todoHour - 12
+            todoPeriod = "PM"
+        } else {
+            todoHour12 = todoHour
+            todoPeriod = "AM"
+        }
 
-                {/* Popovers */}
-                {!todo.deleting && (
-                    <div className="flex justify-between text-muted-foreground opacity-70 text-xs">
-                        {/* Due Date Popover */}
-                        <DueDatePopover
-                            todo={todo}
-                            queryClient={queryClient}
-                        />
+        // Check if the todo belongs to this time block
+        const matches = todoHour12 === parseInt(blockHour) && todoPeriod === blockPeriod
 
-                        {/* Priority Popover */}
-                        <PriorityPopover
-                            todo={todo}
-                            queryClient={queryClient}
-                        />
+
+        return matches && (
+            <div
+                key={todo.id}
+                className={`pl-3 gap-2 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
+                    ? 'opacity-0 scale-95 -translate-y-1'
+                    : 'opacity-100 scale-100 translate-y-0'
+                    }`}
+                style={{
+                    height: todo.deleting ? '0px' : 'auto',
+                    minHeight: todo.deleting ? '0px' : '10px',
+                    transition: 'all 300ms cubic-bezier(0.4, 0.0, 0.2, 1)',
+                    transformOrigin: 'top center'
+                }}
+            >
+                <div className='flex items-start mt-2'>
+                    {/* Checkbox */}
+                    <div className={`pt-[1px] transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
+                        }`}>
+                        <button
+                            onClick={() => handleTodoToggle(todo.id, todo.listId)}
+                            className={`rounded transition-all duration-300 ${todo.deleting
+                                ? 'opacity-0 pointer-events-none transform scale-50'
+                                : 'hover:bg-muted transform scale-100'
+                                }`}
+                            disabled={todo.deleting}
+                        >
+                            {todo.completed ? (
+                                <CheckCircle className="w-4 h-4 text-ring" />
+                            ) : (
+                                <Circle className="w-4 h-4 text-muted-foreground" />
+                            )}
+                        </button>
                     </div>
-                )}
+
+                    {/* Content */}
+                    <div className={`ml-2 w-full  transition-all duration-300 ease-in-out 
+                                ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'}`}>
+                        <p
+                            className={`w-full line-clamp-1 leading-normal text-sm transition-all duration-500
+                        ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                                } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
+                                }`}
+                            style={{
+                                lineHeight: '1.5',
+                                wordWrap: 'break-word',
+                                whiteSpace: 'pre-wrap'
+                            }}
+                        >
+                            {localTodoTexts[todo.id] || todo.text}
+                        </p>
+                    </div>
+
+                </div>
+                <div className='relative -top-2 left-6 text-[.675rem] text-muted-foreground italic'>
+                    {new Date(todo.dueDate as string).toLocaleTimeString([], {
+                        hour: 'numeric',
+                        minute: '2-digit'
+                    }).replace(/\s(AM|PM)/gi, (match, period) => period.toLowerCase())}
+                </div>
             </div>
-        </div>
-    )
+        )
+    }
 
     if (isLoading) {
         return (
@@ -198,20 +191,19 @@ export default function TodoList({ dateString }: TodoListProps) {
         )
     }
 
+    const timeBlocks = ["12 AM", "1 AM", "2 AM", "3 AM", "4 AM", "5 AM", "6 AM", "7 AM", "8 AM", "9 AM", "10 AM", "11 AM", "12 PM", "1 PM", "2 PM", "3 PM", "4 PM", "5 PM", "6 PM", "7 PM", "8 PM", "9 PM", "10 PM", "11 PM"];
+
     return (
-        <div className='mx-5 mt-10 space-y-6 mb-36'>
-            {/* Todos List */}
-            {todos.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                    <CalendarDays className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium mb-2">No todos for this day</h3>
-                    <p>Add a todo below to get started</p>
+
+        <div className='w-full mx-auto border-t mt-12 mb-36'>
+            {timeBlocks.map((time) => (
+                <div key={time} className='flex w-full border-b min-h-[60px]'>
+                    <p className='text-md font-bold w-[65px] border-r pl-3 pt-1'>{time.split(" ")[0]} <span className='text-xs'>{time.split(" ")[1]}</span></p>
+                    <div className="space-y-0 transition-all duration-300 ease-in-out w-full">
+                        {todos.map((todo) => renderTodoItem(todo, time))}
+                    </div>
                 </div>
-            ) : (
-                <div className="space-y-0 transition-all duration-300 ease-in-out">
-                    {todos.map(renderTodoItem)}
-                </div>
-            )}
+            ))}
         </div>
     )
 }
