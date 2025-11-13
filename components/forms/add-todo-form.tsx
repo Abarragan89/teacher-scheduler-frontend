@@ -8,29 +8,41 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CalendarIcon, ChevronDown } from 'lucide-react'
 import { BsFillBookmarkFill } from 'react-icons/bs'
 import { useQueryClient } from '@tanstack/react-query'
-import { TodoList } from '@/types/todo'
+import { TodoItem, TodoList } from '@/types/todo'
 import { clientTodo } from '@/lib/api/services/todos/client'
 import { toast } from 'sonner'
+import { DailyTodoItem } from '@/lib/hooks/useDailyTodos'
 
 interface AddTodoFormProps {
     listId?: string // Make optional since we'll have dropdown
+    todoId?: string // For editing existing todo
 }
 
-export default function AddTodoForm({ listId }: AddTodoFormProps) {
+export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
     const queryClient = useQueryClient()
 
     // Get all todo lists from React Query cache
     const todoLists = (queryClient.getQueryData(['todos']) as TodoList[]) || []
+
+    let currentTodo: TodoItem | undefined = undefined
+    if (todoId) {
+        currentTodo = todoLists
+            .flatMap(list => list.todos)
+            .find(todo => todo.id === todoId)
+    }
 
     const [text, setText] = useState('')
     const [dueDate, setDueDate] = useState<Date | undefined>()
     const [time, setTime] = useState<string>('07:00')
     const [priority, setPriority] = useState<number>(1)
     const [selectedListId, setSelectedListId] = useState<string>(listId || todoLists[0]?.id || '')
+    const [editingTodo, setEditingTodo] = useState<TodoItem | undefined>(currentTodo)
     const [isCreating, setIsCreating] = useState(false)
     const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false)
     const [isPriorityPopoverOpen, setIsPriorityPopoverOpen] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
+
+    console.log('editingTodo', editingTodo)
 
     function combineDateAndTime(date: Date | undefined, time: string): string | null {
         if (!date) return null
@@ -85,8 +97,6 @@ export default function AddTodoForm({ listId }: AddTodoFormProps) {
             setDueDate(undefined)
             setTime('07:00')
             setPriority(1)
-            // Focus back to input
-            toast.success(`Todo added successfully${dueDate ? `, due ${formatDisplayDate(dueDate, true)}` : ''}`)
         } catch (error) {
             console.error('Failed to create todo:', error)
         } finally {

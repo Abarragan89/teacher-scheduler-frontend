@@ -8,27 +8,29 @@ import AddTodoForm from '@/components/forms/add-todo-form'
 import DueDatePopover from '@/components/shared/todo-sheet/popovers/due-date-popover'
 import PriorityPopover from '@/components/shared/todo-sheet/popovers/priority-popover'
 import useSound from 'use-sound'
-import { CheckCircle, Circle, CalendarDays } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import { CheckCircle, Circle } from 'lucide-react'
 import { DailyTodoItem } from '@/lib/hooks/useDailyTodos'
 import { useState, useEffect, useRef } from 'react'
 import { match } from 'assert'
+import { ResponsiveDialog } from '@/components/responsive-dialog'
 
 interface TodoListProps {
     dateString: string
 }
 
 export default function TodoList({ dateString }: TodoListProps) {
+
+    const timeBlocks = ["12 AM", "1 AM", "2 AM", "3 AM", "4 AM", "5 AM", "6 AM", "7 AM", "8 AM", "9 AM", "10 AM", "11 AM", "12 PM", "1 PM", "2 PM", "3 PM", "4 PM", "5 PM", "6 PM", "7 PM", "8 PM", "9 PM", "10 PM", "11 PM"];
+
     const { todos, isLoading, todosCount } = useDailyTodos(dateString)
     const { defaultListId } = useDefaultTodoList()
     const queryClient = useQueryClient()
 
     // Local state for textarea content (same as todo-sheet)
     const [localTodoTexts, setLocalTodoTexts] = useState<Record<string, string>>({})
+    const [showEditTodoModal, setShowEditTodoModal] = useState(false);
+    const [currentTodo, setCurrentTodo] = useState<DailyTodoItem | null>(null);
 
-    // Refs for textarea auto-resize (same as todo-sheet)
-    const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
 
     const [playCompleteSound] = useSound('/sounds/todoWaterClick.wav', {
         volume: 0.4
@@ -37,11 +39,6 @@ export default function TodoList({ dateString }: TodoListProps) {
         volume: 0.3
     });
 
-    // Auto-resize function (same as todo-sheet)
-    const resizeTextarea = (textarea: HTMLTextAreaElement) => {
-        textarea.style.height = 'auto'
-        textarea.style.height = `${textarea.scrollHeight}px`
-    }
 
     // Sync local todo texts when todos change (same as todo-sheet)
     useEffect(() => {
@@ -56,16 +53,6 @@ export default function TodoList({ dateString }: TodoListProps) {
         }
     }, [todos, localTodoTexts])
 
-    // Format the date for display
-    const formatDateForDisplay = (dateStr: string) => {
-        const date = new Date(dateStr)
-        return date.toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        })
-    }
 
     const handleTodoToggle = (todoId: string, listId: string) => {
         toggleTodoCompletion(
@@ -75,6 +62,13 @@ export default function TodoList({ dateString }: TodoListProps) {
             playTodoRemovedSound,
             queryClient
         )
+    }
+
+    function showEditModalHandler(todo: DailyTodoItem) {
+        console.log('clicking todo item', todo)
+        // Implement modal opening logic here
+        setCurrentTodo(todo);
+        setShowEditTodoModal(true);
     }
 
     const renderTodoItem = (todo: DailyTodoItem, time: string) => {
@@ -105,7 +99,6 @@ export default function TodoList({ dateString }: TodoListProps) {
 
         // Check if the todo belongs to this time block
         const matches = todoHour12 === parseInt(blockHour) && todoPeriod === blockPeriod
-
 
         return matches && (
             <div
@@ -142,56 +135,48 @@ export default function TodoList({ dateString }: TodoListProps) {
                     </div>
 
                     {/* Content */}
-                    <div className={`ml-2 w-full  transition-all duration-300 ease-in-out 
+                    <div
+                        onClick={() => showEditModalHandler(todo)}
+                        className={`ml-2 w-full  transition-all duration-300 ease-in-out 
                                 ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'}`}>
                         <p
                             className={`w-full line-clamp-1 leading-normal text-sm transition-all duration-500
-                        ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
-                                } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
-                                }`}
-                            style={{
-                                lineHeight: '1.5',
-                                wordWrap: 'break-word',
-                                whiteSpace: 'pre-wrap'
-                            }}
+                                ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''} 
+                                ${todo.deleting ? 'pointer-events-none transform scale-90' : ''}
+                                `}
                         >
                             {localTodoTexts[todo.id] || todo.text}
                         </p>
                     </div>
-
                 </div>
+
+                {/* Show time underneath */}
                 <div className='relative -top-2 left-6 text-[.675rem] text-muted-foreground italic'>
                     {new Date(todo.dueDate as string).toLocaleTimeString([], {
                         hour: 'numeric',
                         minute: '2-digit'
-                    }).replace(/\s(AM|PM)/gi, (match, period) => period.toLowerCase())}
+                    }).replace(/\s(AM|PM)/gi, (period) => period.toLowerCase())}
                 </div>
             </div>
         )
     }
 
-    if (isLoading) {
+
+    if (showEditTodoModal) {
         return (
-            <Card>
-                <CardHeader>
-                    <Skeleton className="h-6 w-64" />
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                            <Skeleton className="h-6 w-6 rounded-full" />
-                            <div className="flex-1 space-y-2">
-                                <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-3 w-32" />
-                            </div>
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
+            <ResponsiveDialog
+                isOpen={showEditTodoModal}
+                setIsOpen={setShowEditTodoModal}
+                title="Edit ToDo"
+            >
+                <AddTodoForm 
+                    listId={currentTodo?.listId}
+                    todoId={currentTodo?.id}
+                />
+            </ResponsiveDialog>
         )
     }
 
-    const timeBlocks = ["12 AM", "1 AM", "2 AM", "3 AM", "4 AM", "5 AM", "6 AM", "7 AM", "8 AM", "9 AM", "10 AM", "11 AM", "12 PM", "1 PM", "2 PM", "3 PM", "4 PM", "5 PM", "6 PM", "7 PM", "8 PM", "9 PM", "10 PM", "11 PM"];
 
     return (
 

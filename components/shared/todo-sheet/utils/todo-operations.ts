@@ -399,8 +399,6 @@ export const addTodoItem = async (
             priority,
         )
 
-        toast.success('Todo added!');
-
         // Focus the textarea again
         setTimeout(() => {
             newTodoTextareaRef.current?.focus()

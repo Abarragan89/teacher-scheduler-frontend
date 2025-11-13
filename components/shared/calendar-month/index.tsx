@@ -179,8 +179,8 @@ export default function CalendarMonth() {
                         `}
                     >
                         {/* Date number */}
-                        <div className={`text-md self-center flex items-center justify-center
-                            ${isToday(date) ? 'bg-ring text-accent rounded-full w-7 h-7 font-bold' : ''}
+                        <div className={`self-center flex items-center justify-center
+                            ${isToday(date) ? 'bg-ring text-accent rounded-full w-7 h-7' : ''}
                         `}>
                             {date.getDate()}
                         </div>

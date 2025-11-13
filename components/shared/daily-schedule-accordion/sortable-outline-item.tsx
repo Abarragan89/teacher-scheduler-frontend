@@ -7,6 +7,7 @@ import { CSS } from "@dnd-kit/utilities"
 import { AccordionState } from './utils/types'
 import { toggleOutlineItemCompletion, updateOutlineItem, handleOutlineBlur, handleOutlineFocus, indentOutlineItem, unindentOutlineItem } from './utils/outline-operations'
 import { handleOutlineKeyDown } from './utils/keyboard-handlers'
+import useSound from 'use-sound'
 
 interface SortableOutlineItemProps {
     item: OutlineItem
@@ -21,6 +22,11 @@ export default function SortableOutlineItem({
     isEditable,
     state
 }: SortableOutlineItemProps) {
+
+    const [playCompleteSound] = useSound('/sounds/todoWaterClick.wav', {
+        volume: 0.4
+    });
+
     const {
         attributes,
         listeners,
@@ -46,23 +52,23 @@ export default function SortableOutlineItem({
             className={`flex items-start gap-1 mb-2`}
         >
             {/* Indent/Unindent chevron buttons - temporarily visible on all screens for testing */}
-            <div className="flex items-center gap-1 opacity-80 lg:hidden">
+            <div className="flex items-center gap-1 opacity-80 lg:hidden mt-1">
                 {item.indentLevel > 0 && (
                     <button
                         onClick={() => unindentOutlineItem(taskId, item.id, state)}
-                        className="flex items-center justify-center w-3 h-3 text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
+                        className="flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
                         title="Unindent"
                     >
-                        <ChevronLeft className="w-3 h-3" />
+                        <ChevronLeft className="w-4 h-4" />
                     </button>
                 )}
                 {item.indentLevel < 1 && (
                     <button
                         onClick={() => indentOutlineItem(taskId, item.id, state)}
-                        className="flex items-center justify-center w-3 h-3 text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
+                        className="flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
                         title="Indent"
                     >
-                        <ChevronRight className="w-3 h-3" />
+                        <ChevronRight className="w-4 h-4" />
                     </button>
                 )}
             </div>
@@ -86,14 +92,14 @@ export default function SortableOutlineItem({
                 {/* Smaller checkboxes for indented fields */}
                 {item?.indentLevel > 0 ? (
                     <p
-                        onClick={() => toggleOutlineItemCompletion(taskId, item.id, state)}
+                        onClick={() => toggleOutlineItemCompletion(taskId, item.id, state, playCompleteSound)}
                         className={`min-w-[15px] min-h-[15px] mt-[4px] rounded-full mr-1
                         ${item.completed ? 'bg-ring border border-ring' : 'border border-muted-foreground'}
                         `}
                     />
                 ) : (
                     <button
-                        onClick={() => toggleOutlineItemCompletion(taskId, item.id, state)}
+                        onClick={() => toggleOutlineItemCompletion(taskId, item.id, state, playCompleteSound)}
                     >
                         {item.completed ? (
                             <SquareCheckBig className="w-5 h-5 text-ring" />

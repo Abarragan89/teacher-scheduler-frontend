@@ -2,6 +2,14 @@ import { OutlineItem } from '@/types/outline-item'
 import { clientOutlineItems } from '@/lib/api/services/tasks/client'
 import { AccordionState } from './types'
 
+export interface PlayOptions {
+    id?: string;
+    forceSoundEnabled?: boolean;
+    playbackRate?: number;
+}
+
+export type PlayFunction = (options?: PlayOptions) => void;
+
 // Helper function to update backend positions only after actual deletion
 const updateBackendPositionsAfterDeletion = async (taskId: string, deletedItemId: string, originalItems: any[]) => {
     try {
@@ -65,13 +73,14 @@ export const ensureEmptyOutlineItem = (outlineItems: OutlineItem[]) => {
     })
 }
 
-export const toggleOutlineItemCompletion = async (taskId: string, itemId: string, state: AccordionState) => {
+export const toggleOutlineItemCompletion = async (taskId: string, itemId: string, state: AccordionState, playSound: PlayFunction) => {
     const { tasks, setTasks } = state
     const task = tasks.find(t => t.id === taskId)
     const item = task?.outlineItems.find(i => i.id === itemId)
     if (!task || !item) return
 
     const newCompleted = !item.completed
+    if (newCompleted) playSound();
 
     // Update UI immediately (optimistic update)
     setTasks(prev =>

@@ -1,13 +1,15 @@
 import { Task } from '@/types/tasks'
 import { clientTasks } from '@/lib/api/services/tasks/client'
 import { AccordionState } from './types'
+import { PlayFunction } from './outline-operations'
 
-export const toggleTaskCompletion = async (taskId: string, state: AccordionState) => {
+export const toggleTaskCompletion = async (taskId: string, state: AccordionState, playSound: PlayFunction) => {
     const { tasks, setTasks } = state
     const task = tasks.find(t => t.id === taskId)
     if (!task) return
 
     const newCompleted = !task.completed
+    if (newCompleted) playSound();
 
     // Update UI immediately (optimistic update)
     setTasks(prev =>

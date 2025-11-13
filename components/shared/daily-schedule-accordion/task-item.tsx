@@ -16,6 +16,8 @@ import { toggleTaskCompletion, updateTaskTitle, handleTaskBlur, handleTaskFocus 
 import { handleTaskTitleKeyDown } from './utils/keyboard-handlers'
 import { TimePicker } from "./time-picker"
 import { formatTime } from "@/lib/utils"
+import useSound from 'use-sound'
+
 
 interface TaskItemProps {
     task: Task
@@ -28,6 +30,10 @@ export default function TaskItem({
     isEditable,
     state
 }: TaskItemProps) {
+
+    const [playCompleteSound] = useSound('/sounds/todoWaterClick.wav', {
+        volume: 0.4
+    });
 
     // Task-level sortable (for dragging entire tasks)
     const {
@@ -81,7 +87,7 @@ export default function TaskItem({
 
                 {/* Task Completion Checkbox */}
                 <button
-                    onClick={() => toggleTaskCompletion(task.id, state)}
+                    onClick={() => toggleTaskCompletion(task.id, state, playCompleteSound)}
                     className="flex-shrink-0 pl-0 rounded"
                 >
                     {task.completed ? (
