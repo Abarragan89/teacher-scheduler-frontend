@@ -51,7 +51,7 @@ export default function CalendarMonth() {
     // Handle date click - navigate to daily view
     const handleDateClick = (date: Date) => {
         const dateString = date.toISOString().split('T')[0] // Format: YYYY-MM-DD
-        router.push(`/dashboard/daily/${dateString}`)
+        router.push(`/dashboard/daily/${dateString}?view=schedule`)
     }
 
     // Helper function to check if date is in current month

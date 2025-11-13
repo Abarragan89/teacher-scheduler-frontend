@@ -5,13 +5,10 @@ import { useDefaultTodoList } from '@/lib/hooks/useDefaultTodoList'
 import { useQueryClient } from '@tanstack/react-query'
 import { toggleTodoCompletion, updateTodoItem } from '@/components/shared/todo-sheet/utils/todo-operations'
 import AddTodoForm from '@/components/forms/add-todo-form'
-import DueDatePopover from '@/components/shared/todo-sheet/popovers/due-date-popover'
-import PriorityPopover from '@/components/shared/todo-sheet/popovers/priority-popover'
 import useSound from 'use-sound'
 import { CheckCircle, Circle } from 'lucide-react'
 import { DailyTodoItem } from '@/lib/hooks/useDailyTodos'
-import { useState, useEffect, useRef } from 'react'
-import { match } from 'assert'
+import { useState, useEffect } from 'react'
 import { ResponsiveDialog } from '@/components/responsive-dialog'
 
 interface TodoListProps {
@@ -25,6 +22,7 @@ export default function TodoList({ dateString }: TodoListProps) {
     const { todos, isLoading, todosCount } = useDailyTodos(dateString)
     const { defaultListId } = useDefaultTodoList()
     const queryClient = useQueryClient()
+
 
     // Local state for textarea content (same as todo-sheet)
     const [localTodoTexts, setLocalTodoTexts] = useState<Record<string, string>>({})
@@ -135,19 +133,13 @@ export default function TodoList({ dateString }: TodoListProps) {
                     </div>
 
                     {/* Content */}
-                    <div
+                    <p
                         onClick={() => showEditModalHandler(todo)}
-                        className={`ml-2 w-full  transition-all duration-300 ease-in-out 
-                                ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'}`}>
-                        <p
-                            className={`w-full line-clamp-1 leading-normal text-sm transition-all duration-500
-                                ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''} 
-                                ${todo.deleting ? 'pointer-events-none transform scale-90' : ''}
-                                `}
-                        >
-                            {localTodoTexts[todo.id] || todo.text}
-                        </p>
-                    </div>
+                        className={`ml-2 w-full line-clamp-1 leading-normal text-sm transition-all duration-500 hover:cursor-pointer hover:text-ring
+                                     ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''} `}
+                    >
+                        {localTodoTexts[todo.id] || todo.text}
+                    </p>
                 </div>
 
                 {/* Show time underneath */}
@@ -162,33 +154,32 @@ export default function TodoList({ dateString }: TodoListProps) {
     }
 
 
-    if (showEditTodoModal) {
-        return (
-            <ResponsiveDialog
-                isOpen={showEditTodoModal}
-                setIsOpen={setShowEditTodoModal}
-                title="Edit ToDo"
-            >
-                <AddTodoForm 
-                    listId={currentTodo?.listId}
-                    todoId={currentTodo?.id}
-                />
-            </ResponsiveDialog>
-        )
-    }
 
 
     return (
-
-        <div className='w-full mx-auto border-t mt-12 mb-36'>
-            {timeBlocks.map((time) => (
-                <div key={time} className='flex w-full border-b min-h-[60px]'>
-                    <p className='text-md font-bold w-[65px] border-r pl-3 pt-1'>{time.split(" ")[0]} <span className='text-xs'>{time.split(" ")[1]}</span></p>
-                    <div className="space-y-0 transition-all duration-300 ease-in-out w-full">
-                        {todos.map((todo) => renderTodoItem(todo, time))}
+        <>
+            <div className='w-full mx-auto border-t mt-5 mb-36'>
+                {timeBlocks.map((time) => (
+                    <div key={time} className='flex w-full border-b min-h-[60px]'>
+                        <p className='text-md font-bold w-[65px] border-r pl-3 pt-1'>{time.split(" ")[0]} <span className='text-xs'>{time.split(" ")[1]}</span></p>
+                        <div className="space-y-0 transition-all duration-300 ease-in-out w-full">
+                            {todos.map((todo) => renderTodoItem(todo, time))}
+                        </div>
                     </div>
-                </div>
-            ))}
-        </div>
+                ))}
+            </div>
+            {showEditTodoModal && (
+                <ResponsiveDialog
+                    isOpen={showEditTodoModal}
+                    setIsOpen={setShowEditTodoModal}
+                    title="Edit ToDo"
+                >
+                    <AddTodoForm
+                        listId={currentTodo?.listId}
+                        todoId={currentTodo?.id}
+                    />
+                </ResponsiveDialog>
+            )}
+        </>
     )
 }

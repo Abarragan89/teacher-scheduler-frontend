@@ -2,57 +2,79 @@ import DailyScheduleAccordion from '@/components/shared/daily-schedule-accordion
 import { serverDays } from '@/lib/api/services/days/server';
 import { formatDateDisplay } from '@/lib/utils';
 import React from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DayData } from '@/types/day';
 import TodoList from './todo-list';
 import YesterdayTomorrowNav from '@/components/shared/daily-schedule-accordion/yesterday-tomorrow-nav';
+import Link from 'next/link';
 
 interface pageProps {
     params: Promise<{
         dateString: string
-    }>
+    }>,
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export default async function page({ params }: pageProps) {
+export default async function page({ params, searchParams }: pageProps) {
 
     const { dateString } = await params;
-
     const currentDay: DayData = await serverDays.findOrCreateDay(dateString);
+
+    const view = (await searchParams).view as string
+    console.log('view ', view)
 
 
     return (
         <main className='wrapper'>
-            <Tabs defaultValue="schedule" className="w-full">
-                <div className="flex flex-col items-start print:!hidden">
-                    <h1 className='h1-bold mr-5'>{formatDateDisplay(new Date(currentDay.dayDate.replace(/-/g, "/")))}</h1>
-                    <YesterdayTomorrowNav dateString={dateString} />
-                    <TabsList className='mt-4'>
-                        <TabsTrigger value="schedule">Schedule</TabsTrigger>
-                        <TabsTrigger value="todos">ToDos</TabsTrigger>
-                        <TabsTrigger value="notes">Notes</TabsTrigger>
-                    </TabsList>
+            {/* <Tabs defaultValue={view || 'schedule'} className="w-full"> */}
+            <div className="flex flex-col items-start print:!hidden">
+                <h1 className='h1-bold mr-5'>{formatDateDisplay(new Date(currentDay.dayDate.replace(/-/g, "/")))}</h1>
+                <YesterdayTomorrowNav dateString={dateString} />
+
+                {/* Link-based tabs */}
+                <div className="flex space-x-1 border-b mt-4 mb-1">
+                    <Link
+                        href={`?view=schedule`}
+                        className={`px-4 py-2 border-b-2 transition-colors ${view === 'schedule'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-muted-foreground hover:text-foreground'
+                            }`}
+                    >
+                        Schedule
+                    </Link>
+                    <Link
+                        href={`?view=todos`}
+                        className={`px-4 py-2 border-b-2 transition-colors ${view === 'todos'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-muted-foreground hover:text-foreground'
+                            }`}
+                    >
+                        Todos
+                    </Link>
+                    <Link
+                        href={`?view=notes`}
+                        className={`px-4 py-2 border-b-2 transition-colors ${view === 'notes'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-muted-foreground hover:text-foreground'
+                            }`}
+                    >
+                        Notes
+                    </Link>
                 </div>
 
-                <TabsContent value="schedule">
-                    <DailyScheduleAccordion
-                        dayId={currentDay.id}
-                        scheduleData={currentDay.schedule}
-                        currentDay={currentDay.dayDate.replace(/-/g, "/")}
-                    />
-                </TabsContent>
 
-                <TabsContent value="reminders">
-                    <p>These are the Reminders</p>
-                </TabsContent>
-
-                <TabsContent value="todos">
-                    <TodoList dateString={dateString} />
-                </TabsContent>
-
-                <TabsContent value="notes">
-                    <p>These are the Notes</p>
-                </TabsContent>
-            </Tabs>
+                <div className="mt-4 w-full">
+                    {view === 'schedule' && (
+                        <DailyScheduleAccordion
+                            dayId={currentDay.id}
+                            scheduleData={currentDay.schedule}
+                            currentDay={currentDay.dayDate.replace(/-/g, "/")}
+                        />
+                    )}
+                    {view === 'todos' && <TodoList dateString={dateString} />}
+                    {view === 'notes' && <p>These are the Notes</p>}
+                </div>
+            </div>
         </main>
+
     )
 }

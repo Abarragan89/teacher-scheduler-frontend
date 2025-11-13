@@ -10,10 +10,13 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { Calendar } from '@/components/ui/calendar'
+import { useSearchParams } from 'next/navigation';
 
 export default function YesterdayTomorrowNav({ dateString }: { dateString: string }) {
 
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const viewParam = searchParams.get('view');
     const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false);
     const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(new Date(dateString));
 
@@ -21,14 +24,14 @@ export default function YesterdayTomorrowNav({ dateString }: { dateString: strin
         const yesterday = new Date(dateString)
         yesterday.setDate(yesterday.getDate() - 1)
         const formattedDate = yesterday.toISOString().split('T')[0]
-        router.push(`/dashboard/daily/${formattedDate}`)
+        router.push(`/dashboard/daily/${formattedDate}/${viewParam ? `?view=${viewParam}` : ''}`)
     }
 
     function goToTomorrow() {
         const tomorrow = new Date(dateString)
         tomorrow.setDate(tomorrow.getDate() + 1)
         const formattedDate = tomorrow.toISOString().split('T')[0]
-        router.push(`/dashboard/daily/${formattedDate}`)
+        router.push(`/dashboard/daily/${formattedDate}/${viewParam ? `?view=${viewParam}` : ''}`)
     }
 
     function goToSelectedDate(date: Date | undefined) {
@@ -36,7 +39,7 @@ export default function YesterdayTomorrowNav({ dateString }: { dateString: strin
 
         const formattedDate = date.toISOString().split('T')[0]
         setIsCalendarOpen(false)
-        router.push(`/dashboard/daily/${formattedDate}`)
+        router.push(`/dashboard/daily/${formattedDate}/${viewParam ? `?view=${viewParam}` : ''}`)
     }
 
     return (
