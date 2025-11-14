@@ -64,8 +64,6 @@ self.addEventListener('notificationclick', function (event) {
         const notificationData = event.notification.data || {};
         const urlToOpen = notificationData.url || '/dashboard';
 
-
-
         event.waitUntil(
             clients.matchAll({
                 type: 'window',
@@ -85,41 +83,6 @@ self.addEventListener('notificationclick', function (event) {
                 }
             })
         );
-
-        // event.waitUntil(
-        //     fetch(`/api/todos/${event.notification.data.todoId}/complete`, {
-        //         method: 'PATCH',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         credentials: 'include' // Include cookies for auth
-        //     }).then(response => {
-        //         if (response.ok) {
-        //             console.log('✅ Todo marked complete via notification');
-
-        //             // Show a success notification
-        //             return self.registration.showNotification('Todo Complete!', {
-        //                 body: 'Task marked as complete',
-        //                 icon: '/android-chrome-192x192.png',
-        //                 tag: 'todo-complete',
-        //                 requireInteraction: false
-        //             });
-        //         } else {
-        //             console.error('❌ Failed to mark todo complete:', response.status);
-        //             throw new Error('Failed to mark complete');
-        //         }
-        //     }).catch(err => {
-        //         console.error('❌ Network error marking complete:', err);
-
-        //         // Show error notification
-        //         return self.registration.showNotification('Error', {
-        //             body: 'Failed to mark todo complete',
-        //             icon: '/android-chrome-192x192.png',
-        //             tag: 'todo-error',
-        //             requireInteraction: false
-        //         });
-        //     })
-        // );
 
     } else if (event.action === 'snooze') {
         console.log('⏰ Snooze action clicked');
@@ -166,21 +129,33 @@ self.addEventListener('notificationclick', function (event) {
         );
 
     } else {
-        // Default action (clicking notification body) - open the app
+        // Default action (clicking notification body) - open specific URL
         console.log('📱 Opening app from notification');
 
+        // Get the URL from notification data (same as mark-complete action)
+        const notificationData = event.notification.data || {};
+        const urlToOpen = notificationData.url || '/dashboard';
+
+        console.log('🎯 URL to open:', urlToOpen);
+
         event.waitUntil(
-            clients.matchAll({ type: 'window' }).then(clientList => {
-                // If app is already open, focus it
-                for (const client of clientList) {
+            clients.matchAll({
+                type: 'window',
+                includeUncontrolled: true
+            }).then(function (clientList) {
+                // Check if app is already open
+                for (let client of clientList) {
                     if (client.url.includes('/dashboard') && 'focus' in client) {
-                        return client.focus();
+                        // Navigate to the specific URL and focus
+                        console.log('🔄 Navigating existing window to:', urlToOpen);
+                        return client.navigate(urlToOpen).then(() => client.focus());
                     }
                 }
 
-                // Otherwise, open new window
+                // If no existing window, open new one with specific URL
                 if (clients.openWindow) {
-                    return clients.openWindow('/dashboard');
+                    console.log('🆕 Opening new window with:', urlToOpen);
+                    return clients.openWindow(urlToOpen);
                 }
             })
         );
