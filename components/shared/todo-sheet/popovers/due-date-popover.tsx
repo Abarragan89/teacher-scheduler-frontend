@@ -5,10 +5,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import React, { useState } from 'react'
 import { handleDueDateUpdate } from '../utils/todo-operations'
 import { TodoItem } from '@/types/todo'
-import { TodoState } from '../utils/todo-list-operations'
 import { QueryClient } from '@tanstack/react-query'
 
-export default function DueDatePopover({ todo, queryClient }: { todo: TodoItem, queryClient: QueryClient }) {
+export default function DueDatePopover({ todo, queryClient, listId }: { todo: TodoItem, queryClient: QueryClient, listId: string }) {
 
     // Initialize with todo's due date if it exists, otherwise use current date
     const [date, setDate] = useState<Date | undefined>(
@@ -55,11 +54,11 @@ export default function DueDatePopover({ todo, queryClient }: { todo: TodoItem, 
     async function setDueDate() {
         setIsSaving(true);
         if (!date) {
-            await handleDueDateUpdate(todo.id, null, queryClient);
+            await handleDueDateUpdate(todo.id, null, queryClient, listId);
         } else {
             const dueDateISO = combineDateAndTime(date, time);
             // Implement setting due date logic here (Backend and Frontend)
-            await handleDueDateUpdate(todo.id, dueDateISO, queryClient);
+            await handleDueDateUpdate(todo.id, dueDateISO, queryClient, listId);
         }
         setIsPopOverOpen(false);
         setIsSaving(false);

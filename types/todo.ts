@@ -3,6 +3,7 @@ export interface TodoItem {
     text: string
     completed: boolean
     priority: number
+    todoListId?: string
     dueDate: String | null
     createdAt?: string   // For sorting by creation date
     deleting?: boolean  // For smooth deletion animation

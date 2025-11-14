@@ -20,8 +20,6 @@ import {
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { ChevronsUpDown, Trash2 } from 'lucide-react'
 import { Schedule } from '@/types/day'
-import YesterdayTomorrowNav from './yesterday-tomorrow-nav'
-import { useRouter } from 'next/navigation'
 import { ChevronsDownUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AccordionState } from './utils/types'
@@ -54,10 +52,6 @@ export default function DailyScheduleAccordion({
     currentDay: string,
     dayId: string
 }) {
-
-
-
-    const router = useRouter();
 
     const [tasks, setTasks] = useState<Task[]>(() => {
         return scheduleData?.tasks?.map(task => {
@@ -143,9 +137,6 @@ export default function DailyScheduleAccordion({
         )
     }
 
-
-
-
     return (
         <div>
             <SchedulePrintView
@@ -155,10 +146,10 @@ export default function DailyScheduleAccordion({
 
 
             <div className="print:!hidden flex-between mb-3 mx-3">
-            <MoveSchedulePopover
-                scheduleId={scheduleData.id}
-            />
-               
+                <MoveSchedulePopover
+                    scheduleId={scheduleData.id}
+                />
+
                 <div className="flex text-sm items-center justify-end gap-x-2">
                     <Button title="Close all tasks" onClick={() => setOpenAccordions([])} variant={'ghost'}>
                         <ChevronsDownUp
@@ -228,7 +219,7 @@ export default function DailyScheduleAccordion({
                                 <div className="flex items-center gap-3">
                                     <div className="w-2 h-2 rounded-full bg-muted-foreground" />
                                     <div className="font-medium text-foreground">
-                                        {activeItem.title || 'Untitled Task'}
+                                        {activeItem.title || 'Untitled Activity'}
                                     </div>
                                 </div>
                             ) : (

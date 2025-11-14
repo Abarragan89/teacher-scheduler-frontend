@@ -167,7 +167,7 @@ export const toggleTodoCompletion = async (
         })
 
         // Backend API call (don't await)
-        clientTodo.updateTodo({ ...todo, completed: false }).catch(error => {
+        clientTodo.updateTodo({ ...todo, completed: false, todoListId: listId }).catch(error => {
             console.error('Failed to uncheck todo:', error)
         })
     }
@@ -242,7 +242,7 @@ export const handleTodoBlur = async (
         // Update existing todo in backend
         try {
             const updatedTodo = { ...todo, text: text.trim() }
-            await clientTodo.updateTodo(updatedTodo)
+            await clientTodo.updateTodo({ ...updatedTodo, todoListId: listId })
 
             // Update cache with fresh data, keeping existing properties
             queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
@@ -275,18 +275,19 @@ export const handleTodoBlur = async (
 export const handleDueDateUpdate = async (
     todoId: string,
     dueDate: String | null,
-    queryClient: QueryClient
+    queryClient: QueryClient,
+    listId: string
 ) => {
     // Get fresh data from cache instead of stale state
     const todoLists = queryClient.getQueryData(['todos']) as TodoList[]
     if (!todoLists) return
 
-    const todo = todoLists
-        .flatMap(list => list.todos)
-        .find(t => t.id === todoId)
-    if (!todo) return
+    const currentList = todoLists.find(list => list.id === listId)
+    if (!currentList) return
 
-    // Don't mutate the todo directly
+    const currentTodo = currentList.todos.find(t => t.id === todoId)
+    if (!currentTodo) return
+
 
     // Update the due date/time in the UI
     queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
@@ -302,7 +303,7 @@ export const handleDueDateUpdate = async (
     })
 
     try {
-        const updatedTodo = { ...todo, dueDate }
+        const updatedTodo = { ...currentTodo, dueDate, todoListId: listId }
         await clientTodo.updateTodo(updatedTodo)
     } catch (error) {
         console.error('Failed to update due date:', error)
@@ -313,18 +314,18 @@ export const handleDueDateUpdate = async (
 export const handlePriorityUpdate = async (
     todoId: string,
     priority: number,
-    queryClient: QueryClient
+    queryClient: QueryClient,
+    listId: string
 ) => {
     // Get fresh data from cache instead of stale state
     const todoLists = queryClient.getQueryData(['todos']) as TodoList[]
     if (!todoLists) return
 
-    const todo = todoLists
-        .flatMap(list => list.todos)
-        .find(t => t.id === todoId)
-    if (!todo) return
+    const currentList = todoLists.find(list => list.id === listId)
+    if (!currentList) return
 
-    // Don't mutate the todo directly
+    const currentTodo = currentList.todos.find(t => t.id === todoId)
+    if (!currentTodo) return
 
     // Update the priority in the UI (NO SORTING)
     queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
@@ -336,12 +337,11 @@ export const handlePriorityUpdate = async (
                     ? { ...todo, priority }
                     : todo
             )
-            // REMOVED: .sort((a, b) => b.priority - a.priority)
         }))
     })
 
     try {
-        const updatedTodo = { ...todo, priority }
+        const updatedTodo = { ...currentTodo, priority, todoListId: listId }
         await clientTodo.updateTodo(updatedTodo)
     } catch (error) {
         console.error('Failed to update priority:', error)

@@ -7,7 +7,7 @@ import { TodoState } from '../utils/todo-list-operations'
 import { TodoItem } from '@/types/todo'
 import { QueryClient } from '@tanstack/react-query'
 
-export default function PriorityPopover({ todo, queryClient }: { todo: TodoItem, queryClient: QueryClient }) {
+export default function PriorityPopover({ todo, queryClient, listId }: { todo: TodoItem, queryClient: QueryClient, listId: string }) {
 
     const [isPopOverOpen, setIsPopOverOpen] = useState<boolean>(false);
 
@@ -39,7 +39,7 @@ export default function PriorityPopover({ todo, queryClient }: { todo: TodoItem,
                             size="sm"
                             className={`w-full justify-start ${bgColor} ${color}`}
                             onClick={() => {
-                                handlePriorityUpdate(todo.id, level, queryClient);
+                                handlePriorityUpdate(todo.id, level, queryClient, listId);
                                 setIsPopOverOpen(false);
                             }}
                         >

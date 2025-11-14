@@ -137,12 +137,14 @@ export default function DashboardContent() {
                         <DueDatePopover
                             todo={todo}
                             queryClient={queryClient}
+                            listId={findListIdForTodo(todo.id) || ''}
                         />
 
                         {/* Priority Popover */}
                         <PriorityPopover
                             todo={todo}
                             queryClient={queryClient}
+                            listId={findListIdForTodo(todo.id) || ''}
                         />
                     </div>
                 )}

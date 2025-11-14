@@ -3,7 +3,6 @@
 @plugin "tailwindcss-animate";
 @import "tw-animate-css";
 
-
 :root {
   --background: oklch(0.1743 0.0227 283.7998);
   --foreground: oklch(0.9185 0.0257 285.8834);
@@ -58,7 +57,6 @@
     0px 4px 6px -1px hsla(240, 26%, 20%, 0.576);
 }
 .light {
-  /* --background: oklch(0.973 0.0133 286.1503); */
   --background: oklch(92.601% 0.02276 305.443);
   --foreground: oklch(34.523% 0.06911 282.17);
   --card: oklch(94.984% 0.01439 308.036);
@@ -77,7 +75,6 @@
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(74.374% 0.11609 283.216);
   --input: oklch(82.629% 0.06432 284.895);
-  /* --input: oklch(0.9115 0.0216 285.9625); */
   --ring: oklch(0.5417 0.179 288.0332);
   --chart-1: oklch(0.5417 0.179 288.0332);
   --chart-2: oklch(0.7042 0.1602 288.988);

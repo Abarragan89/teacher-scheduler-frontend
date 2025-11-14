@@ -26,12 +26,12 @@ export default async function page({ params, searchParams }: pageProps) {
     return (
         <main className='wrapper'>
             {/* <Tabs defaultValue={view || 'schedule'} className="w-full"> */}
-            <div className="flex flex-col items-start print:!hidden">
-                <h1 className='h1-bold mr-5'>{formatDateDisplay(new Date(currentDay.dayDate.replace(/-/g, "/")))}</h1>
+            <div className="flex flex-col items-start">
+                <h1 className='h1-bold mr-5 print:hidden'>{formatDateDisplay(new Date(currentDay.dayDate.replace(/-/g, "/")))}</h1>
                 <YesterdayTomorrowNav dateString={dateString} />
 
                 {/* Link-based tabs */}
-                <div className="flex space-x-1 border-b mt-4 mb-1">
+                <div className="flex space-x-1 border-b mt-4 mb-1 print:hidden">
                     <Link
                         href={`?view=schedule`}
                         className={`px-4 py-2 border-b-2 transition-colors ${view === 'schedule'

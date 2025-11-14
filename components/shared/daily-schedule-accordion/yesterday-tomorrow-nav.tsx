@@ -43,7 +43,7 @@ export default function YesterdayTomorrowNav({ dateString }: { dateString: strin
     }
 
     return (
-        <div className="flex flex-start text-muted-foreground gap-x-2">
+        <div className="flex flex-start text-muted-foreground gap-x-2 print:!hidden">
 
             <Button title="Go to yesterday" onClick={goToYesterday} variant={"ghost"}>
                 <FaAnglesLeft />

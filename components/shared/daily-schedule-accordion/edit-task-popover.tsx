@@ -80,20 +80,20 @@ export default function EditTaskPopover({
                                 variant="ghost"
                                 onClick={() => setCurrentView('moving')}
                             >
-                                <CalendarIcon /> Copy Task
+                                <CalendarIcon /> Copy
                             </Button>
                             <Button
                                 variant="ghost"
                                 onClick={() => { setIsFullScreenView(true); setIsOpen(false) }}
                             >
-                                <Eye /> View Task
+                                <Eye /> View
                             </Button>
                             <Button
                                 variant="ghost"
                                 onClick={() => setCurrentView('deleting')}
                                 className='text-destructive hover:text-destructive'
                             >
-                                <Trash2 /> Delete Task
+                                <Trash2 /> Delete
                             </Button>
                         </div>
                     </PopoverContent>
@@ -124,7 +124,7 @@ export default function EditTaskPopover({
                                 onClick={addTaskToDate}
                                 disabled={!date || isSubmitting}
                             >
-                                {isSubmitting ? 'Copying...' : 'Copy Task'}
+                                {isSubmitting ? 'Copying...' : 'Copy Activity'}
                             </Button>
                         </div>
                     </PopoverContent>
@@ -150,7 +150,7 @@ export default function EditTaskPopover({
                                     onClick={deleteTask}
                                     disabled={isSubmitting}
                                 >
-                                    {isSubmitting ? 'Deleting...' : 'Delete Task'}
+                                    {isSubmitting ? 'Deleting...' : 'Delete Activity'}
                                 </Button>
                             </div>
                         </div>

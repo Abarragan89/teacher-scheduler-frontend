@@ -36,7 +36,7 @@ export default function RootLayout({
           <ScrollArea className="h-screen w-screen print:h-auto print:overflow-visible">
             {children}
           </ScrollArea>
-          <Toaster className="print:hidden" position="bottom-right" />
+          <Toaster className="print:hidden" position="top-left" />
         </ThemeProvider>
       </body>
     </html>

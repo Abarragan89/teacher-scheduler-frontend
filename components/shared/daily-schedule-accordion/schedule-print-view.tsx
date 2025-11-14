@@ -29,7 +29,7 @@ export default function SchedulePrintView({
     return (
         <div className="hidden print:block max-w-5xl mx-auto bg-white text-black print:max-w-none">
             {/* Print-specific styles */}
-            <style jsx>{`
+           <style jsx>{`
                 @media print {
                     body { -webkit-print-color-adjust: exact; }
                     .no-print { display: none !important; }
