@@ -24,8 +24,6 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
     // Get all todo lists from React Query cache
     const todoLists = (queryClient.getQueryData(['todos']) as TodoList[]) || []
 
-    console.log('todoLists in AddTodoForm:', todoLists);
-
     let currentTodo: TodoItem | undefined = undefined
     if (todoId) {
         currentTodo = todoLists
@@ -42,10 +40,6 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
     const [isDatePopoverOpen, setIsDatePopoverOpen] = useState(false)
     const [isPriorityPopoverOpen, setIsPriorityPopoverOpen] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
-
-
-    console.log('currentTodo', currentTodo)
-
 
     function combineDateAndTime(date: Date | undefined, time: string): string | null {
         if (!date) return null
@@ -82,33 +76,66 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
                 }
                 // Update existing todo
                 newTodo = await clientTodo.updateTodo(updatedTodo)
+                queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+                    if (!oldData) return oldData
+
+                    return oldData.map(list => {
+                        // Remove from old list (if it was in a different list)
+                        if (list.id === currentTodo.todoListId && list.id !== selectedListId) {
+                            return {
+                                ...list,
+                                todos: list.todos.filter(todo => todo.id !== newTodo.id)
+                            }
+                        }
+
+                        // Add/update in new list
+                        if (list.id === selectedListId) {
+                            const existingIndex = list.todos.findIndex(todo => todo.id === newTodo.id)
+                            let updatedTodos
+                            if (existingIndex >= 0) {
+                                // Replace existing todo
+                                updatedTodos = list.todos.map(todo =>
+                                    todo.id === newTodo.id ? newTodo : todo
+                                )
+                            } else {
+                                // Add to new list
+                                updatedTodos = [...list.todos, newTodo]
+                            }
+                            return {
+                                ...list,
+                                todos: updatedTodos
+                            }
+                        }
+                        return list
+                    })
+                })
             } else {
                 // Create new todo
-                 newTodo = await clientTodo.createTodoItem(selectedListId, text.trim(), dueDateISO || '', priority)
+                newTodo = await clientTodo.createTodoItem(selectedListId, text.trim(), dueDateISO || '', priority)
+                // Update the React Query cache
+                queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+                    if (!oldData) return oldData
+
+                    return oldData.map(list => {
+                        if (list.id === selectedListId) {
+                            // Remove any empty temp todos and add the new one
+                            const filteredTodos = list.todos.filter(todo =>
+                                !todo.id.startsWith('temp-') || todo.text.trim() !== ''
+                            )
+
+                            // Add the new todo and sort by priority (descending)
+                            const updatedTodos = [...filteredTodos, newTodo].sort((a, b) => b.priority - a.priority)
+
+                            return {
+                                ...list,
+                                todos: updatedTodos
+                            }
+                        }
+                        return list
+                    })
+                })
             }
 
-            // Update the React Query cache
-            queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-                if (!oldData) return oldData
-
-                return oldData.map(list => {
-                    if (list.id === selectedListId) {
-                        // Remove any empty temp todos and add the new one
-                        const filteredTodos = list.todos.filter(todo =>
-                            !todo.id.startsWith('temp-') || todo.text.trim() !== ''
-                        )
-
-                        // Add the new todo and sort by priority (descending)
-                        const updatedTodos = [...filteredTodos, newTodo].sort((a, b) => b.priority - a.priority)
-
-                        return {
-                            ...list,
-                            todos: updatedTodos
-                        }
-                    }
-                    return list
-                })
-            })
 
             // Reset form
             setText('')
@@ -123,16 +150,6 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
             }, 0)
             setIsCreating(false)
         }
-    }
-
-    const clearDueDate = () => {
-        setDueDate(undefined)
-        setIsDatePopoverOpen(false)
-    }
-
-    const clearPriority = () => {
-        setPriority(1)
-        setIsPriorityPopoverOpen(false)
     }
 
     return (
@@ -223,20 +240,6 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-48 space-y-2" align="start">
-                                <div className="flex items-center justify-between">
-                                    <h4 className="font-medium text-sm">Set Priority</h4>
-                                    {priority > 1 && (
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={clearPriority}
-                                            className="text-xs text-muted-foreground hover:text-foreground"
-                                        >
-                                            Clear
-                                        </Button>
-                                    )}
-                                </div>
                                 <div className="space-y-1">
                                     {[
                                         { level: 4, label: 'High Priority', color: 'text-red-500', bgColor: 'hover:bg-red-50' },
@@ -294,7 +297,11 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
                         disabled={!text.trim() || isCreating || !selectedListId}
                         className="px-6"
                     >
-                        {isCreating ? 'Adding...' : '+ Add Task'}
+                        {todoId ?
+                            isCreating ? 'Updating' : 'Update Todo'
+                            :
+                            isCreating ? 'Adding...' : '+ Add Todo'
+                        }
                     </Button>
                 </div>
             </form>

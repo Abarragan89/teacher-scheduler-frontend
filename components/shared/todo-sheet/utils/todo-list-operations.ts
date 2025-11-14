@@ -34,8 +34,6 @@ export const addNewTodoList = (state: TodoState, queryClient: QueryClient) => {
 export const deleteTodoList = async (listId: string, state: TodoState, queryClient: QueryClient, currentListIndex?: number) => {
     const { todoLists, setCurrentListIndex } = state
 
-    console.log('list id', listId)
-
     // Add API call to delete the list
     await clientTodoLists.deleteTodoList(listId)
 

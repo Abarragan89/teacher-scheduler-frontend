@@ -20,8 +20,6 @@ export default async function page({ params, searchParams }: pageProps) {
     const currentDay: DayData = await serverDays.findOrCreateDay(dateString);
 
     const view = (await searchParams).view as string
-    console.log('view ', view)
-
 
     return (
         <main className='wrapper'>

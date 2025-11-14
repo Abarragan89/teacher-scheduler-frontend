@@ -63,7 +63,6 @@ export default function TodoList({ dateString }: TodoListProps) {
     }
 
     function showEditModalHandler(todo: DailyTodoItem) {
-        console.log('clicking todo item', todo)
         // Implement modal opening logic here
         setCurrentTodo(todo);
         setShowEditTodoModal(true);
