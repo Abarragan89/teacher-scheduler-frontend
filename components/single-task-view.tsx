@@ -79,8 +79,8 @@ export function SingleTaskView({ task, isOpen, onClose, state }: FullScreenTaskV
                                         <p
                                             onClick={() => toggleOutlineItemCompletion(task.id, item.id, state, playCompleteSound)}
                                             className={`min-w-[15px] min-h-[15px] mt-[4px] rounded-full mr-1
-                            ${item.completed ? 'bg-ring border border-ring' : 'border border-muted-foreground'}
-                            `}
+                                                ${item.completed ? 'bg-ring border border-ring' : 'border border-muted-foreground'}
+                                            `}
                                         />
                                     ) : (
                                         <button

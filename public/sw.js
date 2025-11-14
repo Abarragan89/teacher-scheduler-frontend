@@ -57,40 +57,69 @@ self.addEventListener('notificationclick', function (event) {
     if (event.action === 'mark-complete') {
         console.log('✅ Mark complete action clicked');
 
+        console.log('Notification clicked:', event);
+        event.notification.close();
+
+        // Get the URL from the notification data (set by your backend)
+        const notificationData = event.notification.data || {};
+        const urlToOpen = notificationData.url || '/dashboard';
+
+
+
         event.waitUntil(
-            fetch(`/api/todos/${event.notification.data.todoId}/complete`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include' // Include cookies for auth
-            }).then(response => {
-                if (response.ok) {
-                    console.log('✅ Todo marked complete via notification');
-
-                    // Show a success notification
-                    return self.registration.showNotification('Todo Complete!', {
-                        body: 'Task marked as complete',
-                        icon: '/android-chrome-192x192.png',
-                        tag: 'todo-complete',
-                        requireInteraction: false
-                    });
-                } else {
-                    console.error('❌ Failed to mark todo complete:', response.status);
-                    throw new Error('Failed to mark complete');
+            clients.matchAll({
+                type: 'window',
+                includeUncontrolled: true
+            }).then(function (clientList) {
+                // Check if app is already open
+                for (let client of clientList) {
+                    if (client.url.includes('/dashboard') && 'focus' in client) {
+                        // Navigate to the specific URL and focus
+                        return client.navigate(urlToOpen).then(() => client.focus());
+                    }
                 }
-            }).catch(err => {
-                console.error('❌ Network error marking complete:', err);
 
-                // Show error notification
-                return self.registration.showNotification('Error', {
-                    body: 'Failed to mark todo complete',
-                    icon: '/android-chrome-192x192.png',
-                    tag: 'todo-error',
-                    requireInteraction: false
-                });
+                // If no existing window, open new one
+                if (clients.openWindow) {
+                    return clients.openWindow(urlToOpen);
+                }
             })
         );
+
+        // event.waitUntil(
+        //     fetch(`/api/todos/${event.notification.data.todoId}/complete`, {
+        //         method: 'PATCH',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         credentials: 'include' // Include cookies for auth
+        //     }).then(response => {
+        //         if (response.ok) {
+        //             console.log('✅ Todo marked complete via notification');
+
+        //             // Show a success notification
+        //             return self.registration.showNotification('Todo Complete!', {
+        //                 body: 'Task marked as complete',
+        //                 icon: '/android-chrome-192x192.png',
+        //                 tag: 'todo-complete',
+        //                 requireInteraction: false
+        //             });
+        //         } else {
+        //             console.error('❌ Failed to mark todo complete:', response.status);
+        //             throw new Error('Failed to mark complete');
+        //         }
+        //     }).catch(err => {
+        //         console.error('❌ Network error marking complete:', err);
+
+        //         // Show error notification
+        //         return self.registration.showNotification('Error', {
+        //             body: 'Failed to mark todo complete',
+        //             icon: '/android-chrome-192x192.png',
+        //             tag: 'todo-error',
+        //             requireInteraction: false
+        //         });
+        //     })
+        // );
 
     } else if (event.action === 'snooze') {
         console.log('⏰ Snooze action clicked');
