@@ -289,12 +289,10 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 <div className="flex items-stretch gap-3 my-3 rounded-lg shadow-lg">
                     {/* Input that matches textarea styling */}
                     <div className="flex-1 flex min-w-0 rounded-tl-lg ">
-                        <textarea
-                            className=" w-full p-2 px-4 h-auto text-md leading-normal bg-transparent border rounded-tl-lg rounded-bl-lg border-r-0 resize-none overflow-hidden focus:outline-none placeholder:text-muted-foreground/60"
+                        <Input
+                            className=" w-full p-2 px-4 h-auto text-md leading-normal bg-transparent border rounded-none rounded-tl-lg rounded-bl-lg border-r-0 resize-none overflow-hidden focus:outline-none focus:ring-0 placeholder:text-muted-foreground/60"
                             placeholder="Add new todo..."
-                            rows={1}
                             value={newTodoText}
-                            ref={newTodoTextareaRef}
                             style={{
                                 wordWrap: 'break-word',
                                 whiteSpace: 'pre-wrap'
@@ -307,8 +305,6 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                             }}
                             onChange={(e) => {
                                 setNewTodoText(e.target.value)
-                                const textarea = e.target as HTMLTextAreaElement
-                                textarea.style.height = `${textarea.scrollHeight + 2}px`
                             }}
                         />
 
