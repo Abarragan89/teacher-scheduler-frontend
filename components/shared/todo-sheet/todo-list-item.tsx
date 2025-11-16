@@ -80,12 +80,12 @@ export default function TodoListItem({
     return (
         <div
             className={`flex items-start gap-3 border-b pb-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
-                    ? 'opacity-0 scale-95 -translate-y-1'
-                    : todo.isNew
-                        ? 'animate-slide-in-from-top'
-                        : todo.slideDown
-                            ? 'animate-slide-down'
-                            : 'opacity-100 scale-100 translate-y-0'
+                ? 'opacity-0 scale-95 -translate-y-1'
+                : todo.isNew
+                    ? 'animate-slide-in-from-top'
+                    : todo.slideDown
+                        ? 'animate-slide-down'
+                        : 'opacity-100 scale-100 translate-y-0'
                 } ${className}`}
             style={{
                 height: todo.deleting ? '0px' : 'auto',
@@ -109,8 +109,8 @@ export default function TodoListItem({
                 <button
                     onClick={() => toggleTodoCompletion(listId, todo.id, playCompleteSound, playTodoRemovedSound, queryClient)}
                     className={`flex-shrink-0 rounded transition-all duration-300 ${todo.deleting
-                            ? 'opacity-0 pointer-events-none transform scale-50'
-                            : 'hover:bg-muted transform scale-100'
+                        ? 'opacity-0 pointer-events-none transform scale-50'
+                        : 'hover:bg-muted transform scale-100'
                         }`}
                     disabled={todo.deleting}
                 >

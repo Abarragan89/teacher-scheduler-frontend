@@ -85,6 +85,7 @@ export default function DashboardContent() {
                                     listId={findListIdForTodo(todo.id) || ''}
                                     showListName={true}
                                     showPopovers={true}
+                                    
                                 />
                             ))}
                         </div>
