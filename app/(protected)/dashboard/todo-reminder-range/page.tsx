@@ -1,10 +1,29 @@
-import React from 'react'
+import React from 'react';
+import TodoReminderContent from './TodoReminderContent';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { serverTodoLists } from '@/lib/api/services/todos/server';
 
-export default function TodoReminderPage() {
+interface pageProps {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function TodoReminderPage({ searchParams }: pageProps) {
+
+    const view = (await searchParams).view as string
+
+    const initialTodos = await serverTodoLists.getTodoLists()
+    const queryClient = new QueryClient();
+
+    await queryClient.prefetchQuery({
+        queryKey: ['todos'],
+        queryFn: () => initialTodos,
+        staleTime: 5 * 60 * 1000,
+    });
+
+
     return (
-        <div>
-            <h1>Todo Reminder Range Page</h1>
-            <p>This is all my baby!</p>
-        </div>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <TodoReminderContent view={view} />
+        </HydrationBoundary>
     )
 }
