@@ -19,8 +19,7 @@ import { getSortFunction, SortBy } from './utils/todo-sorting'
 import { ResponsiveDialog } from '@/components/responsive-dialog'
 import { clientTodoLists } from '@/lib/api/services/todos/client'
 import EditListPopover from './popovers/edit-list-popover'
-import DueDatePopover from './popovers/due-date-popover'
-import PriorityPopover from './popovers/priority-popover'
+import TodoListItem from './todo-list-item'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import useSound from 'use-sound';
 import { Separator } from '@radix-ui/react-select'
@@ -322,120 +321,15 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 <ScrollArea className="h-[calc(100vh-330px)] w-full">
                     <div className="space-y-0 transition-all duration-300 ease-in-out ml-1 mr-3">
                         {sortedCurrentList.todos.map(todo => (
-                            <div
+                            <TodoListItem
                                 key={todo.id}
-                                className={`flex items-start border-b gap-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
-                                    ? 'opacity-0 scale-95 -translate-y-1'
-                                    : todo.isNew
-                                        ? 'animate-slide-in-from-top'
-                                        : todo.slideDown
-                                            ? 'animate-slide-down'
-                                            : 'opacity-100 scale-100 translate-y-0'
-                                    }`}
-                                style={{
-                                    // Remove fixed height, let content determine height
-                                    height: todo.deleting ? '0px' : 'auto',
-                                    minHeight: todo.deleting ? '0px' : '60px',
-                                    paddingTop: todo.deleting ? '0px' : '4px',
-                                    paddingBottom: todo.deleting ? '0px' : '4px',
-                                    transition: 'all 300ms cubic-bezier(0.4, 0.0, 0.2, 1)',
-                                    transformOrigin: 'top center',
-                                    // Animation for new items
-                                    ...(todo.isNew && {
-                                        animation: 'slideInFromTop 300ms ease-out forwards'
-                                    }),
-                                    // Animation for existing items sliding down
-                                    ...(todo.slideDown && {
-                                        transform: 'translateY(60px)',
-                                        transition: 'transform 300ms ease-out'
-                                    })
+                                todo={todo}
+                                listId={currentList.id}
+                                onTextareaRef={(todoId, el) => {
+                                    textareaRefs.current[todoId] = el
                                 }}
-                            >
-                                {/* Checkbox */}
-                                <div className={`flex-shrink-0 pt-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
-                                    }`}>
-                                    <button
-                                        onClick={() => toggleTodoCompletion(currentList.id, todo.id, playCompleteSound, playTodoRemovedSound, queryClient)}
-                                        className={`flex-shrink-0 rounded transition-all duration-300 ${todo.deleting
-                                            ? 'opacity-0 pointer-events-none transform scale-50'
-                                            : 'hover:bg-muted transform scale-100'
-                                            }`}
-                                        disabled={todo.deleting}
-                                    >
-                                        {todo.completed ? (
-                                            <CheckCircle className="w-5 h-5 text-ring" />
-                                        ) : (
-                                            <Circle className="w-5 h-5 text-muted-foreground" />
-                                        )}
-                                    </button>
-                                </div>
-
-                                {/* Content */}
-                                <div className={`flex-1 min-w-0 pt-[2px] transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
-                                    }`}>
-                                    <textarea
-                                        ref={(el) => {
-                                            textareaRefs.current[todo.id] = el
-                                            if (el) {
-                                                // Auto-resize on mount/content change
-                                                requestAnimationFrame(() => resizeTextarea(el))
-                                            }
-                                        }}
-                                        className={`w-full min-h-[24px] leading-normal text-[15px] bg-transparent border-none resize-none overflow-hidden transition-all duration-500 focus:outline-none ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
-                                            } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
-                                            }`}
-                                        placeholder="Add todo..."
-                                        value={localTodoTexts[todo.id] || todo.text}
-                                        onChange={(e) => {
-                                            const textarea = e.target as HTMLTextAreaElement
-
-                                            // Auto-resize
-                                            resizeTextarea(textarea)
-
-                                            // Update local state
-                                            setLocalTodoTexts(prev => ({
-                                                ...prev,
-                                                [todo.id]: e.target.value
-                                            }))
-                                        }}
-                                        onBlur={() => {
-                                            const currentText = localTodoTexts[todo.id] || todo.text
-                                            updateTodoItem(currentList.id, todo.id, currentText, queryClient)
-                                            handleTodoBlur(currentList.id, todo.id, currentText, state, queryClient)
-                                        }}
-                                        onFocus={(e) => {
-                                            const textarea = e.target as HTMLTextAreaElement
-                                            resizeTextarea(textarea)
-                                            handleTodoFocus(currentList.id, todo.id, state, queryClient)
-                                        }}
-                                        data-todo-id={todo.id}
-                                        disabled={todo.deleting}
-                                        rows={1}
-                                        style={{
-                                            lineHeight: '1.5',
-                                            wordWrap: 'break-word',
-                                            whiteSpace: 'pre-wrap'
-                                        }}
-                                    />
-                                    {!todo.id.startsWith("temp-") && !todo.deleting && (
-                                        <div className="flex justify-between text-muted-foreground opacity-70 text-xs">
-                                            {/* Due Date Popover */}
-                                            <DueDatePopover
-                                                todo={todo}
-                                                queryClient={queryClient}
-                                                listId={currentList.id}
-                                            />
-
-                                            {/* Priority Popover */}
-                                            <PriorityPopover
-                                                todo={todo}
-                                                queryClient={queryClient}
-                                                listId={currentList.id}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+                                showPopovers={true}
+                            />
                         ))}
                     </div>
                 </ScrollArea>

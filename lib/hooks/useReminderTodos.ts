@@ -13,6 +13,7 @@ export function useReminderTodos() {
             list.todos.map((todo) => ({
                 ...todo,
                 listName: list.listName,
+                todoListId: list.id, // Add the list ID for TodoListItem
                 deleting: (todo as any).deleting || false
             }))
         )
