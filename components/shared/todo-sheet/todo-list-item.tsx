@@ -471,45 +471,65 @@ export default function FocusedEditingTodoItem({
             // Prepare the due date - combine date with default time if needed
             const dueDateISO = dateToSave ? combineDateAndTime(dateToSave) : todo.dueDate
 
-            // Create updated todo object - use the selected list ID as the new listId
+            // Check if category is actually changing
+            const isCategoryChanging = categoryListId !== listId
+
+            // Create updated todo object
             const updatedTodo: TodoItem = {
                 ...todo,
                 text: textToSave.trim(),
                 dueDate: dueDateISO || '',
                 priority: priorityToSave,
-                todoListId: categoryListId, // This moves the todo to the selected list
+                // Only change todoListId if category is actually changing
+                todoListId: editCategoryId
             }
+            console.log('Updating todo with:', updatedTodo)
 
             // Update via API
             const newTodo = await clientTodo.updateTodo(updatedTodo)
 
-            // Update React Query cache - need to handle moving between lists
+            // Update React Query cache
             queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
                 if (!oldData) return oldData
 
-                return oldData.map(list => {
-                    // Remove from old list
-                    if (list.id === listId) {
-                        return {
-                            ...list,
-                            todos: list.todos.filter(t => t.id !== todo.id)
+                if (isCategoryChanging) {
+                    // Moving between lists - remove from old, add to new
+                    return oldData.map(list => {
+                        // Remove from old list
+                        if (list.id === listId) {
+                            return {
+                                ...list,
+                                todos: list.todos.filter(t => t.id !== todo.id)
+                            }
                         }
-                    }
-                    // Add to new list
-                    if (list.id === categoryListId) {
-                        return {
-                            ...list,
-                            todos: [...list.todos, newTodo]
+                        // Add to new list
+                        if (list.id === categoryListId) {
+                            return {
+                                ...list,
+                                todos: [...list.todos, newTodo]
+                            }
                         }
-                    }
-                    return list
-                })
+                        return list
+                    })
+                } else {
+                    // Just updating in place - maintain position in list
+                    return oldData.map(list => {
+                        if (list.id === listId) {
+                            return {
+                                ...list,
+                                todos: list.todos.map(t => t.id === todo.id ? newTodo : t)
+                            }
+                        }
+                        return list
+                    })
+                }
             })
 
-            console.log('Successfully moved todo to new category:', {
+            console.log('Successfully updated todo:', {
                 text: textToSave,
+                categoryChanged: isCategoryChanging,
                 fromList: listId,
-                toList: categoryListId,
+                toList: isCategoryChanging ? categoryListId : listId,
                 priority: priorityToSave,
                 dueDate: dateToSave
             })
