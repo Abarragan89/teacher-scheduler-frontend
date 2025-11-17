@@ -50,14 +50,10 @@ self.addEventListener('push', function (event) {
 })
 
 self.addEventListener('notificationclick', function (event) {
-    console.log('🔔 Notification clicked:', event.action, event.notification.data);
 
     event.notification.close(); // Close the notification
 
     if (event.action === 'mark-complete') {
-        console.log('✅ Mark complete action clicked');
-
-        console.log('Notification clicked:', event);
         event.notification.close();
 
         // Get the URL from the notification data (set by your backend)
@@ -136,8 +132,6 @@ self.addEventListener('notificationclick', function (event) {
         const notificationData = event.notification.data || {};
         const urlToOpen = notificationData.url || '/dashboard';
 
-        console.log('🎯 URL to open:', urlToOpen);
-
         event.waitUntil(
             clients.matchAll({
                 type: 'window',
@@ -147,14 +141,11 @@ self.addEventListener('notificationclick', function (event) {
                 for (let client of clientList) {
                     if (client.url.includes('/dashboard') && 'focus' in client) {
                         // Navigate to the specific URL and focus
-                        console.log('🔄 Navigating existing window to:', urlToOpen);
                         return client.navigate(urlToOpen).then(() => client.focus());
                     }
                 }
-
                 // If no existing window, open new one with specific URL
                 if (clients.openWindow) {
-                    console.log('🆕 Opening new window with:', urlToOpen);
                     return clients.openWindow(urlToOpen);
                 }
             })

@@ -325,22 +325,12 @@ export default function FocusedEditingTodoItem({
     const containerRef = useRef<HTMLDivElement>(null)
     const queryClient = useQueryClient()
     const todoLists = (queryClient.getQueryData(['todos']) as TodoList[]) || []
-
-
-    // Form state for editing
-    // const [editCategoryId, setEditCategoryId] = useState(() => {
-    //     // Find the list ID that matches the todo's current list
-    //     const currentList = todoLists.find(list => list.id === listId)
-    //     return currentList?.id || todoLists[0]?.id || ''
-    // })
     const [editCategoryId, setEditCategoryId] = useState(listId)
     const [editPriority, setEditPriority] = useState(typeof todo.priority === 'number' ? todo.priority : 1)
     const [editDueDate, setEditDueDate] = useState<Date | null>(
         todo.dueDate ? new Date(todo.dueDate.toString()) : null
     )
     const [isSaving, setIsSaving] = useState(false)
-
-    console.log('editCategory', editCategoryId)
 
     // Sound effects
     const [playCompleteSound] = useSound('/sounds/todoWaterClick.wav', { volume: 0.4 })
@@ -476,7 +466,6 @@ export default function FocusedEditingTodoItem({
                 // Only change todoListId if category is actually changing
                 todoListId: editCategoryId
             }
-            console.log('Updating todo with:', updatedTodo)
 
             // Update via API
             const newTodo = await clientTodo.updateTodo(updatedTodo)
@@ -516,15 +505,6 @@ export default function FocusedEditingTodoItem({
                         return list
                     })
                 }
-            })
-
-            console.log('Successfully updated todo:', {
-                text: textToSave,
-                categoryChanged: isCategoryChanging,
-                fromList: listId,
-                toList: isCategoryChanging ? categoryListId : listId,
-                priority: priorityToSave,
-                dueDate: dateToSave
             })
         } catch (error) {
             console.error('Failed to save todo changes:', error)
@@ -593,7 +573,7 @@ export default function FocusedEditingTodoItem({
                                 requestAnimationFrame(() => resizeTextarea(el))
                             }
                         }}
-                        className={`w-full min-h-[24px] leading-normal text-[15px] bg-transparent border border-muted rounded px-2 py-1 resize-none overflow-hidden transition-all duration-500 focus:outline-none focus:ring-1 focus:ring-ring ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                        className={`w-full min-h-[24px] mx-1 leading-normal text-[15px] bg-transparent border border-muted rounded px-2 py-1 resize-none overflow-hidden transition-all duration-500 focus:outline-none focus:ring-1 focus:ring-ring ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
                             } ${todoIsOverdue && !todo.completed ? 'text-red-500' : ''
                             } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
                             }`}
@@ -640,7 +620,7 @@ export default function FocusedEditingTodoItem({
                     }`}>
 
                     {/* Category selector (always shown when editing) */}
-                    <div className="mb-2">
+                    <div className="mb-2 mx-1">
                         <CategorySelector
                             value={editCategoryId}
                             onChange={handleCategoryChange}
@@ -649,7 +629,7 @@ export default function FocusedEditingTodoItem({
                     </div>
 
                     {/* Date and priority row */}
-                    <div className="flex flex-wrap gap-2 mb-3">
+                    <div className="flex flex-wrap gap-2 mb-3 mx-1">
                         <DateSelector
                             value={editDueDate}
                             onChange={handleDateChange}
@@ -661,7 +641,7 @@ export default function FocusedEditingTodoItem({
                     </div>
 
                     {/* Save and Cancel buttons */}
-                    <div className="flex gap-2 justify-end mb-4">
+                    <div className="flex gap-2 justify-end mb-4 mx-1">
                         <Button
                             variant="outline"
                             onClick={handleCancelChanges}
