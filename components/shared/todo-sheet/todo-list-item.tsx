@@ -1,220 +1,8 @@
-// 'use client'
-// import React, { useState } from 'react'
-// import { useQueryClient } from '@tanstack/react-query'
-// import useSound from 'use-sound'
-// import { CheckCircle, Circle } from 'lucide-react'
-// import { TodoItem } from '@/types/todo'
-// import {
-//     updateTodoItem,
-//     handleTodoFocus,
-//     handleTodoBlur,
-//     toggleTodoCompletion
-// } from './utils/todo-operations'
-// import DueDatePopover from './popovers/due-date-popover'
-// import PriorityPopover from './popovers/priority-popover'
-
-// interface ExtendedTodoItem extends TodoItem {
-//     listName?: string
-//     todoListId?: string
-// }
-
-// interface TodoListItemProps {
-//     todo: ExtendedTodoItem
-//     listId: string
-//     // Optional customization props
-//     onTextareaRef?: (todoId: string, el: HTMLTextAreaElement | null) => void
-//     showPopovers?: boolean
-//     showListName?: boolean
-//     className?: string
-//     isOverdue?: boolean
-//     showOverdue?: boolean // New prop to enable overdue detection
-// }
-
-// export default function TodoListItem({
-//     todo,
-//     listId,
-//     onTextareaRef,
-//     showPopovers = true,
-//     showListName = false,
-//     className = "",
-//     isOverdue = false,
-//     showOverdue = false
-// }: TodoListItemProps) {
-//     // Internal state management
-//     const [localText, setLocalText] = useState(todo.text)
-//     const queryClient = useQueryClient()
-
-//     // Internal sound effects
-//     const [playCompleteSound] = useSound('/sounds/todoWaterClick.wav', { volume: 0.4 })
-//     const [playTodoRemovedSound] = useSound('/sounds/todoRemoved.wav', { volume: 0.3 })
-
-//     // Overdue detection
-//     const checkIsOverdue = (dueDate?: string | Date | null) => {
-//         if (!showOverdue || !dueDate) return false
-//         const today = new Date()
-//         today.setHours(0, 0, 0, 0)
-//         const due = new Date(dueDate)
-//         due.setHours(0, 0, 0, 0)
-//         return due < today
-//     }
-
-//     const todoIsOverdue = isOverdue || checkIsOverdue(todo.dueDate as string)
-
-//     // Auto-resize function for textareas
-//     const resizeTextarea = (textarea: HTMLTextAreaElement) => {
-//         textarea.style.height = 'auto'
-//         textarea.style.height = `${textarea.scrollHeight}px`
-//     }
-
-//     // Create minimal state object for operations that need it
-//     const state = {
-//         todoLists: [],
-//         focusedText: '',
-//         setFocusedText: () => { },
-//         setCurrentListIndex: () => { }
-//     }
-
-//     // For read-only views (like dashboard), use a simple paragraph instead of textarea
-//     const isReadOnly = !onTextareaRef
-
-//     return (
-//         <div
-//             className={`flex items-start gap-3 border-b pb-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
-//                 ? 'opacity-0 scale-95 -translate-y-1'
-//                 : todo.isNew
-//                     ? 'animate-slide-in-from-top'
-//                     : todo.slideDown
-//                         ? 'animate-slide-down'
-//                         : 'opacity-100 scale-100 translate-y-0'
-//                 } ${className}`}
-//             style={{
-//                 height: todo.deleting ? '0px' : 'auto',
-//                 minHeight: todo.deleting ? '0px' : '60px',
-//                 paddingTop: todo.deleting ? '0px' : '4px',
-//                 paddingBottom: todo.deleting ? '0px' : '4px',
-//                 transition: 'all 300ms cubic-bezier(0.4, 0.0, 0.2, 1)',
-//                 transformOrigin: 'top center',
-//                 ...(todo.isNew && {
-//                     animation: 'slideInFromTop 300ms ease-out forwards'
-//                 }),
-//                 ...(todo.slideDown && {
-//                     transform: 'translateY(60px)',
-//                     transition: 'transform 300ms ease-out'
-//                 })
-//             }}
-//         >
-//             {/* Checkbox */}
-//             <div className={`flex-shrink-0 pt-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
-//                 }`}>
-//                 <button
-//                     onClick={() => toggleTodoCompletion(listId, todo.id, playCompleteSound, playTodoRemovedSound, queryClient)}
-//                     className={`flex-shrink-0 rounded transition-all duration-300 ${todo.deleting
-//                         ? 'opacity-0 pointer-events-none transform scale-50'
-//                         : 'hover:bg-muted transform scale-100'
-//                         }`}
-//                     disabled={todo.deleting}
-//                 >
-//                     {todo.completed ? (
-//                         <CheckCircle className="w-5 h-5 text-ring" />
-//                     ) : (
-//                         <Circle className="w-5 h-5 text-muted-foreground" />
-//                     )}
-//                 </button>
-//             </div>
-
-//             {/* Content */}
-//             <div className={`flex-1 min-w-0 pt-[2px] transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
-//                 }`}>
-//                 {isReadOnly ? (
-//                     // Read-only paragraph for dashboard views
-//                     <p className={`text-sm font-medium leading-normal ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
-//                         } ${isOverdue && !todo.completed ? 'text-red-500' : ''
-//                         } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
-//                         }`}>
-//                         {todo.text}
-//                     </p>
-//                 ) : (
-//                     // Editable textarea for list views
-//                     <textarea
-//                         ref={(el) => {
-//                             onTextareaRef?.(todo.id, el)
-//                             if (el) {
-//                                 requestAnimationFrame(() => resizeTextarea(el))
-//                             }
-//                         }}
-//                         className={`w-full min-h-[24px] leading-normal text-[15px] bg-transparent border-none resize-none overflow-hidden transition-all duration-500 focus:outline-none ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
-//                             } ${isOverdue && !todo.completed ? 'text-red-500' : ''
-//                             } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
-//                             }`}
-//                         placeholder="Add todo..."
-//                         value={localText}
-//                         onChange={(e) => {
-//                             const textarea = e.target as HTMLTextAreaElement
-//                             resizeTextarea(textarea)
-//                             setLocalText(e.target.value)
-//                         }}
-//                         onBlur={() => {
-//                             updateTodoItem(listId, todo.id, localText, queryClient)
-//                             handleTodoBlur(listId, todo.id, localText, state, queryClient)
-//                         }}
-//                         onFocus={(e) => {
-//                             const textarea = e.target as HTMLTextAreaElement
-//                             resizeTextarea(textarea)
-//                             handleTodoFocus(listId, todo.id, state, queryClient)
-//                         }}
-//                         data-todo-id={todo.id}
-//                         disabled={todo.deleting}
-//                         rows={1}
-//                         style={{
-//                             lineHeight: '1.5',
-//                             wordWrap: 'break-word',
-//                             whiteSpace: 'pre-wrap'
-//                         }}
-//                     />
-//                 )}
-
-//                 {/* List name for dashboard views */}
-//                 {showListName && todo.listName && (
-//                     <p className="text-xs text-muted-foreground mt-1">
-//                         {todo.listName}
-//                     </p>
-//                 )}
-
-//                 {/* Popovers for due date and priority */}
-//                 {!todo.id.startsWith("temp-") && !todo.deleting && showPopovers && (
-//                     <div className="flex justify-between text-muted-foreground opacity-70 text-xs mt-1">
-//                         <DueDatePopover
-//                             todo={todo}
-//                             queryClient={queryClient}
-//                             listId={listId}
-//                         />
-//                         <PriorityPopover
-//                             todo={todo}
-//                             queryClient={queryClient}
-//                             listId={listId}
-//                         />
-//                     </div>
-//                 )}
-//             </div>
-//         </div>
-//     )
-// }
-
-
-
-
-
-
-
-
-
-
-// /////////////////////////////// ALTERNATIVE IMPLEMENTATION ///////////////////////////////
 'use client'
 import React, { useState, useRef, useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import useSound from 'use-sound'
-import { CheckCircle, Circle, Bookmark, Calendar, Clock, CalendarIcon, ChevronDown } from 'lucide-react'
+import { CheckCircle, Circle, Bookmark, Calendar, Clock, CalendarIcon, ChevronDown, Flag } from 'lucide-react'
 import { TodoItem, TodoList } from '@/types/todo'
 import { clientTodo } from '@/lib/api/services/todos/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -299,7 +87,7 @@ const PriorityDisplay = ({ priority }: { priority?: string | number }) => {
 
     return (
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <div className={`w-2 h-2 rounded-full ${level === 4 ? 'bg-red-500' : level === 3 ? 'bg-yellow-500' : 'bg-blue-500'}`} />
+            <Flag className={`w-3 h-3 ${level === 4 ? 'text-red-500' : level === 3 ? 'text-yellow-500' : 'text-blue-500'}`} />
             <span className={colorClass}>{label}</span>
         </div>
     )
@@ -337,10 +125,10 @@ const PrioritySelector = ({ value, onChange }: { value: number, onChange: (value
                     {priorityOptions.map(option => (
                         <SelectItem key={option.level} value={option.level.toString()}>
                             <div className="flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full ${option.level === 4 ? 'bg-red-500' :
-                                    option.level === 3 ? 'bg-yellow-500' :
-                                        option.level === 2 ? 'bg-blue-500' :
-                                            'bg-muted-foreground'
+                                <Flag className={`w-3 h-3 ${option.level === 4 ? 'text-red-500' :
+                                    option.level === 3 ? 'text-yellow-500' :
+                                        option.level === 2 ? 'text-blue-500' :
+                                            'text-muted-foreground'
                                     }`} />
                                 <span className={option.color}>{option.label}</span>
                             </div>
@@ -456,7 +244,9 @@ const DateSelector = ({ value, onChange }: { value?: Date | null, onChange: (dat
             </Popover>
         </div>
     )
-}// Due date display component for non-focused state
+}
+
+// Due date display component for non-focused state
 const DueDateDisplay = ({ dueDate, context }: { dueDate?: any, context?: TodoContext }) => {
     if (!dueDate) return null
 
@@ -501,23 +291,26 @@ const DueDateDisplay = ({ dueDate, context }: { dueDate?: any, context?: TodoCon
 }
 
 // Category selector for focused state
-const CategorySelector = ({ value, onChange }: {
+const CategorySelector = ({ value, onChange, todoLists }: {
     value?: string
-    onChange: (category: string) => void
+    onChange: (listId: string) => void
+    todoLists: TodoList[]
 }) => {
-    const categories = ['Work', 'Personal', 'School', 'Health', 'Shopping', 'Other']
+    // Find the current list by matching the value (which should be a list ID)
+    const currentList = todoLists.find(list => list.id === value)
+    const currentValue = currentList?.id || todoLists[0]?.id || ''
 
     return (
         <div className="space-y-1">
             <label className="text-xs text-muted-foreground">Category</label>
-            <Select value={value || 'Other'} onValueChange={onChange}>
+            <Select value={currentValue} onValueChange={onChange}>
                 <SelectTrigger className="w-full h-8 text-xs">
                     <SelectValue placeholder="Select category..." />
                 </SelectTrigger>
                 <SelectContent>
-                    {categories.map(cat => (
-                        <SelectItem key={cat} value={cat}>
-                            {cat}
+                    {todoLists.map(list => (
+                        <SelectItem key={list.id} value={list.id}>
+                            {list.listName}
                         </SelectItem>
                     ))}
                 </SelectContent>
@@ -533,6 +326,9 @@ export default function FocusedEditingTodoItem({
     onTextareaRef,
     className = ""
 }: FocusedEditingTodoItemProps) {
+
+    console.log('todo', todo)
+
     // Get display configuration based on context
     const displayConfig = getDisplayConfig(context)
 
@@ -541,9 +337,15 @@ export default function FocusedEditingTodoItem({
     const [isEditing, setIsEditing] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
     const queryClient = useQueryClient()
+    const todoLists = (queryClient.getQueryData(['todos']) as TodoList[]) || []
+
 
     // Form state for editing
-    const [editCategory, setEditCategory] = useState(todo.category || 'Other')
+    const [editCategory, setEditCategory] = useState(() => {
+        // Find the list ID that matches the todo's current list
+        const currentList = todoLists.find(list => list.id === listId)
+        return currentList?.id || todoLists[0]?.id || ''
+    })
     const [editPriority, setEditPriority] = useState(typeof todo.priority === 'number' ? todo.priority : 1)
     const [editDueDate, setEditDueDate] = useState<Date | null>(
         todo.dueDate ? new Date(todo.dueDate.toString()) : null
@@ -576,12 +378,8 @@ export default function FocusedEditingTodoItem({
             }
 
             if (containerRef.current && !containerRef.current.contains(target)) {
-                setIsEditing(false)
-                // Only save text changes when clicking outside, 
-                // select and date changes are already saved when selections are made
-                if (localText.trim() !== todo.text) {
-                    saveAllChanges({ text: localText })
-                }
+                // Just cancel editing without saving when clicking outside
+                handleCancelChanges()
             }
         }
 
@@ -589,7 +387,7 @@ export default function FocusedEditingTodoItem({
             document.addEventListener('mousedown', handleClickOutside)
             return () => document.removeEventListener('mousedown', handleClickOutside)
         }
-    }, [isEditing, localText, todo.text]) // Include dependencies for proper comparison
+    }, [isEditing])
 
     // Check if todo is overdue
     const isOverdue = (dueDate: any) => {
@@ -621,34 +419,52 @@ export default function FocusedEditingTodoItem({
         return combined.toISOString()
     }
 
-    // Handle category change with immediate save
-    const handleCategoryChange = (newCategory: string) => {
-        setEditCategory(newCategory)
-        // Save immediately with the new category value
-        saveAllChanges({ category: newCategory })
+    // Handle category change without immediate save
+    const handleCategoryChange = (newListId: string) => {
+        setEditCategory(newListId)
+        // Don't save immediately anymore
     }
 
-    // Handle priority change with immediate save
+    // Handle priority change without immediate save
     const handlePriorityChange = (newPriority: number) => {
         setEditPriority(newPriority)
-        // Save immediately with the new priority value
-        saveAllChanges({ priority: newPriority })
+        // Don't save immediately anymore
     }
 
-    // Handle date change with save after popover closes
+    // Handle date change without immediate save
     const handleDateChangeWithSave = (newDate: Date | null) => {
         setEditDueDate(newDate)
-        // Save immediately with the new date value
-        saveAllChanges({ dueDate: newDate })
+        // Don't save immediately anymore
     }
 
     // Handle date change without save (for internal updates)
     const handleDateChange = (newDate: Date | null) => {
         setEditDueDate(newDate)
-        // Don't save immediately, let the popover handle when to save
+        // Don't save immediately, let the save button handle it
     }
 
-    console.log('todo', todo)
+    // Manual save function for the save button
+    const handleSaveChanges = async () => {
+        await saveAllChanges({
+            text: localText,
+            category: editCategory,
+            priority: editPriority,
+            dueDate: editDueDate
+        })
+        setIsEditing(false)
+    }
+
+    // Cancel editing function
+    const handleCancelChanges = () => {
+        // Reset all values to original
+        setLocalText(todo.text)
+        setEditCategory(todo.category || 'Other')
+        setEditPriority(typeof todo.priority === 'number' ? todo.priority : 1)
+        setEditDueDate(todo.dueDate ? new Date(todo.dueDate.toString()) : null)
+        setIsEditing(false)
+    }
+
+
     // Save all changes when losing focus
     const saveAllChanges = async (overrideValues?: {
         text?: string,
@@ -659,77 +475,64 @@ export default function FocusedEditingTodoItem({
         try {
             // Use provided values or current state
             const textToSave = overrideValues?.text ?? localText
-            const categoryToSave = overrideValues?.category ?? editCategory
+            const categoryListId = overrideValues?.category ?? editCategory
             const priorityToSave = overrideValues?.priority ?? editPriority
             const dateToSave = overrideValues?.dueDate ?? editDueDate
 
             // Prepare the due date - combine date with default time if needed
             const dueDateISO = dateToSave ? combineDateAndTime(dateToSave) : todo.dueDate
 
-            // Create updated todo object
+            // Create updated todo object - use the selected list ID as the new listId
             const updatedTodo: TodoItem = {
                 ...todo,
                 text: textToSave.trim(),
                 dueDate: dueDateISO || '',
                 priority: priorityToSave,
-                category: categoryToSave,
-                todoListId: listId,
+                todoListId: categoryListId, // This moves the todo to the selected list
             }
 
-            // Update via API (same as add-todo-form)
+            // Update via API
             const newTodo = await clientTodo.updateTodo(updatedTodo)
 
-            // Update React Query cache (same pattern as add-todo-form)
+            // Update React Query cache - need to handle moving between lists
             queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
                 if (!oldData) return oldData
 
                 return oldData.map(list => {
+                    // Remove from old list
                     if (list.id === listId) {
                         return {
                             ...list,
-                            todos: list.todos.map(todo =>
-                                todo.id === newTodo.id ? newTodo : todo
-                            )
+                            todos: list.todos.filter(t => t.id !== todo.id)
+                        }
+                    }
+                    // Add to new list
+                    if (list.id === categoryListId) {
+                        return {
+                            ...list,
+                            todos: [...list.todos, newTodo]
                         }
                     }
                     return list
                 })
             })
 
-            console.log('Successfully saved changes:', {
+            console.log('Successfully moved todo to new category:', {
                 text: textToSave,
-                category: categoryToSave,
+                fromList: listId,
+                toList: categoryListId,
                 priority: priorityToSave,
                 dueDate: dateToSave
             })
         } catch (error) {
             console.error('Failed to save todo changes:', error)
         }
-
-        // Also call the existing text update (for backward compatibility)
-        // handleTodoBlur(listId, todo.id, localText, state, queryClient)
-    }
-
-    // Handle textarea focus - enter editing mode
-    const handleTextareaFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-        setIsEditing(true)
-        const textarea = e.target as HTMLTextAreaElement
-        resizeTextarea(textarea)
-        handleTodoFocus(listId, todo.id, state, queryClient)
-    }
-
-    // Handle textarea blur - save text changes only
-    const handleTextareaBlur = () => {
-        // Save text changes when textarea loses focus
-        if (localText.trim() !== todo.text) {
-            saveAllChanges({ text: localText })
-        }
     }
 
     return (
         <div
             ref={containerRef}
-            className={`flex items-start gap-3 border-b pb-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
+            className={`px-1 flex items-start gap-3 border-b pb-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
                 ? 'opacity-0 scale-95 -translate-y-1'
                 : todo.isNew
                     ? 'animate-slide-in-from-top'
@@ -773,53 +576,64 @@ export default function FocusedEditingTodoItem({
             </div>
 
             {/* Content */}
-            <div className={`flex-1 min-w-0 pt-[2px] transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
-                }`}>
+            <div
+                className={`flex-1 min-w-0 pt-[2px] px-2 transition-all duration-300 ease-in-out cursor-pointer ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
+                    }`}
+                onClick={() => !todo.deleting && !isEditing && setIsEditing(true)}
+            >
 
-                {/* Always editable textarea */}
-                <textarea
-                    ref={(el) => {
-                        onTextareaRef?.(todo.id, el)
-                        if (el) {
-                            requestAnimationFrame(() => resizeTextarea(el))
-                        }
-                    }}
-                    className={`w-full min-h-[24px] leading-normal text-[15px] bg-transparent border-none resize-none overflow-hidden transition-all duration-500 focus:outline-none ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                {isEditing ? (
+                    /* Editing mode - textarea */
+                    <textarea
+                        ref={(el) => {
+                            onTextareaRef?.(todo.id, el)
+                            if (el) {
+                                requestAnimationFrame(() => resizeTextarea(el))
+                            }
+                        }}
+                        className={`w-full min-h-[24px] leading-normal text-[15px] bg-transparent border border-muted rounded px-2 py-1 resize-none overflow-hidden transition-all duration-500 focus:outline-none focus:ring-1 focus:ring-ring ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                            } ${todoIsOverdue && !todo.completed ? 'text-red-500' : ''
+                            } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
+                            }`}
+                        placeholder="Add todo..."
+                        value={localText}
+                        onChange={(e) => {
+                            const textarea = e.target as HTMLTextAreaElement
+                            resizeTextarea(textarea)
+                            setLocalText(e.target.value)
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Escape') {
+                                setIsEditing(false)
+                                setLocalText(todo.text) // Reset to original text
+                            }
+                            if (e.key === 'Enter' && e.ctrlKey) {
+                                handleSaveChanges()
+                            }
+                        }}
+                        data-todo-id={todo.id}
+                        disabled={todo.deleting}
+                        rows={1}
+                        style={{
+                            lineHeight: '1.5',
+                            wordWrap: 'break-word',
+                            whiteSpace: 'pre-wrap'
+                        }}
+                        autoFocus
+                    />
+                ) : (
+                    /* Display mode - paragraph */
+                    <p className={`text-sm font-medium leading-normal hover:bg-muted/50 rounded px-2 py-1 -mx-2 -my-1 transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
                         } ${todoIsOverdue && !todo.completed ? 'text-red-500' : ''
                         } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
-                        }`}
-                    placeholder="Add todo..."
-                    value={localText}
-                    onChange={(e) => {
-                        const textarea = e.target as HTMLTextAreaElement
-                        resizeTextarea(textarea)
-                        setLocalText(e.target.value)
-                    }}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Escape') {
-                            setIsEditing(false)
-                            e.currentTarget.blur()
-                        }
-                        if (e.key === 'Enter' && e.ctrlKey) {
-                            setIsEditing(false)
-                            saveAllChanges({ text: localText })
-                        }
-                    }}
-                    onBlur={handleTextareaBlur}
-                    onFocus={handleTextareaFocus}
-                    data-todo-id={todo.id}
-                    disabled={todo.deleting}
-                    rows={1}
-                    style={{
-                        lineHeight: '1.5',
-                        wordWrap: 'break-word',
-                        whiteSpace: 'pre-wrap'
-                    }}
-                />
+                        }`}>
+                        {todo.text}
+                    </p>
+                )}
 
                 {/* Editing controls that appear on focus */}
                 <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isEditing
-                    ? 'opacity-100 max-h-32 mt-2'
+                    ? 'opacity-100 max-h-60 sm:max-h-48 mt-2'
                     : 'opacity-0 max-h-0 mt-0'
                     }`}>
 
@@ -828,32 +642,53 @@ export default function FocusedEditingTodoItem({
                         <CategorySelector
                             value={editCategory}
                             onChange={handleCategoryChange}
+                            todoLists={todoLists}
                         />
                     </div>
 
                     {/* Date and priority row */}
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid sm:grid-cols-2 gap-2 mb-3">
                         <DateSelector
                             value={editDueDate}
-                            onChange={handleDateChangeWithSave}
+                            onChange={handleDateChange}
                         />
                         <PrioritySelector
                             value={editPriority}
                             onChange={handlePriorityChange}
                         />
                     </div>
+
+                    {/* Save and Cancel buttons */}
+                    <div className="flex gap-2 justify-end mb-4">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCancelChanges}
+                            className="text-xs h-7"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            size="sm"
+                            onClick={handleSaveChanges}
+                            className="text-xs h-7"
+                            disabled={!localText.trim()}
+                        >
+                            Save
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Display-only controls when not focused */}
                 <div className={`transition-all duration-300 ease-in-out ${!isEditing && !todo.deleting
                     ? 'opacity-100 mt-1'
-                    : 'opacity-0'
+                    : 'hidden'
                     }`}>
 
                     {/* First row: Category (if shown in context) */}
                     {displayConfig.showCategory && (
                         <div className="flex items-center gap-2 mb-1">
-                            <CategoryDisplay category={todo.category} />
+                            <CategoryDisplay category={todo.listName} />
                         </div>
                     )}
 
