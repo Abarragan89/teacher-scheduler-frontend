@@ -67,8 +67,7 @@ export default function TodoList({ dateString }: TodoListProps) {
                                     <TodoListItem
                                         todo={todo}
                                         listId={todo.listId}
-                                        // showListName={true}
-                                        // showPopovers={false}
+                                        context='daily'
                                         className="border-none pb-2"
                                     />
                                 </div>

@@ -5,8 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { CalendarIcon, ChevronDown } from 'lucide-react'
-import { BsFillBookmarkFill } from 'react-icons/bs'
+import { CalendarIcon, ChevronDown, Flag } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { TodoItem, TodoList } from '@/types/todo'
 import { clientTodo } from '@/lib/api/services/todos/client'
@@ -226,7 +225,7 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
                                     className="w-full justify-start text-left font-normal"
                                     disabled={isCreating}
                                 >
-                                    <BsFillBookmarkFill
+                                    <Flag
                                         className={`mr-2 w-4 h-4 ${priority === 4 ? 'text-red-500' :
                                             priority === 3 ? 'text-yellow-500' :
                                                 priority === 2 ? 'text-blue-500' :

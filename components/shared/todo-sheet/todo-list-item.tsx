@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import useSound from 'use-sound'
-import { CheckCircle, Circle, Bookmark, Calendar, Clock, CalendarIcon, ChevronDown, Flag } from 'lucide-react'
+import { CheckCircle, Circle, Calendar, Clock, CalendarIcon, ChevronDown, Flag } from 'lucide-react'
 import { TodoItem, TodoList } from '@/types/todo'
 import { clientTodo } from '@/lib/api/services/todos/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -10,14 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Calendar as CalendarComponent } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import {
-    updateTodoItem,
-    handleTodoFocus,
-    handleTodoBlur,
-    toggleTodoCompletion
-} from './utils/todo-operations'
-import DueDatePopover from './popovers/due-date-popover'
-import PriorityPopover from './popovers/priority-popover'
+import { toggleTodoCompletion } from './utils/todo-operations'
 
 interface ExtendedTodoItem extends TodoItem {
     listName?: string
@@ -82,13 +75,9 @@ const PriorityDisplay = ({ priority }: { priority?: string | number }) => {
         (priority === 'high' ? 4 : priority === 'medium' ? 3 : 2) :
         priority
 
-    const colorClass = level === 4 ? 'text-red-500' : level === 3 ? 'text-yellow-500' : 'text-blue-500'
-    const label = level === 4 ? 'High' : level === 3 ? 'Medium' : 'Low'
-
     return (
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Flag className={`w-3 h-3 ${level === 4 ? 'text-red-500' : level === 3 ? 'text-yellow-500' : 'text-blue-500'}`} />
-            <span className={colorClass}>{label}</span>
         </div>
     )
 }
@@ -327,8 +316,6 @@ export default function FocusedEditingTodoItem({
     className = ""
 }: FocusedEditingTodoItemProps) {
 
-    console.log('todo', todo)
-
     // Get display configuration based on context
     const displayConfig = getDisplayConfig(context)
 
@@ -351,6 +338,7 @@ export default function FocusedEditingTodoItem({
     const [editDueDate, setEditDueDate] = useState<Date | null>(
         todo.dueDate ? new Date(todo.dueDate.toString()) : null
     )
+    const [isSaving, setIsSaving] = useState(false)
 
     console.log('editCategory', editCategoryId)
 
@@ -434,13 +422,18 @@ export default function FocusedEditingTodoItem({
 
     // Manual save function for the save button
     const handleSaveChanges = async () => {
-        await saveAllChanges({
-            text: localText,
-            category: editCategoryId,
-            priority: editPriority,
-            dueDate: editDueDate
-        })
-        setIsEditing(false)
+        setIsSaving(true)
+        try {
+            await saveAllChanges({
+                text: localText,
+                category: editCategoryId,
+                priority: editPriority,
+                dueDate: editDueDate
+            })
+            setIsEditing(false)
+        } finally {
+            setIsSaving(false)
+        }
     }
 
     // Cancel editing function
@@ -541,7 +534,7 @@ export default function FocusedEditingTodoItem({
     return (
         <div
             ref={containerRef}
-            className={`px-1 flex items-start gap-3 border-b pb-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
+            className={`mx-3 flex items-start gap-3 border-b pb-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
                 ? 'opacity-0 scale-95 -translate-y-1'
                 : todo.isNew
                     ? 'animate-slide-in-from-top'
@@ -677,9 +670,9 @@ export default function FocusedEditingTodoItem({
                         </Button>
                         <Button
                             onClick={handleSaveChanges}
-                            disabled={!localText.trim()}
+                            disabled={!localText.trim() || isSaving}
                         >
-                            Save
+                            {isSaving ? 'Saving...' : 'Save'}
                         </Button>
                     </div>
                 </div>
@@ -691,15 +684,10 @@ export default function FocusedEditingTodoItem({
                     : 'hidden'
                     }`}>
 
-                    {/* First row: Category (if shown in context) */}
-                    {displayConfig.showCategory && (
-                        <div className="flex items-center my-2">
-                            <CategoryDisplay category={todo.listName} />
-                        </div>
-                    )}
-
-                    {/* Second row: Date and Priority */}
                     <div className="flex items-center gap-3">
+                        {displayConfig.showCategory && (
+                            <CategoryDisplay category={todo.listName} />
+                        )}
                         {displayConfig.showDueDate && (
                             <DueDateDisplay dueDate={todo.dueDate} context={context} />
                         )}

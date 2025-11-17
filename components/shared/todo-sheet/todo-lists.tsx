@@ -324,6 +324,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                             <TodoListItem
                                 key={todo.id}
                                 todo={todo}
+                                context='todosheet'
                                 listId={currentList.id}
                                 onTextareaRef={(todoId, el) => {
                                     textareaRefs.current[todoId] = el
