@@ -29,13 +29,13 @@ export function ResponsiveDialog({
     description?: string;
     hideDescription?: boolean;
 }) {
-    const isDesktop = useMediaQuery('(min-width: 575px)');
+    const isDesktop = useMediaQuery('(min-width: 520px)');
 
     if (isDesktop) {
         return (
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogContent onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()} onPointerMove={(e) => e.stopPropagation()}
-                    className="sm:max-w-[450px] overflow-y-hidden p-4 rounded-md">
+                    className="xs:max-w-[450px] overflow-y-hidden p-4 rounded-md">
                     <DialogHeader>
                         <DialogTitle>{title}</DialogTitle>
                         {description && (

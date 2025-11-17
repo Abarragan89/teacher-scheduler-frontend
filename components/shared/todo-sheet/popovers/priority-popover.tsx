@@ -1,9 +1,8 @@
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import React, { useState } from 'react'
-import { BsFillBookmarkFill } from 'react-icons/bs'
+import { Flag } from 'lucide-react'
 import { handlePriorityUpdate } from '../utils/todo-operations'
-import { TodoState } from '../utils/todo-list-operations'
 import { TodoItem } from '@/types/todo'
 import { QueryClient } from '@tanstack/react-query'
 
@@ -14,15 +13,15 @@ export default function PriorityPopover({ todo, queryClient, listId }: { todo: T
     return (
         <Popover open={isPopOverOpen} onOpenChange={setIsPopOverOpen}>
             <PopoverTrigger asChild>
-                <BsFillBookmarkFill
+                <Flag
                     className={`hover:text-foreground cursor-pointer
                         ${todo.priority == 4 ? 'text-red-500' :
                             todo.priority === 3 ? 'text-yellow-500' :
                                 todo.priority === 2 ? 'text-blue-500' :
                                     'text-muted-foreground'
                         }
-                        `}
-                    size={15} />
+                    `}
+                    size={17} />
             </PopoverTrigger>
             <PopoverContent className="w-48 space-y-2" align="end">
                 <h4 className="font-medium text-sm mb-3">Set Priority</h4>

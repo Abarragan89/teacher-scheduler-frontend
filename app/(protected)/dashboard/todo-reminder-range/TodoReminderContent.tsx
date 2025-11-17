@@ -86,8 +86,8 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
                                 key={todo.id}
                                 todo={todo}
                                 listId={todo.todoListId || ''}
-                                showListName={true}
-                                showOverdue={true}
+                                // showListName={true}
+                                // showOverdue={true}
                             />
                         ))}
                     </div>
@@ -111,7 +111,7 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
                             key={todo.id}
                             todo={todo}
                             listId={todo.todoListId || ''}
-                            showListName={true}
+                            // showListName={true}
                         />
                     ))}
                 </div>
@@ -135,7 +135,7 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
                                 key={todo.id}
                                 todo={todo}
                                 listId={todo.todoListId || ''}
-                                showListName={true}
+                                // showListName={true}
                             />
                         ))}
                     </div>

@@ -43,52 +43,52 @@ export default function AuthenticatedNavLinks({ email }: { email: string }) {
         )
     }
 
-    if (showAddTodoModal) {
-        return (
-            <ResponsiveDialog
-                title='Add New Todo'
-                isOpen={showAddTodoModal}
-                setIsOpen={setShowAddTodoModal}
-            >
-                <AddTodoForm />
-            </ResponsiveDialog>
-        )
-    }
-
     return (
-        <NavigationMenu>
-            <NavigationMenuList className="gap-x-2">
-                <NavigationMenuItem>
-                    <Button className='hover:cursor-pointer' variant={'ghost'} onClick={() => setShowAddTodoModal(true)}>
-                        <Plus />
-                    </Button>
-                </NavigationMenuItem>
+        <>
+            {showAddTodoModal && (
+                <ResponsiveDialog
+                    title='Add New Todo'
+                    isOpen={showAddTodoModal}
+                    setIsOpen={setShowAddTodoModal}
+                >
+                    <AddTodoForm />
+                </ResponsiveDialog>
 
-                <NavigationMenuItem className='absolute top-10 -right-2'>
-                    <InstallPrompt />
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                    <Link href="/dashboard">
-                        <Button variant={"ghost"} className='hover:cursor-pointer'>
-                            <CalendarDays
-                                size={18}
-                            />
+            )}
+            <NavigationMenu>
+                <NavigationMenuList className="gap-x-2">
+                    <NavigationMenuItem>
+                        <Button className='hover:cursor-pointer' variant={'ghost'} onClick={() => setShowAddTodoModal(true)}>
+                            <Plus />
                         </Button>
-                    </Link>
-                </NavigationMenuItem>
+                    </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                    <TodoSheet
-                        todoLists={todoLists || []}
-                    />
-                </NavigationMenuItem>
+                    <NavigationMenuItem className='absolute top-10 -right-2'>
+                        <InstallPrompt />
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <Link href="/dashboard">
+                            <Button variant={"ghost"} className='hover:cursor-pointer'>
+                                <CalendarDays
+                                    size={18}
+                                />
+                            </Button>
+                        </Link>
+                    </NavigationMenuItem>
 
-                <ModeToggle />
+                    <NavigationMenuItem>
+                        <TodoSheet
+                            todoLists={todoLists || []}
+                        />
+                    </NavigationMenuItem>
 
-                <NavigationMenuItem>
-                    <UserActionMenu email={email} />
-                </NavigationMenuItem>
-            </NavigationMenuList>
-        </NavigationMenu>
+                    <ModeToggle />
+
+                    <NavigationMenuItem>
+                        <UserActionMenu email={email} />
+                    </NavigationMenuItem>
+                </NavigationMenuList>
+            </NavigationMenu>
+        </>
     )
 }

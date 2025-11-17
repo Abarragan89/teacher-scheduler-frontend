@@ -328,7 +328,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 onTextareaRef={(todoId, el) => {
                                     textareaRefs.current[todoId] = el
                                 }}
-                                showPopovers={true}
+                                // showPopovers={true}
                             />
                         ))}
                     </div>

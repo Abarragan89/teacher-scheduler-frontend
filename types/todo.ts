@@ -3,6 +3,7 @@ export interface TodoItem {
     text: string
     completed: boolean
     priority: number
+    category?: string    // Optional category field
     todoListId?: string
     dueDate: String | null
     createdAt?: string   // For sorting by creation date
