@@ -95,8 +95,8 @@ const PriorityDisplay = ({ priority }: { priority?: string | number }) => {
 
 // Category display component
 const CategoryDisplay = ({ category }: { category?: string }) => {
-    // Always show a category, default to 'Other' if not set
-    const displayCategory = category || 'Other'
+    // Always show a category, default to 'Unlisted' if not set
+    const displayCategory = category || 'Unlisted'
 
     return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-muted text-muted-foreground">
@@ -115,7 +115,7 @@ const PrioritySelector = ({ value, onChange }: { value: number, onChange: (value
     ]
 
     return (
-        <div className="space-y-1">
+        <div className="space-y-1 w-full">
             <label className="text-xs text-muted-foreground">Priority</label>
             <Select value={value.toString()} onValueChange={(val) => onChange(Number(val))}>
                 <SelectTrigger className="w-full h-8 text-xs">
@@ -198,7 +198,7 @@ const DateSelector = ({ value, onChange }: { value?: Date | null, onChange: (dat
     }
 
     return (
-        <div className="space-y-1">
+        <div className="space-y-1 min-w-[170px] w-full">
             <label className="text-xs text-muted-foreground">Due Date</label>
             <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
                 <PopoverTrigger asChild>
@@ -341,15 +341,18 @@ export default function FocusedEditingTodoItem({
 
 
     // Form state for editing
-    const [editCategory, setEditCategory] = useState(() => {
-        // Find the list ID that matches the todo's current list
-        const currentList = todoLists.find(list => list.id === listId)
-        return currentList?.id || todoLists[0]?.id || ''
-    })
+    // const [editCategoryId, setEditCategoryId] = useState(() => {
+    //     // Find the list ID that matches the todo's current list
+    //     const currentList = todoLists.find(list => list.id === listId)
+    //     return currentList?.id || todoLists[0]?.id || ''
+    // })
+    const [editCategoryId, setEditCategoryId] = useState(listId)
     const [editPriority, setEditPriority] = useState(typeof todo.priority === 'number' ? todo.priority : 1)
     const [editDueDate, setEditDueDate] = useState<Date | null>(
         todo.dueDate ? new Date(todo.dueDate.toString()) : null
     )
+
+    console.log('editCategory', editCategoryId)
 
     // Sound effects
     const [playCompleteSound] = useSound('/sounds/todoWaterClick.wav', { volume: 0.4 })
@@ -401,14 +404,6 @@ export default function FocusedEditingTodoItem({
 
     const todoIsOverdue = isOverdue(todo.dueDate)
 
-    // Create minimal state object for operations
-    const state = {
-        todoLists: [],
-        focusedText: '',
-        setFocusedText: () => { },
-        setCurrentListIndex: () => { }
-    }
-
     // Helper function to combine date and time (from add-todo-form)
     const combineDateAndTime = (date: Date | null, time: string = '12:00'): string | null => {
         if (!date) return null
@@ -421,19 +416,13 @@ export default function FocusedEditingTodoItem({
 
     // Handle category change without immediate save
     const handleCategoryChange = (newListId: string) => {
-        setEditCategory(newListId)
+        setEditCategoryId(newListId)
         // Don't save immediately anymore
     }
 
     // Handle priority change without immediate save
     const handlePriorityChange = (newPriority: number) => {
         setEditPriority(newPriority)
-        // Don't save immediately anymore
-    }
-
-    // Handle date change without immediate save
-    const handleDateChangeWithSave = (newDate: Date | null) => {
-        setEditDueDate(newDate)
         // Don't save immediately anymore
     }
 
@@ -447,7 +436,7 @@ export default function FocusedEditingTodoItem({
     const handleSaveChanges = async () => {
         await saveAllChanges({
             text: localText,
-            category: editCategory,
+            category: editCategoryId,
             priority: editPriority,
             dueDate: editDueDate
         })
@@ -458,7 +447,7 @@ export default function FocusedEditingTodoItem({
     const handleCancelChanges = () => {
         // Reset all values to original
         setLocalText(todo.text)
-        setEditCategory(todo.category || 'Other')
+        setEditCategoryId(listId)
         setEditPriority(typeof todo.priority === 'number' ? todo.priority : 1)
         setEditDueDate(todo.dueDate ? new Date(todo.dueDate.toString()) : null)
         setIsEditing(false)
@@ -475,7 +464,7 @@ export default function FocusedEditingTodoItem({
         try {
             // Use provided values or current state
             const textToSave = overrideValues?.text ?? localText
-            const categoryListId = overrideValues?.category ?? editCategory
+            const categoryListId = overrideValues?.category ?? editCategoryId
             const priorityToSave = overrideValues?.priority ?? editPriority
             const dateToSave = overrideValues?.dueDate ?? editDueDate
 
@@ -633,21 +622,21 @@ export default function FocusedEditingTodoItem({
 
                 {/* Editing controls that appear on focus */}
                 <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isEditing
-                    ? 'opacity-100 max-h-60 sm:max-h-48 mt-2'
+                    ? 'opacity-100 max-h-[350px] mt-2'
                     : 'opacity-0 max-h-0 mt-0'
                     }`}>
 
                     {/* Category selector (always shown when editing) */}
                     <div className="mb-2">
                         <CategorySelector
-                            value={editCategory}
+                            value={editCategoryId}
                             onChange={handleCategoryChange}
                             todoLists={todoLists}
                         />
                     </div>
 
                     {/* Date and priority row */}
-                    <div className="grid sm:grid-cols-2 gap-2 mb-3">
+                    <div className="flex flex-wrap gap-2 mb-3">
                         <DateSelector
                             value={editDueDate}
                             onChange={handleDateChange}
@@ -662,22 +651,19 @@ export default function FocusedEditingTodoItem({
                     <div className="flex gap-2 justify-end mb-4">
                         <Button
                             variant="outline"
-                            size="sm"
                             onClick={handleCancelChanges}
-                            className="text-xs h-7"
                         >
                             Cancel
                         </Button>
                         <Button
-                            size="sm"
                             onClick={handleSaveChanges}
-                            className="text-xs h-7"
                             disabled={!localText.trim()}
                         >
                             Save
                         </Button>
                     </div>
                 </div>
+
 
                 {/* Display-only controls when not focused */}
                 <div className={`transition-all duration-300 ease-in-out ${!isEditing && !todo.deleting
@@ -687,7 +673,7 @@ export default function FocusedEditingTodoItem({
 
                     {/* First row: Category (if shown in context) */}
                     {displayConfig.showCategory && (
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center my-2">
                             <CategoryDisplay category={todo.listName} />
                         </div>
                     )}
