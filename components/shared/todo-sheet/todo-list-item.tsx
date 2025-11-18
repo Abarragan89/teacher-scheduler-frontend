@@ -547,9 +547,9 @@ export default function FocusedEditingTodoItem({
                 }`}>
                 <button
                     onClick={() => toggleTodoCompletion(listId, todo.id, playCompleteSound, playTodoRemovedSound, queryClient)}
-                    className={`flex-shrink-0 rounded transition-all duration-300 ${todo.deleting
+                    className={`flex-shrink-0 hover:cursor-pointer rounded transition-all duration-300 ${todo.deleting
                         ? 'opacity-0 pointer-events-none transform scale-50'
-                        : 'hover:bg-muted transform scale-100'
+                        : 'transform scale-100'
                         }`}
                     disabled={todo.deleting}
                 >
