@@ -24,6 +24,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import useSound from 'use-sound';
 import { Separator } from '@radix-ui/react-select'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
+import AddTodoListForm from '@/components/forms/add-todolist-form'
 
 interface CurrentListProps {
     todoLists: TodoList[]
@@ -170,6 +171,10 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 </ResponsiveDialog>
             </div>
         )
+    }
+
+    const handleListCreated = (newListIndex: number) => {
+        setCurrentListIndex(newListIndex)
     }
 
     return (
@@ -329,53 +334,18 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 onTextareaRef={(todoId, el) => {
                                     textareaRefs.current[todoId] = el
                                 }}
-                                // showPopovers={true}
                             />
                         ))}
                     </div>
                 </ScrollArea>
             </div>
-            {/* Responsive Dialog for Creating New List */}
-            <ResponsiveDialog
+            {/* Add Todo List Form */}
+            <AddTodoListForm
                 isOpen={isModalOpen}
-                setIsOpen={setIsModalOpen}
-                title="Create New List"
-                description="Enter a name for your new todo list."
-            >
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="listName">List Name</Label>
-                        <Input
-                            id="listName"
-                            placeholder="Enter list name..."
-                            value={newListName}
-                            onChange={(e) => setNewListName(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && newListName.trim()) {
-                                    handleCreateList()
-                                }
-                            }}
-                        />
-                    </div>
-                    <div className="flex justify-end space-x-2">
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                setIsModalOpen(false)
-                                setNewListName('')
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={handleCreateList}
-                            disabled={!newListName.trim() || isCreating}
-                        >
-                            {isCreating ? 'Creating...' : 'Create List'}
-                        </Button>
-                    </div>
-                </div>
-            </ResponsiveDialog>
+                onClose={() => setIsModalOpen(false)}
+                onListCreated={handleListCreated}
+                todoListsLength={todoLists.length}
+            />
         </div>
     )
 }

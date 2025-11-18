@@ -153,7 +153,7 @@ export default function CalendarMonth() {
             </div>
 
             {/* Calendar Grid */}
-            <div className="grid grid-cols-7 sm:rounded-lg border sm:mx-5">
+            <div className="grid grid-cols-7 sm:rounded-lg border-y sm:border sm:mx-5">
                 {/* Day names header */}
                 {dayNames.map(day => (
                     <div
