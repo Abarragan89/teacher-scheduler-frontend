@@ -104,7 +104,7 @@ const PrioritySelector = ({ value, onChange }: { value: number, onChange: (value
     ]
 
     return (
-        <div className="space-y-1 w-full">
+        <div className="space-y-1 flex-1 min-w-[120px]">
             <label className="text-xs text-muted-foreground">Priority</label>
             <Select value={value.toString()} onValueChange={(val) => onChange(Number(val))}>
                 <SelectTrigger className="w-full h-8 text-xs">
@@ -187,16 +187,15 @@ const DateSelector = ({ value, onChange }: { value?: Date | null, onChange: (dat
     }
 
     return (
-        <div className="space-y-1 min-w-[170px] w-full">
+        <div className="space-y-1 min-w-[175px] flex-1">
             <label className="text-xs text-muted-foreground">Due Date</label>
             <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
                 <PopoverTrigger asChild>
                     <Button
                         variant="outline"
                         className="w-full h-8 justify-start text-left font-normal text-xs"
-                        type="button"
                     >
-                        <CalendarIcon className="h-3 w-3 mr-2" />
+                        <CalendarIcon className="h-3 w-3" />
                         {tempDate ? formatDisplayDate(tempDate, true) : value ? formatDisplayDate(value, true) : "Select date"}
                         <ChevronDown className="ml-auto h-3 w-3" />
                     </Button>
@@ -272,7 +271,7 @@ const DueDateDisplay = ({ dueDate, context }: { dueDate?: any, context?: TodoCon
     const icon = context === 'daily' ? <Clock className="w-3 h-3" /> : <Calendar className="w-3 h-3" />
 
     return (
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="flex items-center text-xs text-muted-foreground">
             {icon}
             <span>{formatRelativeDate(dueDate)}</span>
         </div>
@@ -343,32 +342,37 @@ export default function FocusedEditingTodoItem({
     }
 
     // Handle click outside to close editing mode
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            const target = event.target as Node
+    // useEffect(() => {
+    //     const handleClickOutside = (event: MouseEvent) => {
+    //         const target = event.target as Node
 
-            // Don't close if clicking on a Select dropdown, Calendar popover, or their triggers
-            if (target &&
-                (target as Element).closest?.('[data-radix-select-trigger]') ||
-                (target as Element).closest?.('[data-radix-select-content]') ||
-                (target as Element).closest?.('[data-radix-popover-trigger]') ||
-                (target as Element).closest?.('[data-radix-popover-content]') ||
-                (target as Element).closest?.('[data-radix-popper-content-wrapper]')
-            ) {
-                return
-            }
+    //         // Don't close if clicking on a Select dropdown, Calendar popover, or their triggers
+    //         if (target &&
+    //             (target as Element).closest?.('[data-radix-select-trigger]') ||
+    //             (target as Element).closest?.('[data-radix-select-content]') ||
+    //             (target as Element).closest?.('[data-radix-popover-trigger]') ||
+    //             (target as Element).closest?.('[data-radix-popover-content]') ||
+    //             (target as Element).closest?.('[data-radix-popper-content-wrapper]')
+    //         ) {
+    //             return
+    //         }
 
-            if (containerRef.current && !containerRef.current.contains(target)) {
-                // Just cancel editing without saving when clicking outside
-                handleCancelChanges()
-            }
-        }
+    //         // Don't close if clicking on the container div itself (the outermost todo item div)
+    //         if (target === containerRef.current) {
+    //             return
+    //         }
 
-        if (isEditing) {
-            document.addEventListener('mousedown', handleClickOutside)
-            return () => document.removeEventListener('mousedown', handleClickOutside)
-        }
-    }, [isEditing])
+    //         if (containerRef.current && !containerRef.current.contains(target)) {
+    //             // Just cancel editing without saving when clicking outside
+    //             handleCancelChanges()
+    //         }
+    //     }
+
+    //     if (isEditing) {
+    //         document.addEventListener('mousedown', handleClickOutside)
+    //         return () => document.removeEventListener('mousedown', handleClickOutside)
+    //     }
+    // }, [isEditing])
 
     // Check if todo is overdue
     const isOverdue = (dueDate: any) => {
@@ -514,7 +518,7 @@ export default function FocusedEditingTodoItem({
     return (
         <div
             ref={containerRef}
-            className={`mx-3 flex items-start gap-3 border-b pb-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
+            className={`mx-3 flex items-start gap-1 border-b pb-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
                 ? 'opacity-0 scale-95 -translate-y-1'
                 : todo.isNew
                     ? 'animate-slide-in-from-top'
@@ -559,53 +563,55 @@ export default function FocusedEditingTodoItem({
 
             {/* Content */}
             <div
-                className={`flex-1 min-w-0 pt-[2px] px-2 transition-all duration-300 ease-in-out cursor-pointer ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
+                className={`flex-1 min-w-0 transition-all duration-300 ease-in-out cursor-pointer ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'
                     }`}
                 onClick={() => !todo.deleting && !isEditing && setIsEditing(true)}
             >
 
                 {isEditing ? (
                     /* Editing mode - textarea */
-                    <textarea
-                        ref={(el) => {
-                            onTextareaRef?.(todo.id, el)
-                            if (el) {
-                                requestAnimationFrame(() => resizeTextarea(el))
-                            }
-                        }}
-                        className={`w-full min-h-[24px] mx-1 leading-normal text-[15px] bg-transparent border border-muted rounded px-2 py-1 resize-none overflow-hidden transition-all duration-500 focus:outline-none focus:ring-1 focus:ring-ring ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
-                            } ${todoIsOverdue && !todo.completed ? 'text-red-500' : ''
-                            } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
-                            }`}
-                        placeholder="Add todo..."
-                        value={localText}
-                        onChange={(e) => {
-                            const textarea = e.target as HTMLTextAreaElement
-                            resizeTextarea(textarea)
-                            setLocalText(e.target.value)
-                        }}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Escape') {
-                                setIsEditing(false)
-                                setLocalText(todo.text) // Reset to original text
-                            }
-                            if (e.key === 'Enter' && e.ctrlKey) {
-                                handleSaveChanges()
-                            }
-                        }}
-                        data-todo-id={todo.id}
-                        disabled={todo.deleting}
-                        rows={1}
-                        style={{
-                            lineHeight: '1.5',
-                            wordWrap: 'break-word',
-                            whiteSpace: 'pre-wrap'
-                        }}
-                        autoFocus
-                    />
+                    <div>
+                        <textarea
+                            ref={(el) => {
+                                onTextareaRef?.(todo.id, el)
+                                if (el) {
+                                    requestAnimationFrame(() => resizeTextarea(el))
+                                }
+                            }}
+                            className={`w-full min-h-[24px] px-2 ml-1 leading-normal text-[15px] bg-transparent border-b-2 sh border-muted py-1 pb-[2px] resize-none overflow-hidden transition-all duration-500 focus:outline-none focus:ring-0 focus:ring-ring ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                                } ${todoIsOverdue && !todo.completed ? 'text-red-500' : ''
+                                } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
+                                }`}
+                            placeholder="Add todo..."
+                            value={localText}
+                            onChange={(e) => {
+                                const textarea = e.target as HTMLTextAreaElement
+                                resizeTextarea(textarea)
+                                setLocalText(e.target.value)
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Escape') {
+                                    setIsEditing(false)
+                                    setLocalText(todo.text) // Reset to original text
+                                }
+                                if (e.key === 'Enter' && e.ctrlKey) {
+                                    handleSaveChanges()
+                                }
+                            }}
+                            data-todo-id={todo.id}
+                            disabled={todo.deleting}
+                            rows={1}
+                            style={{
+                                lineHeight: '1.5',
+                                wordWrap: 'break-word',
+                                whiteSpace: 'pre-wrap'
+                            }}
+                            autoFocus
+                        />
+                    </div>
                 ) : (
                     /* Display mode - paragraph */
-                    <p className={`text-sm font-medium leading-normal hover:bg-muted/50 rounded px-2 py-1 -mx-2 -my-1 transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                    <p className={`text-[15px] ml-1 font-medium leading-normal hover:bg-muted/50 rounded px-2 py-1 transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
                         } ${todoIsOverdue && !todo.completed ? 'text-red-500' : ''
                         } ${todo.deleting ? 'pointer-events-none transform scale-90' : ''
                         }`}>
@@ -629,7 +635,7 @@ export default function FocusedEditingTodoItem({
                     </div>
 
                     {/* Date and priority row */}
-                    <div className="flex flex-wrap gap-2 mb-3 mx-1">
+                    <div className="flex flex-wrap gap-3 mb-3 mx-1">
                         <DateSelector
                             value={editDueDate}
                             onChange={handleDateChange}
@@ -641,7 +647,7 @@ export default function FocusedEditingTodoItem({
                     </div>
 
                     {/* Save and Cancel buttons */}
-                    <div className="flex gap-2 justify-end mb-4 mx-1">
+                    <div className="flex gap-2 justify-end my-4 mx-1">
                         <Button
                             variant="outline"
                             onClick={handleCancelChanges}

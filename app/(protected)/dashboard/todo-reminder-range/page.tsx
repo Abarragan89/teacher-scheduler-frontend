@@ -18,6 +18,7 @@ export default async function TodoReminderPage({ searchParams }: pageProps) {
         queryKey: ['todos'],
         queryFn: () => initialTodos,
         staleTime: 5 * 60 * 1000,
+        initialData: initialTodos
     });
 
 
