@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { BareInput } from '@/components/ui/bare-bones-input'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { CheckCircle, Circle, Plus, BookmarkCheckIcon, SendHorizonal } from 'lucide-react'
+import { CheckCircle, Circle, Plus, BookmarkCheckIcon, SendHorizonal, X } from 'lucide-react'
 import { TodoState, updateTodoListTitle, handleTodoListTitleBlur, handleTodoListTitleFocus } from './utils/todo-list-operations'
 import {
     updateTodoItem,
@@ -25,6 +25,7 @@ import useSound from 'use-sound';
 import { Separator } from '@radix-ui/react-select'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import AddTodoListForm from '@/components/forms/add-todolist-form'
+import AddTodoForm from '@/components/forms/add-todo-form'
 
 interface CurrentListProps {
     todoLists: TodoList[]
@@ -49,6 +50,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const [localTodoTexts, setLocalTodoTexts] = useState<Record<string, string>>({});
     const [sortBy, setSortBy] = useState<'priority' | 'due-date' | 'created'>('created');
     const newTodoTextareaRef = useRef<HTMLTextAreaElement>(null);
+    const [showAddTodoForm, setShowAddTodoForm] = useState(false);
 
     // Ref for managing textarea auto-resize
     const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
@@ -289,38 +291,25 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     </div>
                 </div>
 
-                {/* Make a simple form to add another todo to this list */}
-                <div className="flex items-stretch gap-3 my-3 rounded-lg shadow-lg">
-                    {/* Input that matches textarea styling */}
-                    <div className="flex-1 flex min-w-0 rounded-tl-lg ">
-                        <Input
-                            className=" w-full p-2 px-4 h-auto text-md leading-normal bg-transparent border rounded-none rounded-tl-lg rounded-bl-lg border-r-0 resize-none overflow-hidden focus:outline-none focus:ring-0 placeholder:text-muted-foreground/60"
-                            placeholder="Add new todo..."
-                            value={newTodoText}
-                            style={{
-                                wordWrap: 'break-word',
-                                whiteSpace: 'pre-wrap'
-                            }}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault()
-                                    addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText, newTodoTextareaRef)
-                                }
-                            }}
-                            onChange={(e) => {
-                                setNewTodoText(e.target.value)
-                            }}
-                        />
+                {/* Add a new todo Form and Button */}
+                {/* <div className="flex-end my-1 text-xs"> */}
+                    {/* {showAddTodoForm ? (
+                        <button onClick={() => setShowAddTodoForm(false)} className='py-2 px-3 text-sm border hover:bg-accent hover:cursor-pointer flex-center rounded-full text-foreground shadow-lg' >
+                            <X className="w-3 h-3" /> Close
+                        </button>
+                    ) : (
+                        <button onClick={() => setShowAddTodoForm(true)} className='py-2 px-3 text-sm border hover:bg-accent hover:cursor-pointer flex-center rounded-full text-foreground shadow-lg' >
+                            <Plus className="w-3 h-3" /> Add
+                        </button>
+                    )} */}
+                {/* </div> */}
 
-                        <Button
-                            onClick={() => addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText, newTodoTextareaRef)}
-                            className='h-auto rounded-l-none flex-shrink-0 shadow-none'
-                            variant={'outline'}
-                        >
-                            <SendHorizonal />
-                        </Button>
-                    </div>
-                </div>
+                {/* {showAddTodoForm && (
+                    <AddTodoForm />
+                )} */}
+
+
+
 
                 {/* Flexbox Layout for TODO Lists */}
                 <ScrollArea className="h-[calc(100vh-330px)] w-full">
@@ -349,3 +338,36 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
         </div>
     )
 }
+
+// {/* Make a simple form to add another todo to this list */}
+// <div className="flex items-stretch gap-3 my-3 rounded-lg shadow-lg">
+//     {/* Input that matches textarea styling */}
+//     <div className="flex-1 flex min-w-0 rounded-tl-lg ">
+//         <Input
+//             className=" w-full p-2 px-4 h-auto text-md leading-normal bg-transparent border rounded-none rounded-tl-lg rounded-bl-lg border-r-0 resize-none overflow-hidden focus:outline-none focus:ring-0 placeholder:text-muted-foreground/60"
+//             placeholder="Add new todo..."
+//             value={newTodoText}
+//             style={{
+//                 wordWrap: 'break-word',
+//                 whiteSpace: 'pre-wrap'
+//             }}
+//             onKeyDown={(e) => {
+//                 if (e.key === 'Enter' && !e.shiftKey) {
+//                     e.preventDefault()
+//                     addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText, newTodoTextareaRef)
+//                 }
+//             }}
+//             onChange={(e) => {
+//                 setNewTodoText(e.target.value)
+//             }}
+//         />
+
+//         <Button
+//             onClick={() => addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText, newTodoTextareaRef)}
+//             className='h-auto rounded-l-none flex-shrink-0 shadow-none'
+//             variant={'outline'}
+//         >
+//             <SendHorizonal />
+//         </Button>
+//     </div>
+// </div>
