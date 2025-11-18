@@ -341,38 +341,6 @@ export default function FocusedEditingTodoItem({
         textarea.style.height = `${textarea.scrollHeight}px`
     }
 
-    useEffect(() => {
-        if (isEditing && containerRef.current) {
-            const isMobile = window.innerWidth < 768
-
-            if (isMobile) {
-                // On mobile, scroll to ensure save/cancel buttons are visible
-                setTimeout(() => {
-                    const buttonsContainer = containerRef.current?.querySelector('.flex.gap-2.justify-end') as HTMLElement
-                    if (buttonsContainer) {
-                        buttonsContainer.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center',
-                            inline: 'nearest'
-                        })
-
-                        // Add extra space for mobile keyboard
-                        window.scrollBy(0, 100)
-                    }
-                }, 200)
-            } else {
-                // On desktop, just scroll to the container
-                setTimeout(() => {
-                    containerRef.current?.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'nearest',
-                        inline: 'nearest'
-                    })
-                }, 100)
-            }
-        }
-    }, [isEditing])
-
     // Handle click outside to close editing mode
     // useEffect(() => {
     //     const handleClickOutside = (event: MouseEvent) => {
@@ -607,7 +575,13 @@ export default function FocusedEditingTodoItem({
                             ref={(el) => {
                                 onTextareaRef?.(todo.id, el)
                                 if (el) {
-                                    requestAnimationFrame(() => resizeTextarea(el))
+                                    requestAnimationFrame(() => {
+                                        resizeTextarea(el)
+                                        // Position cursor at end of text when entering edit mode
+                                        const length = el.value.length
+                                        el.setSelectionRange(length, length)
+                                        el.focus()
+                                    })
                                 }
                             }}
                             className={`w-full min-h-[24px] px-2 ml-1 leading-normal text-[15px] bg-transparent border-b-2 sh border-muted py-1 pb-[2px] resize-none overflow-hidden transition-all duration-500 focus:outline-none focus:ring-0 focus:ring-ring ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
@@ -702,7 +676,7 @@ export default function FocusedEditingTodoItem({
                     : 'hidden'
                     }`}>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 ml-3">
                         {displayConfig.showCategory && (
                             <CategoryDisplay category={todo.listName} />
                         )}
