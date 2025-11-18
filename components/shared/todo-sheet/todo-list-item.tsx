@@ -271,7 +271,7 @@ const DueDateDisplay = ({ dueDate, context }: { dueDate?: any, context?: TodoCon
     const icon = context === 'daily' ? <Clock className="w-3 h-3" /> : <Calendar className="w-3 h-3" />
 
     return (
-        <div className="flex items-center text-xs text-muted-foreground">
+        <div className="flex items-center text-xs gap-x-1 text-muted-foreground">
             {icon}
             <span>{formatRelativeDate(dueDate)}</span>
         </div>
@@ -340,6 +340,38 @@ export default function FocusedEditingTodoItem({
         textarea.style.height = 'auto'
         textarea.style.height = `${textarea.scrollHeight}px`
     }
+
+    useEffect(() => {
+        if (isEditing && containerRef.current) {
+            const isMobile = window.innerWidth < 768
+
+            if (isMobile) {
+                // On mobile, scroll to ensure save/cancel buttons are visible
+                setTimeout(() => {
+                    const buttonsContainer = containerRef.current?.querySelector('.flex.gap-2.justify-end') as HTMLElement
+                    if (buttonsContainer) {
+                        buttonsContainer.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center',
+                            inline: 'nearest'
+                        })
+
+                        // Add extra space for mobile keyboard
+                        window.scrollBy(0, 100)
+                    }
+                }, 200)
+            } else {
+                // On desktop, just scroll to the container
+                setTimeout(() => {
+                    containerRef.current?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest',
+                        inline: 'nearest'
+                    })
+                }, 100)
+            }
+        }
+    }, [isEditing])
 
     // Handle click outside to close editing mode
     // useEffect(() => {
@@ -621,7 +653,7 @@ export default function FocusedEditingTodoItem({
 
                 {/* Editing controls that appear on focus */}
                 <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isEditing
-                    ? 'opacity-100 max-h-[350px] mt-2'
+                    ? 'opacity-100 max-h-[350px]'
                     : 'opacity-0 max-h-0 mt-0'
                     }`}>
 
