@@ -1,5 +1,5 @@
 'use client'
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Calendar } from '@/components/ui/calendar'
@@ -10,14 +10,26 @@ import { useQueryClient } from '@tanstack/react-query'
 import { TodoItem, TodoList } from '@/types/todo'
 import { clientTodo } from '@/lib/api/services/todos/client'
 import AddTodoListForm from './add-todolist-form'
+import { Separator } from '../ui/separator'
+import { Label } from '../ui/label'
 
 
 interface AddTodoFormProps {
     listId?: string // Make optional since we'll have dropdown
     todoId?: string // For editing existing todo
+    onComplete?: () => void // Callback for when form completes
+    onCancel?: () => void   // Callback for cancel action
+    context?: 'in-modal' | 'under-todo'   // Allow custom styling
 }
 
-export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
+export default function AddTodoForm({
+    listId,
+    todoId,
+    onComplete,
+    onCancel,
+    context = 'in-modal',
+
+}: AddTodoFormProps) {
 
     const queryClient = useQueryClient()
 
@@ -40,7 +52,21 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
     const [isDatePopoverOpen, setIsDatePopoverOpen] = useState<boolean>(false)
     const [isPriorityPopoverOpen, setIsPriorityPopoverOpen] = useState<boolean>(false)
     const inputRef = useRef<HTMLInputElement>(null)
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+
+    // Auto-resize textarea function
+    const resizeTextarea = (textarea: HTMLTextAreaElement) => {
+        textarea.style.height = 'auto'
+        textarea.style.height = `${textarea.scrollHeight}px`
+    }
+
+    // Resize textarea when text changes or component mounts
+    useEffect(() => {
+        if (textareaRef.current) {
+            resizeTextarea(textareaRef.current)
+        }
+    }, [text])
 
     function combineDateAndTime(date: Date | undefined, time: string): string | null {
         if (!date) return null
@@ -51,10 +77,7 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
         return combined.toISOString()
     }
 
-    function formatDisplayDate(date: Date, includeTime: boolean = false): string {
-        if (includeTime) {
-            return `${date.toLocaleDateString()} at ${time}`
-        }
+    function formatDisplayDate(date: Date): string {
         return date.toLocaleDateString()
     }
 
@@ -143,6 +166,9 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
             setDueDate(undefined)
             setTime('07:00')
             setPriority(1)
+
+            // Call completion callback
+            onComplete?.()
         } catch (error) {
             console.error('Failed to create todo:', error)
         } finally {
@@ -153,28 +179,51 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
         }
     }
 
+    const isInModal = context === 'in-modal'
+
     return (
-        <>
+        <div>
             <div className="space-y-4">
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Task Title */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Todo</label>
-                        <Input
-                            ref={inputRef}
+                    {/* Task Title styles depend on the contextk, in modal or under todo*/}
+                    {isInModal ? (
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Todo</label>
+                            <Input
+                                ref={inputRef}
+                                value={text}
+                                onChange={(e) => setText(e.target.value)}
+                                placeholder="Enter todo..."
+                                className="w-full"
+                                disabled={isCreating}
+                            />
+                        </div>
+                    ) : (
+                        <textarea
+                            ref={textareaRef}
+                            className={`w-full min-h-[24px] px-2 ml-1 -mt-1 leading-normal text-[15px] bg-transparent border-b-2 border-muted  pb-[2px] resize-none overflow-hidden transition-all duration-500 focus:outline-none focus:ring-0 focus:ring-ring`}
+                            placeholder="Add todo..."
                             value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            placeholder="Enter todo..."
-                            className="w-full"
-                            disabled={isCreating}
+                            onChange={(e) => {
+                                const textarea = e.target as HTMLTextAreaElement
+                                resizeTextarea(textarea)
+                                setText(e.target.value)
+                            }}
+                            rows={1}
+                            style={{
+                                lineHeight: '1.5',
+                                wordWrap: 'break-word',
+                                whiteSpace: 'pre-wrap'
+                            }}
+                            autoFocus
                         />
-                    </div>
+                    )}
 
                     {/* Due Date and Priority Row */}
-                    <div className="grid grid-cols-1 xs:grid-cols-2 gap-4">
+                    <div className="flex flex-wrap gap-2 text-sm">
                         {/* Due Date */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Due Date <span className='text-xs opacity-60'>(optional)</span></label>
+                        <div className="w-full min-w-[145px] flex-2">
+                            <Label className='pl-1 pb-1'>Due Date <span className='text-xs opacity-60'>(optional)</span></Label>
                             <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
@@ -183,44 +232,72 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
                                         disabled={isCreating}
                                     >
                                         <CalendarIcon className="h-4 w-4" />
-                                        {dueDate ? formatDisplayDate(dueDate, true) : "Select date"}
+                                        {dueDate ? formatDisplayDate(dueDate) : "Select date"}
                                         <ChevronDown className="ml-auto h-4 w-4" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-auto p-4" align="start">
+                                <PopoverContent className="w-auto p-2" align="start">
                                     <div className="space-y-4">
-                                        <div className='w-[255px] mx-auto min-h-[330px]'>
+                                        <div className='w-[235px] mx-auto min-h-[280px]'>
                                             <Calendar
                                                 mode="single"
                                                 selected={dueDate}
                                                 onSelect={setDueDate}
-                                                className="rounded-md bg-transparent w-full pt-1 pb-0"
+                                                className="rounded-md bg-transparent w-full p-0"
                                                 captionLayout='dropdown'
                                             />
-                                        </div>
-                                        <div className="flex gap-x-4 -mt-3">
-                                            <Input
-                                                type="time"
-                                                value={time}
-                                                onChange={(e) => setTime(e.target.value)}
-                                                className="flex-2"
-                                            />
-                                            <Button
-                                                type="button"
-                                                onClick={() => setIsDatePopoverOpen(false)}
-                                                className="flex-2"
-                                            >
-                                                Done
-                                            </Button>
                                         </div>
                                     </div>
                                 </PopoverContent>
                             </Popover>
                         </div>
 
+                        {/* Time Selction */}
+                        <div className="w-full min-w-[100px] flex-1">
+                            <Label htmlFor="time-picker" className="pl-1 pb-1">
+                                Time <span className='text-xs opacity-60'>(optional)</span>
+                            </Label>
+                            <Input
+                                type="time"
+                                id="time-picker"
+                                value={time}
+                                onChange={(e) => setTime(e.target.value)}
+                                className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                            />
+                        </div>
+                    </div>
+
+                    {/* List and Priority Selection */}
+                    <div className="flex gap-4 text-sm w-full">
+                        {/* List Selection */}
+                        <div className="w-full">
+                            <label className="pl-1 pb-1">List</label>
+                            <Select value={selectedListId} onValueChange={setSelectedListId} disabled={isCreating}>
+                                <SelectTrigger className="w-fit line-clamp-1">
+                                    <SelectValue  placeholder="Select a list..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {todoLists.map((list) => (
+                                        <SelectItem key={list.id} value={list.id}>
+                                            {list.listName}
+                                        </SelectItem>
+                                    ))}
+                                    <button
+                                        className="text-ring w-full rounded-md text-sm p-1 hover:bg-accent hover:cursor-pointer text-right "
+                                        onClick={() => setIsModalOpen(true)}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <Plus className="h-4 w-4" />
+                                            Add New List
+                                        </div>
+                                    </button>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
                         {/* Priority */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Priority <span className='text-xs opacity-60'>(optional)</span></label>
+                        <div className="w-full text-sm">
+                            <Label className="pl-1 pb-1">Priority <span className='text-xs opacity-60'>(optional)</span></Label>
                             <Popover open={isPriorityPopoverOpen} onOpenChange={setIsPriorityPopoverOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
@@ -241,7 +318,7 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
                                         <ChevronDown className="ml-auto h-4 w-4" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-48 space-y-2" align="start">
+                                <PopoverContent className="space-y-2" align="start">
                                     <div className="space-y-1">
                                         {[
                                             { level: 4, label: 'High Priority', color: 'text-red-500', bgColor: 'hover:bg-red-50' },
@@ -275,57 +352,39 @@ export default function AddTodoForm({ listId, todoId }: AddTodoFormProps) {
                         </div>
                     </div>
 
-                    {/* List Selection */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">List</label>
-                        <Select value={selectedListId} onValueChange={setSelectedListId} disabled={isCreating}>
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select a list..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {todoLists.map((list) => (
-                                    <SelectItem key={list.id} value={list.id}>
-                                        {list.listName}
-                                    </SelectItem>
-                                ))}
-                                <button
-                                    className="text-ring w-full rounded-md text-sm p-1 hover:bg-accent hover:cursor-pointer text-right "
-                                    onClick={() => setIsModalOpen(true)}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Plus className="h-4 w-4" />
-                                        Add New List
-                                    </div>
-                                </button>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
                     {/* Submit Button */}
-                    <div className="flex justify-start">
+                    <div className="flex justify-start gap-5">
+                        {onCancel && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={onCancel}
+                                disabled={isCreating}
+                                className='shadow-none'
+                            >
+                                Cancel
+                            </Button>
+                        )}
                         <Button
                             type="submit"
                             disabled={!text.trim() || isCreating || !selectedListId}
-                            className="px-6"
+                            className="px-6 shadow-none"
                         >
                             {todoId ?
-                                isCreating ? 'Updating' : 'Update Todo'
+                                isCreating ? 'Saving...' : 'Save'
                                 :
                                 isCreating ? 'Adding...' : '+ Add Todo'
                             }
                         </Button>
                     </div>
                 </form>
-
             </div>
+            {!isInModal && (<Separator className='w-full mt-5 mb-3 ' />)}
             <AddTodoListForm
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                // onListCreated={handleListCreated}
                 todoListsLength={todoLists.length}
             />
-        </>
-
-
+        </div>
     )
 }

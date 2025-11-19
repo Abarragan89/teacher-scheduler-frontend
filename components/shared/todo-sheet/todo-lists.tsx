@@ -6,402 +6,36 @@ import { Button } from "@/components/ui/button"
 import { BareInput } from '@/components/ui/bare-bones-input'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Calendar as CalendarComponent } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Circle, Plus, BookmarkCheckIcon, Flag, CalendarIcon, ChevronDown } from 'lucide-react'
+import { Plus, BookmarkCheckIcon } from 'lucide-react'
 import { TodoState, updateTodoListTitle, handleTodoListTitleBlur, handleTodoListTitleFocus } from './utils/todo-list-operations'
 import { getSortFunction, SortBy } from './utils/todo-sorting'
 import { ResponsiveDialog } from '@/components/responsive-dialog'
 import { clientTodoLists } from '@/lib/api/services/todos/client'
-import { clientTodo } from '@/lib/api/services/todos/client'
 import EditListPopover from './popovers/edit-list-popover'
 import TodoListItem from './todo-list-item'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import useSound from 'use-sound';
 import { Separator } from '@radix-ui/react-select'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import AddTodoListForm from '@/components/forms/add-todolist-form'
+import AddTodoForm from '@/components/forms/add-todo-form'
 
 interface CurrentListProps {
     todoLists: TodoList[]
 }
 
-// Ghost Todo Item Component for Adding New Todos
-interface AddTodoItemProps {
-    listId: string
-    todoLists: TodoList[]
-}
-
-function AddTodoItem({ listId, todoLists }: AddTodoItemProps) {
-    const [isExpanded, setIsExpanded] = useState(false)
-    const [newTodoText, setNewTodoText] = useState('')
-    const [newTodoPriority, setNewTodoPriority] = useState(1)
-    const [newTodoDueDate, setNewTodoDueDate] = useState<Date | null>(null)
-    const [newTodoCategory, setNewTodoCategory] = useState(listId)
-    const [isSaving, setIsSaving] = useState(false)
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
-    const containerRef = useRef<HTMLDivElement>(null)
-    const [time, setTime] = useState<string>('07:00')
-    const [isDatePopoverOpen, setIsDatePopoverOpen] = useState<boolean>(false)
-    const queryClient = useQueryClient()
-
-    // Helper function to combine date and time
-    function combineDateAndTime(date: Date | null, time: string): string | null {
-        if (!date) return null
-
-        const combined = new Date(date)
-        const [hours, minutes] = time.split(':').map(Number)
-        combined.setHours(hours, minutes, 0, 0)
-        return combined.toISOString()
-    }
-
-    function formatDisplayDate(date: Date, includeTime: boolean = false): string {
-        if (includeTime) {
-            return `${date.toLocaleDateString()} at ${time}`
-        }
-        return date.toLocaleDateString()
-    }
-
-    // Auto-resize textarea
-    const resizeTextarea = (textarea: HTMLTextAreaElement) => {
-        textarea.style.height = 'auto'
-        textarea.style.height = `${textarea.scrollHeight}px`
-    }
-
-    // Handle click outside to close
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            const target = event.target as Node
-
-            // Don't close if clicking on dropdowns/popovers
-            if (target &&
-                (target as Element).closest?.('[data-radix-select-trigger]') ||
-                (target as Element).closest?.('[data-radix-select-content]') ||
-                (target as Element).closest?.('[data-radix-popover-trigger]') ||
-                (target as Element).closest?.('[data-radix-popover-content]') ||
-                (target as Element).closest?.('[data-radix-popper-content-wrapper]')
-            ) {
-                return
-            }
-
-            if (containerRef.current && !containerRef.current.contains(target)) {
-                handleCancel()
-            }
-        }
-
-        if (isExpanded) {
-            document.addEventListener('mousedown', handleClickOutside)
-            return () => document.removeEventListener('mousedown', handleClickOutside)
-        }
-    }, [isExpanded])
-
-    // Scroll into view when expanded (mobile friendly)
-    useEffect(() => {
-        if (isExpanded && containerRef.current) {
-            const isMobile = window.innerWidth < 768
-
-            if (isMobile) {
-                setTimeout(() => {
-                    const buttonsContainer = containerRef.current?.querySelector('.flex.gap-2.justify-end') as HTMLElement
-                    if (buttonsContainer) {
-                        buttonsContainer.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center',
-                            inline: 'nearest'
-                        })
-                        window.scrollBy(0, 100)
-                    }
-                }, 200)
-            }
-        }
-    }, [isExpanded])
-
-    const handleSave = async () => {
-        if (!newTodoText.trim()) return
-
-        setIsSaving(true)
-        try {
-            // Helper function to combine date and time
-            const combineDateAndTime = (date: Date | null): string | null => {
-                if (!date) return null
-                const combined = new Date(date)
-                combined.setHours(12, 0, 0, 0) // Default to noon
-                return combined.toISOString()
-            }
-
-            const dueDateISO = combineDateAndTime(newTodoDueDate)
-
-            // Create the todo using the same API as TodoListItem
-            const newTodo = await clientTodo.createTodoItem(
-                newTodoCategory,
-                newTodoText.trim(),
-                dueDateISO || '',
-                newTodoPriority
-            )
-
-            // Update React Query cache
-            queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-                if (!oldData) return oldData
-
-                return oldData.map(list => {
-                    if (list.id === newTodoCategory) {
-                        return {
-                            ...list,
-                            todos: [newTodo, ...list.todos] // Add to top
-                        }
-                    }
-                    return list
-                })
-            })
-
-            // Reset form but keep it expanded
-            setNewTodoText('')
-            setNewTodoPriority(1)
-            setNewTodoDueDate(null)
-            setTime('07:00')
-            setIsDatePopoverOpen(false)
-            // Keep category as current listId and form expanded
-            setNewTodoCategory(listId)
-
-            // Focus textarea for next todo
-            setTimeout(() => {
-                textareaRef.current?.focus()
-            }, 100)
-        } catch (error) {
-            console.error('Failed to create todo:', error)
-        } finally {
-            setIsSaving(false)
-        }
-    }
-
-    const handleCancel = () => {
-        setIsExpanded(false)
-        setNewTodoText('')
-        setNewTodoPriority(1)
-        setNewTodoDueDate(null)
-        setNewTodoCategory(listId)
-    }
-
-    const handleExpand = () => {
-        setIsExpanded(true)
-        // Focus textarea after it becomes visible
-        setTimeout(() => {
-            textareaRef.current?.focus()
-        }, 100)
-    }
-
-    return (
-        <div
-            ref={containerRef}
-            className=" mt-2 flex items-start gap-1 border-b pb-3 mb-2 border-dashed border-muted-foreground/40"
-        >
-            {/* Ghost Checkbox */}
-            <div className="flex-shrink-0 pt-1">
-                <Circle className="w-5 h-5 text-muted-foreground/50" />
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 min-w-0 pt-[2px]">
-                {isExpanded ? (
-                    /* Expanded form - similar to TodoListItem editing mode */
-                    <textarea
-                        ref={textareaRef}
-                        className="w-full min-h-[24px] px-2 ml-1 leading-normal text-[15px] bg-transparent border-b-2 border-muted py-1 pb-[2px] resize-none overflow-hidden transition-all duration-500 focus:outline-none focus:ring-0 focus:ring-ring placeholder:text-muted-foreground/60"
-                        placeholder="Add todo..."
-                        value={newTodoText}
-                        onChange={(e) => {
-                            const textarea = e.target as HTMLTextAreaElement
-                            resizeTextarea(textarea)
-                            setNewTodoText(e.target.value)
-                        }}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Escape') {
-                                handleCancel()
-                            }
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault()
-                                handleSave()
-                            }
-                        }}
-                        rows={1}
-                        style={{
-                            lineHeight: '1.5',
-                            wordWrap: 'break-word',
-                            whiteSpace: 'pre-wrap'
-                        }}
-                        autoFocus
-                    />
-                ) : (
-                    /* Ghost state - looks like a todo */
-                    <p
-                        className="text-sm font-medium leading-normal hover:bg-muted/50 rounded px-2 py-1 -my-1 transition-colors text-muted-foreground/60 cursor-pointer"
-                        onClick={handleExpand}
-                    >
-                        Add todo...
-                    </p>
-                )}
-
-                {/* Expanded controls - same as TodoListItem */}
-                {isExpanded && (
-                    <div className="transition-all duration-300 ease-in-out opacity-100 max-h-[350px] mt-2">
-                        {/* Category selector */}
-                        <div className="mb-2">
-                            <div className="space-y-1">
-                                <label className="text-xs text-muted-foreground">Category</label>
-                                <Select value={newTodoCategory} onValueChange={setNewTodoCategory}>
-                                    <SelectTrigger className="w-full h-8 text-xs">
-                                        <SelectValue placeholder="Select category..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {todoLists.map(list => (
-                                            <SelectItem key={list.id} value={list.id}>
-                                                {list.listName}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-
-                        {/* Date and priority row */}
-                        <div className="flex flex-wrap gap-4 mb-3">
-                            {/* Date selector with calendar popup */}
-                            <div className="space-y-1 min-w-[170px] flex-2">
-                                <label className="text-xs text-muted-foreground">Due Date</label>
-                                <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            className="w-full h-8 justify-start text-left font-normal text-xs"
-                                            type="button"
-                                        >
-                                            <CalendarIcon className="h-3 w-3 mr-2" />
-                                            {newTodoDueDate ? formatDisplayDate(newTodoDueDate, true) : "Select date"}
-                                            <ChevronDown className="ml-auto h-3 w-3" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-4" align="start">
-                                        <div className="space-y-4">
-                                            <div className='w-[255px] mx-auto min-h-[330px]'>
-                                                <CalendarComponent
-                                                    mode="single"
-                                                    selected={newTodoDueDate || undefined}
-                                                    onSelect={(date) => setNewTodoDueDate(date || null)}
-                                                    className="rounded-md bg-transparent w-full pt-1 pb-0"
-                                                    captionLayout='dropdown'
-                                                />
-                                            </div>
-                                            <div className="flex gap-x-4 -mt-3">
-                                                <Input
-                                                    type="time"
-                                                    value={time}
-                                                    onChange={(e) => setTime(e.target.value)}
-                                                    className="flex-2"
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    onClick={() => setIsDatePopoverOpen(false)}
-                                                    className="flex-2"
-                                                    size="sm"
-                                                >
-                                                    Done
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-
-                            {/* Priority selector */}
-                            <div className="space-y-1 min-w-[125px] flex-1">
-                                <label className="text-xs text-muted-foreground">Priority</label>
-                                <Select value={newTodoPriority.toString()} onValueChange={(val) => setNewTodoPriority(Number(val))}>
-                                    <SelectTrigger className="w-full h-8 text-xs">
-                                        <SelectValue placeholder="Select priority..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="1">
-                                            <div className="flex items-center gap-2">
-                                                <Flag className="w-3 h-3 text-muted-foreground" />
-                                                <span className="text-muted-foreground">No Priority</span>
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="2">
-                                            <div className="flex items-center gap-2">
-                                                <Flag className="w-3 h-3 text-blue-500" />
-                                                <span className="text-blue-500">Low</span>
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="3">
-                                            <div className="flex items-center gap-2">
-                                                <Flag className="w-3 h-3 text-yellow-500" />
-                                                <span className="text-yellow-500">Medium</span>
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="4">
-                                            <div className="flex items-center gap-2">
-                                                <Flag className="w-3 h-3 text-red-500" />
-                                                <span className="text-red-500">High</span>
-                                            </div>
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-
-                        {/* Save and Cancel buttons */}
-                        <div className="flex gap-2 justify-end my-4">
-                            <Button
-                                variant="outline"
-                                onClick={handleCancel}
-                                disabled={isSaving}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                onClick={handleSave}
-                                disabled={!newTodoText.trim() || isSaving}
-                            >
-                                {isSaving ? 'Adding...' : 'Add Todo'}
-                            </Button>
-                        </div>
-                    </div>
-                )}
-            </div>
-        </div>
-    )
-}
-
 export default function TodoLists({ todoLists }: CurrentListProps) {
     const queryClient = useQueryClient()
-
-    const [playCompleteSound] = useSound('/sounds/todoWaterClick.wav', {
-        volume: 0.4
-    });
-    const [playTodoRemovedSound] = useSound('/sounds/todoRemoved.wav', {
-        volume: 0.3
-    });
 
     const [currentListIndex, setCurrentListIndex] = useState(0);
     const [focusedText, setFocusedText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newListName, setNewListName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
-    const [newTodoText, setNewTodoText] = useState('');
-    const [localTodoTexts, setLocalTodoTexts] = useState<Record<string, string>>({});
     const [sortBy, setSortBy] = useState<'priority' | 'due-date' | 'created'>('created');
-    const newTodoTextareaRef = useRef<HTMLTextAreaElement>(null);
-    const [showAddTodoForm, setShowAddTodoForm] = useState(false);
 
     // Ref for managing textarea auto-resize
     const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
 
-    // Auto-resize function for textareas
-    const resizeTextarea = (textarea: HTMLTextAreaElement) => {
-        textarea.style.height = 'auto'
-        textarea.style.height = `${textarea.scrollHeight}px`
-    }
 
     // Ensure current index is within bounds
     useEffect(() => {
@@ -633,11 +267,10 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     </div>
                 </div>
 
-                {/* Add Todo Item - Ghost Todo Style */}
-                <AddTodoItem
-                    listId={currentList.id}
-                    todoLists={todoLists}
-                />
+                {/* Add Todo Item - Using AddTodoForm */}
+                <div className="mt-2 mb-2">
+                    <AddTodoForm listId={currentList.id} />
+                </div>
 
 
 
@@ -669,36 +302,3 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
         </div>
     )
 }
-
-// {/* Make a simple form to add another todo to this list */}
-// <div className="flex items-stretch gap-3 my-3 rounded-lg shadow-lg">
-//     {/* Input that matches textarea styling */}
-//     <div className="flex-1 flex min-w-0 rounded-tl-lg ">
-//         <Input
-//             className=" w-full p-2 px-4 h-auto text-md leading-normal bg-transparent border rounded-none rounded-tl-lg rounded-bl-lg border-r-0 resize-none overflow-hidden focus:outline-none focus:ring-0 placeholder:text-muted-foreground/60"
-//             placeholder="Add new todo..."
-//             value={newTodoText}
-//             style={{
-//                 wordWrap: 'break-word',
-//                 whiteSpace: 'pre-wrap'
-//             }}
-//             onKeyDown={(e) => {
-//                 if (e.key === 'Enter' && !e.shiftKey) {
-//                     e.preventDefault()
-//                     addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText, newTodoTextareaRef)
-//                 }
-//             }}
-//             onChange={(e) => {
-//                 setNewTodoText(e.target.value)
-//             }}
-//         />
-
-//         <Button
-//             onClick={() => addTodoItem(currentList.id, newTodoText, '', 1, queryClient, setNewTodoText, newTodoTextareaRef)}
-//             className='h-auto rounded-l-none flex-shrink-0 shadow-none'
-//             variant={'outline'}
-//         >
-//             <SendHorizonal />
-//         </Button>
-//     </div>
-// </div>
