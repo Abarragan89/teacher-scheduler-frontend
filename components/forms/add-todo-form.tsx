@@ -268,14 +268,16 @@ export default function AddTodoForm({
                     </div>
 
                     {/* List and Priority Selection */}
-                    <div className="flex gap-4 text-sm w-full">
+                    <div className="flex flex-wrap gap-4 text-sm w-full">
                         {/* List Selection */}
-                        <div className="w-full">
+                        <div className="w-full min-w-[145px] flex-1">
                             <label className="pl-1 pb-1">List</label>
                             <Select value={selectedListId} onValueChange={setSelectedListId} disabled={isCreating}>
-                                <SelectTrigger className="w-fit line-clamp-1">
-                                    <SelectValue  placeholder="Select a list..." />
-                                </SelectTrigger>
+                                <Button variant='outline' asChild>
+                                    <SelectTrigger className="w-full justify-between text-left">
+                                        <SelectValue placeholder="Select a list..." />
+                                    </SelectTrigger>
+                                </Button>
                                 <SelectContent>
                                     {todoLists.map((list) => (
                                         <SelectItem key={list.id} value={list.id}>
@@ -283,7 +285,7 @@ export default function AddTodoForm({
                                         </SelectItem>
                                     ))}
                                     <button
-                                        className="text-ring w-full rounded-md text-sm p-1 hover:bg-accent hover:cursor-pointer text-right "
+                                        className="text-ring w-full rounded-md text-sm p-1 hover:bg-accent hover:cursor-pointer"
                                         onClick={() => setIsModalOpen(true)}
                                     >
                                         <div className="flex items-center gap-2">
@@ -296,7 +298,7 @@ export default function AddTodoForm({
                         </div>
 
                         {/* Priority */}
-                        <div className="w-full text-sm">
+                        <div className="w-full min-w-[145px] flex-1 text-sm">
                             <Label className="pl-1 pb-1">Priority <span className='text-xs opacity-60'>(optional)</span></Label>
                             <Popover open={isPriorityPopoverOpen} onOpenChange={setIsPriorityPopoverOpen}>
                                 <PopoverTrigger asChild>
