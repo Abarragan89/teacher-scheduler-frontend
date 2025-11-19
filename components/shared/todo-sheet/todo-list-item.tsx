@@ -518,7 +518,7 @@ export default function FocusedEditingTodoItem({
     return (
         <div
             ref={containerRef}
-            className={`mx-3 flex items-start gap-1 border-b pb-3 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
+            className={`flex items-start gap-1 border-b pb-3 mt-1 transition-all duration-300 ease-in-out transform-gpu overflow-hidden ${todo.deleting
                 ? 'opacity-0 scale-95 -translate-y-1'
                 : todo.isNew
                     ? 'animate-slide-in-from-top'
@@ -528,7 +528,7 @@ export default function FocusedEditingTodoItem({
                 } ${className}`}
             style={{
                 height: todo.deleting ? '0px' : 'auto',
-                minHeight: todo.deleting ? '0px' : '60px',
+                minHeight: todo.deleting ? '0px' : '50px',
                 paddingTop: todo.deleting ? '0px' : '4px',
                 paddingBottom: todo.deleting ? '0px' : '4px',
                 transition: 'all 300ms cubic-bezier(0.4, 0.0, 0.2, 1)',
