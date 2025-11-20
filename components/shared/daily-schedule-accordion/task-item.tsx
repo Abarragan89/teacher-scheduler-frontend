@@ -125,6 +125,8 @@ export default function TaskItem({
                         <TimePicker
                             setTasks={state.setTasks}
                             taskId={task.id}
+                            initialStartTime={task.startTime}
+                            initialEndTime={task.endTime}
                         />
                         <EditTaskPopover
                             task={task}

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { BareInput } from '@/components/ui/bare-bones-input'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Plus, BookmarkCheckIcon } from 'lucide-react'
+import { Plus, BookmarkCheckIcon, Circle } from 'lucide-react'
 import { TodoState, updateTodoListTitle, handleTodoListTitleBlur, handleTodoListTitleFocus } from './utils/todo-list-operations'
 import { getSortFunction, SortBy } from './utils/todo-sorting'
 import { ResponsiveDialog } from '@/components/responsive-dialog'
@@ -32,6 +32,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const [newListName, setNewListName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const [sortBy, setSortBy] = useState<'priority' | 'due-date' | 'created'>('created');
+    const [showAddTodoForm, setShowAddTodoForm] = useState<boolean>(false);
 
     // Ref for managing textarea auto-resize
     const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
@@ -267,10 +268,29 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     </div>
                 </div>
 
+
+                <div className='mt-2 flex items-start gap-1 border-b pb-3 mb-2 border-dashed border-muted-foreground/40'>
+                    {/* Ghost Checkbox */}
+                    <div className="flex-shrink-0 pt-1">
+                        <Circle className="w-5 h-5 text-muted-foreground/50" />
+                    </div>
+                    <p
+                        className="text-sm font-medium leading-normal hover:bg-muted/50 rounded px-2 py-1 -my-1 transition-colors text-muted-foreground/60 cursor-pointer"
+                        onClick={() => setShowAddTodoForm(true)}
+                    >
+                        Add todo...
+                    </p>
+                </div>
+
                 {/* Add Todo Item - Using AddTodoForm */}
-                {/* <div className="mt-2 mb-2">
-                    <AddTodoForm listId={currentList.id} />
-                </div> */}
+                {showAddTodoForm && (
+                    <div className="mt-2 mb-2">
+                        <AddTodoForm
+                            listId={currentList.id}
+                            context='under-todo'
+                        />
+                    </div>
+                )}
 
 
 

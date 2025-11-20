@@ -12,10 +12,22 @@ import { clientTasks } from '@/lib/api/services/tasks/client'
 import { toast } from 'sonner'
 import { Task } from '@/types/tasks'
 
-export function TimePicker({ taskId, setTasks }: { taskId: string, setTasks: React.Dispatch<React.SetStateAction<Task[]>> }) {
+export function TimePicker({
+    taskId,
+    setTasks,
+    initialStartTime,
+    initialEndTime
+}: {
+    taskId: string,
+    setTasks: React.Dispatch<React.SetStateAction<Task[]>>,
+    initialStartTime?: string,
+    initialEndTime?: string
+}) {
 
-    const [startTime, setStartTime] = useState<string>("07:00");
-    const [endTime, setEndTime] = useState<string>("08:00");
+    console.log('initial time ', initialStartTime, initialEndTime);
+
+    const [startTime, setStartTime] = useState<string>(initialStartTime || "07:00");
+    const [endTime, setEndTime] = useState<string>(initialEndTime || "08:00");
     const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
     const [isSaving, setIsSaving] = useState<boolean>(false);
 
@@ -54,7 +66,7 @@ export function TimePicker({ taskId, setTasks }: { taskId: string, setTasks: Rea
                         <Input
                             id="startTime"
                             type="time"
-                            defaultValue={"07:00"}
+                            defaultValue={startTime}
                             autoFocus={false}
                             onChange={(e) => setStartTime(e.target.value)}
                         />
@@ -66,7 +78,7 @@ export function TimePicker({ taskId, setTasks }: { taskId: string, setTasks: Rea
                             id="endTime"
                             type="time"
                             autoFocus={false}
-                            defaultValue={"08:00"}
+                            defaultValue={endTime}
                             onChange={(e) => setEndTime(e.target.value)}
                         />
                     </div>
