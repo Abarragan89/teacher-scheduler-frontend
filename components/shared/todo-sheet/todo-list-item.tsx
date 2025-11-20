@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import useSound from 'use-sound'
-import { CheckCircle, Circle, Calendar, Clock } from 'lucide-react'
+import { CheckCircle, Circle, Calendar, Clock, Flag } from 'lucide-react'
 import { TodoItem } from '@/types/todo'
 import { toggleTodoCompletion } from './utils/todo-operations'
 import AddTodoForm from '@/components/forms/add-todo-form'
@@ -163,15 +163,15 @@ const PriorityDisplay = ({ priority }: { priority?: number }) => {
     if (!priority || priority === 1) return null
 
     const priorityColors = {
-        4: 'bg-red-500',
-        3: 'bg-yellow-500',
-        2: 'bg-blue-500'
+        4: 'text-red-500',
+        3: 'text-yellow-500',
+        2: 'text-blue-500'
     }
 
     return (
-        <div
-            className={`w-3 h-3 rounded-full ${priorityColors[priority as keyof typeof priorityColors] || 'bg-muted-foreground'}`}
-            title={`Priority: ${priority === 4 ? 'High' : priority === 3 ? 'Medium' : 'Low'}`}
+        <Flag 
+            size={15}
+            className={`${priorityColors[priority as keyof typeof priorityColors] || 'bg-muted-foreground'}`}
         />
     )
 }

@@ -17,7 +17,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@radix-ui/react-select'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import AddTodoListForm from '@/components/forms/add-todolist-form'
-import AddTodoForm from '@/components/forms/add-todo-form'
+import { clientTodo } from '@/lib/api/services/todos/client'
 
 interface CurrentListProps {
     todoLists: TodoList[]
@@ -33,6 +33,8 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const [isCreating, setIsCreating] = useState(false);
     const [sortBy, setSortBy] = useState<'priority' | 'due-date' | 'created'>('created');
     const [showAddTodoForm, setShowAddTodoForm] = useState<boolean>(false);
+    const [newTodoText, setNewTodoText] = useState<string>('');
+    const [isAddingTodo, setIsAddingTodo] = useState<boolean>(false);
 
     // Ref for managing textarea auto-resize
     const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
@@ -156,6 +158,43 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
         setCurrentListIndex(newListIndex)
     }
 
+    const addTodoItem = async () => {
+        if (!newTodoText.trim() || isAddingTodo) return
+
+        setIsAddingTodo(true)
+        try {
+            // Create the todo using the API
+            const newTodo = await clientTodo.createTodoItem(
+                currentList.id,
+                newTodoText.trim(),
+                '', // No due date for simple add
+                1   // Default priority
+            )
+
+            // Update React Query cache
+            queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
+                if (!oldData) return oldData
+
+                return oldData.map(list => {
+                    if (list.id === currentList.id) {
+                        return {
+                            ...list,
+                            todos: [newTodo, ...list.todos] // Add to top
+                        }
+                    }
+                    return list
+                })
+            })
+
+            // Reset form
+            setNewTodoText('')
+        } catch (error) {
+            console.error('Failed to create todo:', error)
+        } finally {
+            setIsAddingTodo(false)
+        }
+    }
+
     return (
         <div className="space-y-4 mt-4">
 
@@ -271,26 +310,47 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
 
                 <div className='mt-2 flex items-start gap-1 border-b pb-3 mb-2 border-dashed border-muted-foreground/40'>
                     {/* Ghost Checkbox */}
-                    <div className="flex-shrink-0 pt-1">
+                    <div className="flex-shrink-0">
                         <Circle className="w-5 h-5 text-muted-foreground/50" />
                     </div>
-                    <p
-                        className="text-sm font-medium leading-normal hover:bg-muted/50 rounded px-2 py-1 -my-1 transition-colors text-muted-foreground/60 cursor-pointer"
-                        onClick={() => setShowAddTodoForm(true)}
-                    >
-                        Add todo...
-                    </p>
-                </div>
 
-                {/* Add Todo Item - Using AddTodoForm */}
-                {showAddTodoForm && (
-                    <div className="mt-2 mb-2">
-                        <AddTodoForm
-                            listId={currentList.id}
-                            context='under-todo'
+                    {showAddTodoForm ? (
+                        /* Expanded input form */
+                        <BareInput
+                            className="w-full px-2 leading-normal text-[15px] bg-transparent border-b-2 border-muted resize-none overflow-hidden transition-all duration-500 focus:outline-none focus:ring-0 focus:ring-ring placeholder:text-muted-foreground/60"
+                            placeholder="Add todo..."
+                            value={newTodoText}
+                            onChange={(e) => setNewTodoText(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Escape') {
+                                    setShowAddTodoForm(false)
+                                    setNewTodoText('')
+                                }
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault()
+                                    addTodoItem()
+                                }
+                            }}
+                            onBlur={() => {
+                                if (newTodoText.trim()) {
+                                    addTodoItem()
+                                } else {
+                                    setShowAddTodoForm(false)
+                                }
+                            }}
+                            disabled={isAddingTodo}
+                            autoFocus
                         />
-                    </div>
-                )}
+                    ) : (
+                        /* Ghost state */
+                        <p
+                            className="text-[15px] w-full font-medium leading-normal rounded px-2 transition-colors text-muted-foreground/60 hover:cursor-text"
+                            onClick={() => setShowAddTodoForm(true)}
+                        >
+                            Add todo...
+                        </p>
+                    )}
+                </div>
 
 
 
