@@ -31,7 +31,7 @@ export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
                     <ListTodo />
                 </Button>
             </SheetTrigger>
-            <SheetContent className="p-5">
+            <SheetContent className="p-5" tabIndex={-1}>
                 <SheetHeader>
                     <SheetTitle className="text-muted-foreground">ToDo Lists</SheetTitle>
                 </SheetHeader>

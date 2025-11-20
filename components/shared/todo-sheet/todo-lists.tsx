@@ -38,6 +38,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
 
     // Ref for managing textarea auto-resize
     const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
+    const addTodoInputRef = useRef<HTMLInputElement>(null)
 
 
     // Ensure current index is within bounds
@@ -186,8 +187,13 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 })
             })
 
-            // Reset form
+            // Reset form and maintain focus
             setNewTodoText('')
+            
+            // Keep focus on input for continuous adding
+            setTimeout(() => {
+                addTodoInputRef.current?.focus()
+            }, 0)
         } catch (error) {
             console.error('Failed to create todo:', error)
         } finally {
@@ -197,7 +203,6 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
 
     return (
         <div className="space-y-4 mt-4">
-
             <div className="w-full">
                 {/* The Carousel itself */}
                 <Carousel
@@ -316,8 +321,9 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
 
                     {showAddTodoForm ? (
                         /* Expanded input form */
-                        <BareInput
-                            className="w-full px-2 leading-normal text-[15px] bg-transparent border-b-2 border-muted resize-none overflow-hidden transition-all duration-500 focus:outline-none focus:ring-0 focus:ring-ring placeholder:text-muted-foreground/60"
+                        <input
+                            ref={addTodoInputRef}
+                            className="w-full px-2 leading-normal text-[15px] bg-transparent border-none  border-muted resize-none overflow-hidden focus:outline-none focus:ring-0 placeholder:text-muted-foreground/60"
                             placeholder="Add todo..."
                             value={newTodoText}
                             onChange={(e) => setNewTodoText(e.target.value)}
@@ -341,6 +347,32 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                             disabled={isAddingTodo}
                             autoFocus
                         />
+                        // <BareInput
+                        //     ref={addTodoInputRef}
+                        //     className="w-full px-2 leading-normal text-[15px] bg-transparent border-b-2 border-muted resize-none overflow-hidden transition-all duration-500 focus:outline-none focus:ring-0 focus:ring-ring placeholder:text-muted-foreground/60"
+                        //     placeholder="Add todo..."
+                        //     value={newTodoText}
+                        //     onChange={(e) => setNewTodoText(e.target.value)}
+                        //     onKeyDown={(e) => {
+                        //         if (e.key === 'Escape') {
+                        //             setShowAddTodoForm(false)
+                        //             setNewTodoText('')
+                        //         }
+                        //         if (e.key === 'Enter' && !e.shiftKey) {
+                        //             e.preventDefault()
+                        //             addTodoItem()
+                        //         }
+                        //     }}
+                        //     onBlur={() => {
+                        //         if (newTodoText.trim()) {
+                        //             addTodoItem()
+                        //         } else {
+                        //             setShowAddTodoForm(false)
+                        //         }
+                        //     }}
+                        //     disabled={isAddingTodo}
+                        //     autoFocus
+                        // />
                     ) : (
                         /* Ghost state */
                         <p
