@@ -314,19 +314,19 @@ export default function AddTodoForm({
                                                         'text-muted-foreground'
                                                 }`}
                                         />
-                                        {priority === 4 ? 'High Priority' :
-                                            priority === 3 ? 'Medium Priority' :
-                                                priority === 2 ? 'Low Priority' : 'No Priority'}
+                                        {priority === 4 ? 'High' :
+                                            priority === 3 ? 'Medium' :
+                                                priority === 2 ? 'Low' : 'None'}
                                         <ChevronDown className="ml-auto h-4 w-4" />
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="space-y-2" align="start">
                                     <div className="space-y-1">
                                         {[
-                                            { level: 4, label: 'High Priority', color: 'text-red-500', bgColor: 'hover:bg-red-50' },
-                                            { level: 3, label: 'Medium Priority', color: 'text-yellow-600', bgColor: 'hover:bg-yellow-50' },
-                                            { level: 2, label: 'Low Priority', color: 'text-blue-500', bgColor: 'hover:bg-blue-50' },
-                                            { level: 1, label: 'No Priority', color: 'text-muted-foreground', bgColor: 'hover:bg-muted/50' }
+                                            { level: 4, label: 'High', color: 'text-red-500', bgColor: 'hover:bg-red-50' },
+                                            { level: 3, label: 'Medium', color: 'text-yellow-600', bgColor: 'hover:bg-yellow-50' },
+                                            { level: 2, label: 'Low', color: 'text-blue-500', bgColor: 'hover:bg-blue-50' },
+                                            { level: 1, label: 'None', color: 'text-muted-foreground', bgColor: 'hover:bg-muted/50' }
                                         ].map(({ level, label, color, bgColor }) => (
                                             <Button
                                                 key={level}
@@ -381,7 +381,6 @@ export default function AddTodoForm({
                     </div>
                 </form>
             </div>
-            {!isInModal && (<Separator className='w-full mt-5 mb-3 ' />)}
             <AddTodoListForm
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

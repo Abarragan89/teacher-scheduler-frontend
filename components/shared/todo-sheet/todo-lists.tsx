@@ -268,16 +268,16 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 </div>
 
                 {/* Add Todo Item - Using AddTodoForm */}
-                <div className="mt-2 mb-2">
+                {/* <div className="mt-2 mb-2">
                     <AddTodoForm listId={currentList.id} />
-                </div>
+                </div> */}
 
 
 
 
                 {/* Flexbox Layout for TODO Lists */}
                 <ScrollArea className="h-[calc(100vh-330px)] w-full">
-                    <div className="space-y-0 transition-all duration-300 ease-in-out">
+                    <div className="space-y-0 mr-3 transition-all duration-300 ease-in-out">
                         {sortedCurrentList.todos.map(todo => (
                             <TodoListItem
                                 key={todo.id}
