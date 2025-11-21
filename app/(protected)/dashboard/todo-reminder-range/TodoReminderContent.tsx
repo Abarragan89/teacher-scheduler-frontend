@@ -120,30 +120,50 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
     )
 
     const renderWeekCard = () => (
-        <>
-            {weekTodos.length === 0 ? (
-                <EmptyState
-                    icon={Clock}
-                    title="No todos due this week"
-                    description="Your week is looking clear!"
-                />
-            ) : (
-                <div className="space-y-0">
-                    {weekTodos.map((todo: ReminderTodoItem) => (
-                        <TodoListItem
-                            key={todo.id}
-                            todo={todo}
-                            listId={todo.todoListId || ''}
-                            onEdit={() => showEditModalHandler(todo)}
-                        />
-                    ))}
-                </div>
-            )}
-        </>
+        <Card className="max-w-2xl">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-x-2 text-lg">
+                    <Calendar className="w-5 h-5 text-blue-500" />
+                    This Week
+                    <span className="text-xs font-normal text-muted-foreground">
+                        ({weekTodos.length})
+                    </span>
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                {weekTodos.length === 0 ? (
+                    <EmptyState
+                        icon={Clock}
+                        title="No todos due this week"
+                        description="Your week is looking clear!"
+                    />
+                ) : (
+                    <div className="space-y-0">
+                        {weekTodos.map((todo: ReminderTodoItem) => (
+                            <TodoListItem
+                                key={todo.id}
+                                todo={todo}
+                                listId={todo.todoListId || ''}
+                                onEdit={() => showEditModalHandler(todo)}
+                            />
+                        ))}
+                    </div>
+                )}
+            </CardContent>
+        </Card>
     )
 
     const renderMonthCard = () => (
         <Card className="max-w-2xl">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-x-2 text-lg">
+                    <Calendar className="w-5 h-5 text-blue-500" />
+                    This Month
+                    <span className="text-xs font-normal text-muted-foreground">
+                        ({monthTodos.length})
+                    </span>
+                </CardTitle>
+            </CardHeader>
             <CardContent className='pb-5'>
                 {monthTodos.length === 0 ? (
                     <EmptyState

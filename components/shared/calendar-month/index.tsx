@@ -122,7 +122,9 @@ export default function CalendarMonth() {
         <div className="w-full max-w-4xl mx-auto">
             {/* Header with navigation */}
             <div className="flex items-end justify-between mb-1 mx-2 sm:mx-6 pt-4">
-                <h1 className=" text-2xl md:text-3xl font-bold py-1">{monthYear}</h1>
+                <h1 className=" text-2xl md:text-3xl font-bold py-1">{monthYear.split(" ")[0]}
+                    <span className='text-sm text-muted-foreground ml-3'>{monthYear.split(" ")[1]}</span>
+                </h1>
                 {/* Navigation Arrows */}
                 <div className="flex items-end">
                     {/* Today shortcut button */}

@@ -1,7 +1,8 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import { subscribeUser, unsubscribeUser, sendNotificationToAllUsers } from '@/app/actions'
+import { Button } from './ui/button'
+import { toast } from 'sonner'
 
 function urlBase64ToUint8Array(base64String: string) {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
@@ -30,12 +31,21 @@ export default function PushNotificationManager() {
     const [subscription, setSubscription] = useState<PushSubscription | null>(
         null
     )
-    const [message, setMessage] = useState('')
+    const [isStandalone, setIsStandalone] = useState(false)
+
+
+    const checkStandalone = () => {
+        const standalone = window.matchMedia('(display-mode: standalone)').matches ||
+            (window.navigator as any).standalone ||
+            document.referrer.includes('android-app://')
+        setIsStandalone(standalone)
+    }
 
     useEffect(() => {
         if ('serviceWorker' in navigator && 'PushManager' in window) {
             setIsSupported(true)
             registerServiceWorker()
+            checkStandalone();
         }
     }, [])
 
@@ -128,6 +138,7 @@ export default function PushNotificationManager() {
 
             // Save to database via backend - send serialized object
             await subscribeUser(serializedSubscription)
+            toast.success('✅ Subscribed to push notifications!')
 
         } catch (error) {
             console.error('❌ Subscription failed:', error)
@@ -150,29 +161,34 @@ export default function PushNotificationManager() {
         }
     }
 
-    async function sendTestNotification() {
-        if (message.trim()) {
-            const result = await sendNotificationToAllUsers(message)
-            if (result.success) {
-                setMessage('')
+    // async function sendTestNotification() {
+    //     if (message.trim()) {
+    //         const result = await sendNotificationToAllUsers(message)
+    //         if (result.success) {
+    //             setMessage('')
 
-                // ✅ If subscriptions were cleaned up, trigger renewal
-                if (result.needsRenewal && subscription) {
-                    await renewSubscriptionSeamlessly()
-                }
-            } else {
-                console.error('❌ Failed to send test notification:', result.error)
-            }
-        }
-    }
+    //             // ✅ If subscriptions were cleaned up, trigger renewal
+    //             if (result.needsRenewal && subscription) {
+    //                 await renewSubscriptionSeamlessly()
+    //             }
+    //         } else {
+    //             console.error('❌ Failed to send test notification:', result.error)
+    //         }
+    //     }
+    // }
 
     if (!isSupported) {
         return null // Hide if not supported
     }
 
     return (
-        <button onClick={subscription ? unsubscribeFromPush : subscribeToPush}>
-            {subscription ? 'Unsubscribe' : 'Subscribe'}
-        </button>
+        <>
+            {isStandalone && !subscription && (
+                <Button variant='outline' onClick={subscription ? unsubscribeFromPush : subscribeToPush}>
+                    {/* {subscription ? 'Unsubscribe' : 'Subscribe'} */}
+                    Get Notifications
+                </Button>
+            )}
+        </>
     )
 }
