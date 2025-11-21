@@ -6,6 +6,10 @@ import { Calendar, Clock, Flag } from 'lucide-react'
 import { TodoItem as BaseTodoItem } from '@/types/todo'
 import Link from 'next/link'
 import TodoListItem from '@/components/shared/todo-sheet/todo-list-item'
+import { ResponsiveDialog } from '@/components/responsive-dialog'
+import AddTodoForm from '@/components/forms/add-todo-form'
+import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface ReminderTodoItem extends BaseTodoItem {
     listName?: string
@@ -17,7 +21,27 @@ interface TodoReminderContentProps {
 
 export default function TodoReminderContent({ view }: TodoReminderContentProps) {
     const { todayTodos, weekTodos, monthTodos, isLoading } = useReminderTodos()
+    const [showEditTodoModal, setShowEditTodoModal] = useState(false);
+    const [currentTodo, setCurrentTodo] = useState<ReminderTodoItem | null>(null);
+    const [listId, setListId] = useState<string>('');
+    const queryClient = useQueryClient();
 
+    const findListIdForTodo = (todoId: string) => {
+        const todoLists = queryClient.getQueryData(['todos']) as any[]
+        if (!todoLists) return null
+
+        for (const list of todoLists) {
+            if (list.todos.some((todo: any) => todo.id === todoId)) {
+                return list.id
+            }
+        }
+        return null
+    }
+    function showEditModalHandler(todo: ReminderTodoItem) {
+        setCurrentTodo(todo);
+        setListId(findListIdForTodo(todo.id) || '');
+        setShowEditTodoModal(true);
+    }
     if (isLoading) {
         return (
             <div className="wrapper">
@@ -86,8 +110,7 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
                                 key={todo.id}
                                 todo={todo}
                                 listId={todo.todoListId || ''}
-                                // showListName={true}
-                                // showOverdue={true}
+                                onEdit={() => showEditModalHandler(todo)}
                             />
                         ))}
                     </div>
@@ -111,7 +134,7 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
                             key={todo.id}
                             todo={todo}
                             listId={todo.todoListId || ''}
-                            // showListName={true}
+                            onEdit={() => showEditModalHandler(todo)}
                         />
                     ))}
                 </div>
@@ -135,7 +158,7 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
                                 key={todo.id}
                                 todo={todo}
                                 listId={todo.todoListId || ''}
-                                // showListName={true}
+                                onEdit={() => showEditModalHandler(todo)}
                             />
                         ))}
                     </div>
@@ -146,6 +169,17 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
 
     return (
         <div className="wrapper">
+            <ResponsiveDialog
+                isOpen={showEditTodoModal}
+                setIsOpen={setShowEditTodoModal}
+                title="Edit ToDo"
+            >
+                <AddTodoForm
+                    listId={listId}
+                    todoId={currentTodo?.id}
+                    onComplete={() => setShowEditTodoModal(false)}
+                />
+            </ResponsiveDialog>
             <div className="mb-4">
                 <h1 className="text-2xl font-bold">Todo Reminders</h1>
             </div>

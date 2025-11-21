@@ -27,6 +27,7 @@ interface FocusedEditingTodoItemProps {
     listId: string
     context?: TodoContext
     onTextareaRef?: (todoId: string, el: HTMLTextAreaElement | null) => void
+    onEdit?: () => void
     className?: string
 }
 
@@ -181,14 +182,13 @@ export default function FocusedEditingTodoItem({
     todo,
     listId,
     context = 'dashboard',
+    onEdit,
     className = ""
 }: FocusedEditingTodoItemProps) {
 
     // Get display configuration based on context
     const displayConfig = getDisplayConfig(context)
 
-    // State management
-    const [isEditing, setIsEditing] = useState(false)
     const queryClient = useQueryClient()
 
     // Sound effects
@@ -221,19 +221,6 @@ export default function FocusedEditingTodoItem({
                 })
             }}
         >
-
-            <ResponsiveDialog
-                isOpen={isEditing}
-                setIsOpen={setIsEditing}
-                title="Edit ToDo"
-            >
-                <AddTodoForm
-                    listId={listId}
-                    todoId={todo.id}
-                    onComplete={() => setIsEditing(false)}
-
-                />
-            </ResponsiveDialog>
             {/* Checkbox */}
             <div className={`flex-shrink-0 pt-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
                 }`}>
@@ -254,12 +241,12 @@ export default function FocusedEditingTodoItem({
             </div>
 
             {/* Content */}
-            <div className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'}`}>
+            <div className={`hover:text-ring flex-1 min-w-0 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'}`}>
                 <div
                     className="cursor-pointer"
-                    onClick={() => !todo.deleting && setIsEditing(true)}
+                    onClick={() => !todo.deleting && onEdit?.()}
                 >
-                    <p className={`text-[15px] ml-1 font-medium leading-normal hover:bg-muted/50 rounded px-2 py-1 transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                    <p className={`text-[15px] ml-1 font-medium leading-normal rounded px-2 py-1 transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
                         }`}>
                         {todo.text}
                     </p>

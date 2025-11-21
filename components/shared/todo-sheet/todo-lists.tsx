@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useQueryClient } from "@tanstack/react-query"
-import { TodoList } from "@/types/todo"
+import { TodoItem, TodoList } from "@/types/todo"
 import { Button } from "@/components/ui/button"
 import { BareInput } from '@/components/ui/bare-bones-input'
 import { Input } from '@/components/ui/input'
@@ -18,6 +18,7 @@ import { Separator } from '@radix-ui/react-select'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import AddTodoListForm from '@/components/forms/add-todolist-form'
 import { clientTodo } from '@/lib/api/services/todos/client'
+import AddTodoForm from '@/components/forms/add-todo-form'
 
 interface CurrentListProps {
     todoLists: TodoList[]
@@ -35,11 +36,13 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const [showAddTodoForm, setShowAddTodoForm] = useState<boolean>(false);
     const [newTodoText, setNewTodoText] = useState<string>('');
     const [isAddingTodo, setIsAddingTodo] = useState<boolean>(false);
+    const [showEditTodoModal, setShowEditTodoModal] = useState(false);
+    const [currentTodo, setCurrentTodo] = useState<TodoItem | null>(null);
+    const [listId, setListId] = useState<string>('');
 
     // Ref for managing textarea auto-resize
     const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
     const addTodoInputRef = useRef<HTMLInputElement>(null)
-
 
     // Ensure current index is within bounds
     useEffect(() => {
@@ -69,6 +72,12 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
         focusedText,
         setFocusedText,
         setCurrentListIndex
+    }
+
+    const showEditModalHandler = (todo: TodoItem) => {
+        setCurrentTodo(todo);
+        setListId(findListIdForTodo(todo.id) || '');
+        setShowEditTodoModal(true)
     }
 
     const handleListSelect = (index: number) => {
@@ -189,7 +198,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
 
             // Reset form and maintain focus
             setNewTodoText('')
-            
+
             // Keep focus on input for continuous adding
             setTimeout(() => {
                 addTodoInputRef.current?.focus()
@@ -199,6 +208,18 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
         } finally {
             setIsAddingTodo(false)
         }
+    }
+
+    const findListIdForTodo = (todoId: string) => {
+        const todoLists = queryClient.getQueryData(['todos']) as any[]
+        if (!todoLists) return null
+
+        for (const list of todoLists) {
+            if (list.todos.some((todo: any) => todo.id === todoId)) {
+                return list.id
+            }
+        }
+        return null
     }
 
     return (
@@ -347,32 +368,6 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                             disabled={isAddingTodo}
                             autoFocus
                         />
-                        // <BareInput
-                        //     ref={addTodoInputRef}
-                        //     className="w-full px-2 leading-normal text-[15px] bg-transparent border-b-2 border-muted resize-none overflow-hidden transition-all duration-500 focus:outline-none focus:ring-0 focus:ring-ring placeholder:text-muted-foreground/60"
-                        //     placeholder="Add todo..."
-                        //     value={newTodoText}
-                        //     onChange={(e) => setNewTodoText(e.target.value)}
-                        //     onKeyDown={(e) => {
-                        //         if (e.key === 'Escape') {
-                        //             setShowAddTodoForm(false)
-                        //             setNewTodoText('')
-                        //         }
-                        //         if (e.key === 'Enter' && !e.shiftKey) {
-                        //             e.preventDefault()
-                        //             addTodoItem()
-                        //         }
-                        //     }}
-                        //     onBlur={() => {
-                        //         if (newTodoText.trim()) {
-                        //             addTodoItem()
-                        //         } else {
-                        //             setShowAddTodoForm(false)
-                        //         }
-                        //     }}
-                        //     disabled={isAddingTodo}
-                        //     autoFocus
-                        // />
                     ) : (
                         /* Ghost state */
                         <p
@@ -396,6 +391,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 todo={todo}
                                 context='todosheet'
                                 listId={currentList.id}
+                                onEdit={() => showEditModalHandler(todo)}
                                 onTextareaRef={(todoId, el) => {
                                     textareaRefs.current[todoId] = el
                                 }}
@@ -404,6 +400,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     </div>
                 </ScrollArea>
             </div>
+
             {/* Add Todo List Form */}
             <AddTodoListForm
                 isOpen={isModalOpen}
@@ -411,6 +408,19 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 onListCreated={handleListCreated}
                 todoListsLength={todoLists.length}
             />
+
+            {/* Edit todo modal */}
+            <ResponsiveDialog
+                isOpen={showEditTodoModal}
+                setIsOpen={setShowEditTodoModal}
+                title="Edit ToDo"
+            >
+                <AddTodoForm
+                    listId={listId}
+                    todoId={currentTodo?.id}
+                    onComplete={() => setShowEditTodoModal(false)}
+                />
+            </ResponsiveDialog>
         </div>
     )
 }

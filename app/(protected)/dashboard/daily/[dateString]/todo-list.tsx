@@ -69,6 +69,7 @@ export default function TodoList({ dateString }: TodoListProps) {
                                         listId={todo.listId}
                                         context='daily'
                                         className="border-none pb-2"
+                                        onEdit={() => showEditModalHandler(todo)}
                                     />
                                 </div>
                             ))}
@@ -76,19 +77,17 @@ export default function TodoList({ dateString }: TodoListProps) {
                     </div>
                 ))}
             </div>
-            {showEditTodoModal && (
-                <ResponsiveDialog
-                    isOpen={showEditTodoModal}
-                    setIsOpen={setShowEditTodoModal}
-                    title="Edit ToDo"
-                >
-                    <AddTodoForm
-                        listId={currentTodo?.listId}
-                        todoId={currentTodo?.id}
-                        onComplete={() => setShowEditTodoModal(false)}
-                    />
-                </ResponsiveDialog>
-            )}
+            <ResponsiveDialog
+                isOpen={showEditTodoModal}
+                setIsOpen={setShowEditTodoModal}
+                title="Edit ToDo"
+            >
+                <AddTodoForm
+                    listId={currentTodo?.listId}
+                    todoId={currentTodo?.id}
+                    onComplete={() => setShowEditTodoModal(false)}
+                />
+            </ResponsiveDialog>
         </>
     )
 }
