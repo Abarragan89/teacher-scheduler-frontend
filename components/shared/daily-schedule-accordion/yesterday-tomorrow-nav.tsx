@@ -61,7 +61,7 @@ export default function YesterdayTomorrowNav({ dateString }: { dateString: strin
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className='space-y-1 ml-5 p-2'>
-                    <div className='w-[255px] mx-auto min-h-[330px]'>
+                    <div className='w-[245px] mx-auto min-h-[300px]'>
                         <Calendar
                             mode="single"
                             selected={selectedDate}
@@ -69,7 +69,7 @@ export default function YesterdayTomorrowNav({ dateString }: { dateString: strin
                                 setSelectedDate(date)
                                 goToSelectedDate(date)
                             }}
-                            className="rounded-md bg-transparent w-full pt-1"
+                            className="rounded-md bg-transparent w-full p-1"
                             captionLayout='dropdown'
                         />
                     </div>

@@ -6,6 +6,7 @@ import { CheckCircle, Circle, Calendar, Clock, Flag } from 'lucide-react'
 import { TodoItem } from '@/types/todo'
 import { toggleTodoCompletion } from './utils/todo-operations'
 import AddTodoForm from '@/components/forms/add-todo-form'
+import { ResponsiveDialog } from '@/components/responsive-dialog'
 
 interface ExtendedTodoItem extends TodoItem {
     listName?: string
@@ -169,7 +170,7 @@ const PriorityDisplay = ({ priority }: { priority?: number }) => {
     }
 
     return (
-        <Flag 
+        <Flag
             size={15}
             className={`${priorityColors[priority as keyof typeof priorityColors] || 'bg-muted-foreground'}`}
         />
@@ -220,6 +221,23 @@ export default function FocusedEditingTodoItem({
                 })
             }}
         >
+
+
+
+
+
+            <ResponsiveDialog
+                isOpen={isEditing}
+                setIsOpen={setIsEditing}
+                title="Edit ToDo"
+            >
+                <AddTodoForm
+                    listId={listId}
+                    todoId={todo.id}
+                    onComplete={() => setIsEditing(false)}
+
+                />
+            </ResponsiveDialog>
             {/* Checkbox */}
             <div className={`flex-shrink-0 pt-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
                 }`}>
@@ -241,42 +259,28 @@ export default function FocusedEditingTodoItem({
 
             {/* Content */}
             <div className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'}`}>
-                {isEditing ? (
-                    /* Editing mode - use AddTodoForm */
-                    <div className="mt-2">
-                        <AddTodoForm
-                            listId={listId}
-                            todoId={todo.id}
-                            onComplete={() => setIsEditing(false)}
-                            onCancel={() => setIsEditing(false)}
-                            context='under-todo'
-                        />
-                    </div>
-                ) : (
-                    /* Display mode - clickable todo text */
-                    <div
-                        className="cursor-pointer"
-                        onClick={() => !todo.deleting && setIsEditing(true)}
-                    >
-                        <p className={`text-[15px] ml-1 font-medium leading-normal hover:bg-muted/50 rounded px-2 py-1 transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
-                            }`}>
-                            {todo.text}
-                        </p>
+                <div
+                    className="cursor-pointer"
+                    onClick={() => !todo.deleting && setIsEditing(true)}
+                >
+                    <p className={`text-[15px] ml-1 font-medium leading-normal hover:bg-muted/50 rounded px-2 py-1 transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                        }`}>
+                        {todo.text}
+                    </p>
 
-                        {/* Display-only info when not editing */}
-                        <div className="flex items-center gap-3 ml-3 mt-1">
-                            {displayConfig.showCategory && (
-                                <CategoryDisplay category={todo.listName} />
-                            )}
-                            {displayConfig.showDueDate && (
-                                <DueDateDisplay dueDate={todo.dueDate} context={context} />
-                            )}
-                            {displayConfig.showPriority && (
-                                <PriorityDisplay priority={todo.priority} />
-                            )}
-                        </div>
+                    {/* Display-only info when not editing */}
+                    <div className="flex items-center gap-3 ml-3 mt-1">
+                        {displayConfig.showCategory && (
+                            <CategoryDisplay category={todo.listName} />
+                        )}
+                        {displayConfig.showDueDate && (
+                            <DueDateDisplay dueDate={todo.dueDate} context={context} />
+                        )}
+                        {displayConfig.showPriority && (
+                            <PriorityDisplay priority={todo.priority} />
+                        )}
                     </div>
-                )}
+                </div>
             </div>
         </div>
     )

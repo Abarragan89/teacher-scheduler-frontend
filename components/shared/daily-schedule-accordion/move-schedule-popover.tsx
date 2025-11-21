@@ -39,23 +39,23 @@ export default function MoveSchedulePopover({
             <PopoverTrigger asChild className='print:hidden'>
                 <Button
                     variant={"link"}
-                    className='p-0 hover:cursor-pointer'
+                    className='p-0 hover:cursor-pointer underline text-muted-foreground/80 hover:text-ring'
                 >
                     Copy Schedule
                 </Button>
             </PopoverTrigger>
             <PopoverContent className='space-y-1 ml-5 p-2'>
-                <div className='w-[255px] mx-auto min-h-[330px]'>
+                <div className='w-[245px] mx-auto min-h-[330px]'>
                     <Calendar
                         mode="single"
                         selected={date}
                         onSelect={setDate}
-                        className="rounded-md bg-transparent w-full pt-1"
+                        className="rounded-md bg-transparent w-full p-1"
                         captionLayout='dropdown'
                     />
                 </div>
 
-                <div className="flex-center gap-x-4 mb-2">
+                <div className="flex-center gap-x-4 mb-2 mt-1">
                     <Button
                         variant="outline"
                         size="sm"

@@ -126,12 +126,12 @@ export default function DateTimePicker({
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-4" align="start">
                     <div className="space-y-4">
-                        <div className='w-[255px] mx-auto min-h-[330px]'>
+                        <div className='w-[245px] mx-auto min-h-[330px]'>
                             <CalendarComponent
                                 mode="single"
                                 selected={tempDate || undefined}
                                 onSelect={handleDateSelect}
-                                className="rounded-md bg-transparent w-full pt-1 pb-0"
+                                className="rounded-md bg-transparent w-full p-1"
                                 captionLayout='dropdown'
                             />
                         </div>

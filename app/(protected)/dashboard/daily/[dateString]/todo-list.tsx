@@ -85,6 +85,7 @@ export default function TodoList({ dateString }: TodoListProps) {
                     <AddTodoForm
                         listId={currentTodo?.listId}
                         todoId={currentTodo?.id}
+                        onComplete={() => setShowEditTodoModal(false)}
                     />
                 </ResponsiveDialog>
             )}
