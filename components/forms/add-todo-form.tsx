@@ -368,7 +368,7 @@ export default function AddTodoForm({
                     </div>
 
                     {/* Submit Button */}
-                    <div className={`flex justify-start gap-5 mt-9`}>
+                    <div className={`flex justify-start gap-5 mt-5`}>
                         {onCancel && (
                             <Button
                                 type="button"

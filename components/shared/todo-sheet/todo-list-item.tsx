@@ -222,10 +222,6 @@ export default function FocusedEditingTodoItem({
             }}
         >
 
-
-
-
-
             <ResponsiveDialog
                 isOpen={isEditing}
                 setIsOpen={setIsEditing}

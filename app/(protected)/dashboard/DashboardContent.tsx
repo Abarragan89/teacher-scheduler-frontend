@@ -111,8 +111,6 @@ export default function DashboardContent() {
                                     key={todo.id}
                                     todo={todo}
                                     listId={findListIdForTodo(todo.id) || ''}
-                                    // showListName={true}
-                                    // showPopovers={true}
                                 />
                             ))}
                         </div>
