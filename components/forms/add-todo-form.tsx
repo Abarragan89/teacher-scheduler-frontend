@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { CalendarIcon, ChevronDown, Flag, Plus } from 'lucide-react'
+import { CalendarIcon, ChevronDown, Clock, Flag, Plus } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { TodoItem, TodoList } from '@/types/todo'
 import { clientTodo } from '@/lib/api/services/todos/client'
@@ -97,41 +97,6 @@ export default function AddTodoForm({
                 }
                 // Update existing todo
                 newTodo = await clientTodo.updateTodo(updatedTodo)
-                // queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-                //     if (!oldData) return oldData
-
-                //     return oldData.map(list => {
-                //         // Remove from old list (if it was in a different list)
-                //         if (list.id === currentTodo.todoListId && list.id !== selectedListId) {
-                //             return {
-                //                 ...list,
-                //                 todos: list.todos.filter(todo => todo.id !== newTodo.id)
-                //             }
-                //         }
-
-                //         // Add/update in new list
-                //         if (list.id === selectedListId) {
-                //             const existingIndex = list.todos.findIndex(todo => todo.id === newTodo.id)
-                //             let updatedTodos
-                //             if (existingIndex >= 0) {
-                //                 // Replace existing todo
-                //                 updatedTodos = list.todos.map(todo =>
-                //                     todo.id === newTodo.id ? newTodo : todo
-                //                 )
-                //             } else {
-                //                 // Add to new list
-                //                 updatedTodos = [...list.todos, newTodo]
-                //             }
-                //             return {
-                //                 ...list,
-                //                 todos: updatedTodos
-                //             }
-                //         }
-                //         return list
-                //     })
-                // })
-
-
                 queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
                     if (!oldData) return oldData
 
@@ -212,7 +177,7 @@ export default function AddTodoForm({
         <div>
             <div className="space-y-4">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <Button className='p-3.5 px-4.5' variant={'outline'} asChild>
+                    <Button className='p-2.5 px-3.5' variant={'outline'} asChild>
                         <textarea
                             ref={textareaRef}
                             className={`w-full leading-normal text-[15px] bg-secondary resize-none overflow-hidden  focus:ring-ring`}
@@ -235,7 +200,7 @@ export default function AddTodoForm({
                     {/* Due Date and Priority Row */}
                     <div className="flex-between flex-wrap gap-5 xs:gap-x-16 text-sm">
                         {/* Due Date */}
-                        <div className="w-full min-w-[135px] flex-2">
+                        <div className="w-full min-w-[140px] flex-2">
                             <Label className='pl-1 pb-1'>Due Date <span className='text-xs opacity-60'>(optional)</span></Label>
                             <Popover open={isDatePopoverOpen} onOpenChange={setIsDatePopoverOpen}>
                                 <PopoverTrigger asChild>
@@ -251,11 +216,11 @@ export default function AddTodoForm({
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-2" align="start">
                                     <div className="space-y-4">
-                                        <div className='w-[235px] mx-auto min-h-[280px]'>
+                                        <div className='w-[225px] mx-auto min-h-[280px]'>
                                             <Calendar
                                                 mode="single"
                                                 selected={dueDate}
-                                                onSelect={setDueDate}
+                                                onSelect={(val) => { setDueDate(val); setIsDatePopoverOpen(false) }}
                                                 className="rounded-md bg-transparent w-full p-0"
                                                 captionLayout='dropdown'
                                             />
@@ -266,24 +231,27 @@ export default function AddTodoForm({
                         </div>
 
                         {/* Time Selction */}
-                        <div className="w-full min-w-[110px] flex-1">
+                        <div className="w-full min-w-[120px] flex-1">
                             <Label htmlFor="time-picker" className="pl-1 pb-1">
                                 Time <span className='text-xs opacity-60'>(optional)</span>
                             </Label>
-                            <Input
-                                type="time"
-                                id="time-picker"
-                                value={time}
-                                onChange={(e) => setTime(e.target.value)}
-                                className="bg-background text-sm appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                            ></Input>
+                            <div className="relative flex gap-x-1">
+                                <Input
+                                    type="time"
+                                    id="time-picker"
+                                    value={time}
+                                    onChange={(e) => setTime(e.target.value)}
+                                    className="bg-background text-sm appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                                />
+                                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            </div>
                         </div>
                     </div>
 
                     {/* List and Priority Selection */}
                     <div className="flex-between flex-wrap gap-5 xs:gap-x-16 text-sm">
                         {/* List Selection */}
-                        <div className="w-full min-w-[135px] flex-2">
+                        <div className="w-full min-w-[140px] flex-2">
                             <label className="pl-1 pb-1">List</label>
                             <Select value={selectedListId} onValueChange={setSelectedListId} disabled={isCreating}>
                                 <Button variant='outline' asChild>
@@ -311,7 +279,7 @@ export default function AddTodoForm({
                         </div>
 
                         {/* Priority */}
-                        <div className="w-full min-w-[110px] flex-1 text-sm">
+                        <div className="w-full min-w-[120px] flex-1 text-sm">
                             <Label className="pl-1 pb-1">Priority <span className='text-xs opacity-60'>(optional)</span></Label>
                             <Popover open={isPriorityPopoverOpen} onOpenChange={setIsPriorityPopoverOpen}>
                                 <PopoverTrigger asChild>
@@ -345,17 +313,17 @@ export default function AddTodoForm({
                                                 key={level}
                                                 type="button"
                                                 variant="ghost"
-                                                className={`w-full justify-start ${bgColor} ${color}`}
+                                                className={`w-full justify-start space-x-2 ${bgColor} ${color}`}
                                                 onClick={() => {
                                                     setPriority(level)
                                                     setIsPriorityPopoverOpen(false)
                                                 }}
                                             >
                                                 <span className="flex items-center gap-2">
-                                                    <span className={`w-2 h-2 rounded-full ${level === 4 ? 'bg-red-500' :
-                                                        level === 3 ? 'bg-yellow-500' :
-                                                            level === 2 ? 'bg-blue-500' :
-                                                                'bg-muted-foreground'
+                                                    <Flag className={`w-4 h-4 ${level === 4 ? 'text-red-500' :
+                                                        level === 3 ? 'text-yellow-500' :
+                                                            level === 2 ? 'text-blue-500' :
+                                                                'text-muted-foreground'
                                                         }`} />
                                                     {label}
                                                 </span>
