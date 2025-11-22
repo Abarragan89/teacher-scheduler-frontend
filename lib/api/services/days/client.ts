@@ -23,5 +23,12 @@ export const clientDays = {
         });
         if (!response.ok) throw new Error('Failed to move schedule to date');
         return response.json();
+    },
+
+    async getHoliaysForMonth(year: number, month: number) {
+        const response = await clientFetch(`/api/holidays/${year}/${month}`)
+
+        if (!response.ok) throw new Error('Failed to move schedule to date');
+        return response.json();
     }
 };

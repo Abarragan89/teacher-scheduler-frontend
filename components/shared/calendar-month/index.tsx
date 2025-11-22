@@ -1,11 +1,13 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useCalendarReminders } from '@/lib/hooks/useCalendarReminders'
+import { clientDays } from '@/lib/api/services/days/client'
 
 export default function CalendarMonth() {
+
     const router = useRouter()
     const [currentDate, setCurrentDate] = useState(new Date())
 
@@ -14,6 +16,16 @@ export default function CalendarMonth() {
         currentDate.getFullYear(),
         currentDate.getMonth() + 1 // Convert to 1-indexed month
     )
+
+    async function fetchHolidays() {
+        const holidays = await clientDays.getHoliaysForMonth(2025, 11)
+        console.log('holidays', holidays)
+    }
+    useEffect(() => {
+        fetchHolidays()
+    }, [])
+
+    console.log('getReminders for data ', getRemindersForDate('2025-11-26'))
 
 
     // Get the first day of the current month
@@ -92,7 +104,7 @@ export default function CalendarMonth() {
         return (
             <div className="mt-1 space-y-1 w-full">
                 {/* Display todos based on new logic: all if ≤3, first 2 if >3 */}
-                {dayReminders.displayReminders.map((reminder, index) => (
+                {dayReminders.displayReminders.map((reminder) => (
                     <div
                         key={reminder.id}
                         className={`text-[.65rem] sm:text-[.75rem] px-0.5 py-0.3 rounded text-left relative overflow-hidden whitespace-nowrap ${getPriorityColor(reminder.priority)}`}

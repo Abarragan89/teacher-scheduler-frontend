@@ -216,7 +216,7 @@ export default function AddTodoForm({
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-2" align="start">
                                     <div className="space-y-4">
-                                        <div className='w-[225px] mx-auto min-h-[280px]'>
+                                        <div className='w-[230px] mx-auto min-h-[300px]'>
                                             <Calendar
                                                 mode="single"
                                                 selected={dueDate}
