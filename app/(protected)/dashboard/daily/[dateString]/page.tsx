@@ -31,15 +31,6 @@ export default async function page({ params, searchParams }: pageProps) {
                 {/* Link-based tabs */}
                 <div className="flex space-x-1 border-b mt-4 mb-1 print:hidden">
                     <Link
-                        href={`?view=schedule`}
-                        className={`px-4 py-2 border-b-2 transition-colors ${view === 'schedule'
-                            ? 'border-primary text-primary'
-                            : 'border-transparent text-muted-foreground hover:text-foreground'
-                            }`}
-                    >
-                        Schedule
-                    </Link>
-                    <Link
                         href={`?view=todos`}
                         className={`px-4 py-2 border-b-2 transition-colors ${view === 'todos'
                             ? 'border-primary text-primary'
@@ -47,6 +38,15 @@ export default async function page({ params, searchParams }: pageProps) {
                             }`}
                     >
                         Todos
+                    </Link>
+                    <Link
+                        href={`?view=schedule`}
+                        className={`px-4 py-2 border-b-2 transition-colors ${view === 'schedule'
+                            ? 'border-primary text-primary'
+                            : 'border-transparent text-muted-foreground hover:text-foreground'
+                            }`}
+                    >
+                        Schedule
                     </Link>
                     <Link
                         href={`?view=notes`}
@@ -61,6 +61,7 @@ export default async function page({ params, searchParams }: pageProps) {
 
 
                 <div className="mt-4 w-full">
+                    {view === 'todos' && <TodoList dateString={dateString} />}
                     {view === 'schedule' && (
                         <DailyScheduleAccordion
                             dayId={currentDay.id}
@@ -68,7 +69,6 @@ export default async function page({ params, searchParams }: pageProps) {
                             currentDay={currentDay.dayDate.replace(/-/g, "/")}
                         />
                     )}
-                    {view === 'todos' && <TodoList dateString={dateString} />}
                     {view === 'notes' && <p>These are the Notes</p>}
                 </div>
             </div>

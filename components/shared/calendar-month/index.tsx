@@ -10,6 +10,7 @@ export default function CalendarMonth() {
 
     const router = useRouter()
     const [currentDate, setCurrentDate] = useState(new Date())
+    const [holidays, setHolidays] = useState<Array<{ date: string, name: string, emoji?: string }>>([])
 
     // Get calendar reminders for the current month
     const { getRemindersForDate, isLoading } = useCalendarReminders(
@@ -18,12 +19,27 @@ export default function CalendarMonth() {
     )
 
     async function fetchHolidays() {
-        const holidays = await clientDays.getHoliaysForMonth(2025, 11)
-        console.log('holidays', holidays)
+        try {
+            const holidayData = await clientDays.getHoliaysForMonth(
+                currentDate.getFullYear(),
+                currentDate.getMonth() + 1
+            )
+            setHolidays(holidayData || [])
+        } catch (error) {
+            console.error('Failed to fetch holidays:', error)
+            setHolidays([])
+        }
     }
+
+    // Helper function to get holiday for a specific date
+    const getHolidayForDate = (date: Date): { date: string, name: string, emoji?: string } | null => {
+        const dateString = date.toISOString().split('T')[0]
+        return holidays.find(holiday => holiday.date === dateString) || null
+    }
+
     useEffect(() => {
         fetchHolidays()
-    }, [])
+    }, [currentDate])
 
     console.log('getReminders for data ', getRemindersForDate('2025-11-26'))
 
@@ -179,31 +195,41 @@ export default function CalendarMonth() {
                 ))}
 
                 {/* Calendar days */}
-                {days.map((date, index) => (
-                    <button
-                        key={index}
-                        onClick={() => handleDateClick(date)}
-                        className={`
-                            flex flex-col items-start px-1 py-1 h-28 md:h-32
-                            ${index < 35 ? 'border-b' : ''} 
-                            ${!isCurrentMonth(date) ? 'text-muted-foreground' : ''}
-                            ${isToday(date) ? '' : ''}
-                            hover:shadow-xl transition-all
-                            overflow-hidden
-                        `}
-                    >
-                        {/* Date number */}
-                        <div className={`self-center flex items-center justify-center
-                            ${isToday(date) ? 'bg-ring text-accent rounded-full w-7 h-7' : ''}
-                        `}>
-                            {date.getDate()}
-                        </div>
+                {days.map((date, index) => {
+                    const holiday = getHolidayForDate(date)
 
-                        {/* Todo reminders */}
-                        {!isLoading && renderDateTodos(date)}
+                    return (
+                        <button
+                            key={index}
+                            onClick={() => handleDateClick(date)}
+                            className={`
+                                flex flex-col items-start px-1 py-1 h-28 md:h-32
+                                ${index < 35 ? 'border-b' : ''} 
+                                ${!isCurrentMonth(date) ? 'text-muted-foreground' : ''}
+                                ${isToday(date) ? '' : ''}
+                                hover:shadow-xl transition-all
+                                overflow-hidden relative
+                            `}
+                            title={holiday ? holiday.name : undefined}
+                        >
+                            {/* Date number with holiday emoji */}
+                            <div className={`self-center flex items-center justify-center relative
+                                ${isToday(date) ? 'bg-ring text-accent rounded-full w-7 h-7' : ''}
+                            `}>
+                                {date.getDate()}
+                                {holiday?.emoji && (
+                                    <span className="absolute top-1 -right-6 text-xs">
+                                        {holiday.emoji}
+                                    </span>
+                                )}
+                            </div>
 
-                    </button>
-                ))}
+                            {/* Todo reminders */}
+                            {!isLoading && renderDateTodos(date)}
+
+                        </button>
+                    )
+                })}
             </div>
         </div>
     )
