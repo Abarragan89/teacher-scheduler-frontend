@@ -18,7 +18,7 @@ interface AddTodoFormProps {
     todoId?: string // For editing existing todo
     onComplete?: () => void // Callback for when form completes
     onCancel?: () => void   // Callback for cancel action
-    context?: 'in-modal' | 'under-todo'   // Allow custom styling
+    timeSlot?: string      // Optional time slot for pre-filling time
 }
 
 export default function AddTodoForm({
@@ -26,6 +26,7 @@ export default function AddTodoForm({
     todoId,
     onComplete,
     onCancel,
+    timeSlot
 }: AddTodoFormProps) {
 
     const queryClient = useQueryClient()
@@ -42,7 +43,9 @@ export default function AddTodoForm({
 
     const [text, setText] = useState(currentTodo ? currentTodo.text : '')
     const [dueDate, setDueDate] = useState<Date | undefined>(currentTodo && currentTodo.dueDate ? new Date(currentTodo.dueDate as string) : undefined)
-    const [time, setTime] = useState<string>(currentTodo && currentTodo.dueDate ? new Date(currentTodo.dueDate as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '07:00')
+    const [time, setTime] = useState<string>(currentTodo && currentTodo.dueDate ? 
+        new Date(currentTodo.dueDate as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) 
+        : timeSlot ? timeSlot :  '07:00')
     const [priority, setPriority] = useState<number>(currentTodo ? currentTodo.priority : 1)
     const [selectedListId, setSelectedListId] = useState<string>(listId || todoLists[0]?.id || '')
     const [isCreating, setIsCreating] = useState<boolean>(false)

@@ -1,5 +1,4 @@
 'use client'
-import React from 'react'
 import { useDailyTodos } from '@/lib/hooks/useDailyTodos'
 import AddTodoForm from '@/components/forms/add-todo-form'
 import { DailyTodoItem } from '@/lib/hooks/useDailyTodos'
@@ -17,6 +16,8 @@ export default function TodoList({ dateString }: TodoListProps) {
 
     const { todos } = useDailyTodos(dateString)
     const [holiday, setHoliday] = useState<{ date: string, name: string, emoji?: string } | null>(null)
+    const [isAddingTodo, setIsAddingTodo] = useState(false);
+    const [timeSlot, setTimeSlot] = useState<string>('');
 
     // Keep only the modal state for editing
     const [showEditTodoModal, setShowEditTodoModal] = useState(false);
@@ -47,6 +48,25 @@ export default function TodoList({ dateString }: TodoListProps) {
         setShowEditTodoModal(true);
     }
 
+    function convertTo24Hour(time12h: string) {
+        const [time, modifier] = time12h.split(' ');
+
+        let [hours, minutes] = time.split(':').map(Number);
+
+        if (modifier === 'PM' && hours !== 12) {
+            hours += 12;
+        }
+        if (modifier === 'AM' && hours === 12) {
+            hours = 0;
+        }
+        return `${hours.toString().padStart(2, '0')}:00`;
+    }
+
+    function openAddTodoModal(time: string) {
+        setIsAddingTodo(true);
+        setTimeSlot(convertTo24Hour(time));
+    }
+
     return (
         <>
             {/* Holiday Banner */}
@@ -63,10 +83,12 @@ export default function TodoList({ dateString }: TodoListProps) {
                 </div>
             )}
 
-            <div className='mt-6'>
+            <div className='mt-4'>
                 {timeBlocks.map((time) => (
                     <div key={time} className='flex w-full border-b min-h-[60px]'>
-                        <p className='text-md font-bold w-[65px] border-r pl-3 pt-1'>{time.split(" ")[0]} <span className='text-xs'>{time.split(" ")[1]}</span></p>
+                        <p
+                            onClick={() => openAddTodoModal(time)}
+                            className='hover:cursor-pointer hover:text-ring text-md font-bold w-[65px] border-r pl-3 pt-1'>{time.split(" ")[0]} <span className='text-xs'>{time.split(" ")[1]}</span></p>
                         <div className="space-y-0 transition-all duration-300 ease-in-out w-full">
                             {todos.filter((todo) => {
                                 // Filter todos for this time block
@@ -113,6 +135,8 @@ export default function TodoList({ dateString }: TodoListProps) {
                     </div>
                 ))}
             </div>
+
+            {/* Edit Modal */}
             <ResponsiveDialog
                 isOpen={showEditTodoModal}
                 setIsOpen={setShowEditTodoModal}
@@ -122,6 +146,18 @@ export default function TodoList({ dateString }: TodoListProps) {
                     listId={currentTodo?.listId}
                     todoId={currentTodo?.id}
                     onComplete={() => setShowEditTodoModal(false)}
+                />
+            </ResponsiveDialog>
+
+            {/* Add New in Time Frame Modal */}
+            <ResponsiveDialog
+                isOpen={isAddingTodo}
+                setIsOpen={setIsAddingTodo}
+                title="Add ToDo"
+            >
+                <AddTodoForm
+                    onComplete={() => setIsAddingTodo(false)}
+                    timeSlot={timeSlot}
                 />
             </ResponsiveDialog>
         </>
