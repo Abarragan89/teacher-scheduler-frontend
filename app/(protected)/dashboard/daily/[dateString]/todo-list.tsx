@@ -51,7 +51,7 @@ export default function TodoList({ dateString }: TodoListProps) {
         <>
             {/* Holiday Banner */}
             {holiday && (
-                <div className="mb-6 mt-3 ml-2 bg-gradient-to-r rounded-lg">
+                <div className="mb-6  ml-2 bg-gradient-to-r rounded-lg">
                     <div className="flex items-center gap-3">
                         {holiday.emoji && (
                             <span className="text-2xl">{holiday.emoji}</span>
@@ -63,7 +63,7 @@ export default function TodoList({ dateString }: TodoListProps) {
                 </div>
             )}
 
-            <div>
+            <div className='mt-6'>
                 {timeBlocks.map((time) => (
                     <div key={time} className='flex w-full border-b min-h-[60px]'>
                         <p className='text-md font-bold w-[65px] border-r pl-3 pt-1'>{time.split(" ")[0]} <span className='text-xs'>{time.split(" ")[1]}</span></p>
