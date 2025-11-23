@@ -9,9 +9,8 @@ import { CalendarIcon, ChevronDown, Clock, Flag, Plus } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { TodoItem, TodoList } from '@/types/todo'
 import { clientTodo } from '@/lib/api/services/todos/client'
-import AddTodoListForm from './add-todolist-form'
-import { Label } from '../ui/label'
-
+import AddTodoListForm from '../add-todolist-form'
+import { Label } from '../../ui/label'
 
 interface AddTodoFormProps {
     listId?: string // Make optional since we'll have dropdown
@@ -43,9 +42,9 @@ export default function AddTodoForm({
 
     const [text, setText] = useState(currentTodo ? currentTodo.text : '')
     const [dueDate, setDueDate] = useState<Date | undefined>(currentTodo && currentTodo.dueDate ? new Date(currentTodo.dueDate as string) : undefined)
-    const [time, setTime] = useState<string>(currentTodo && currentTodo.dueDate ? 
-        new Date(currentTodo.dueDate as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) 
-        : timeSlot ? timeSlot :  '07:00')
+    const [time, setTime] = useState<string>(currentTodo && currentTodo.dueDate ?
+        new Date(currentTodo.dueDate as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+        : timeSlot ? timeSlot : '07:00')
     const [priority, setPriority] = useState<number>(currentTodo ? currentTodo.priority : 1)
     const [selectedListId, setSelectedListId] = useState<string>(listId || todoLists[0]?.id || '')
     const [isCreating, setIsCreating] = useState<boolean>(false)
@@ -179,7 +178,7 @@ export default function AddTodoForm({
     return (
         <div>
             <div className="space-y-4">
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-5">
                     <Button className='p-2.5 px-3.5' variant={'outline'} asChild>
                         <textarea
                             ref={textareaRef}
@@ -255,7 +254,7 @@ export default function AddTodoForm({
                     <div className="flex-between flex-wrap gap-5 xs:gap-x-16 text-sm">
                         {/* List Selection */}
                         <div className="w-full min-w-[140px] flex-2">
-                            <label className="pl-1 pb-1">List</label>
+                            <Label className="pl-1 pb-1">List</Label>
                             <Select value={selectedListId} onValueChange={setSelectedListId} disabled={isCreating}>
                                 <Button variant='outline' asChild>
                                     <SelectTrigger className="w-full justify-between text-left">
@@ -288,7 +287,7 @@ export default function AddTodoForm({
                                 <PopoverTrigger asChild>
                                     <Button
                                         variant="outline"
-                                        className="w-full gap-0 justify-start text-left font-normal p-0"
+                                        className="w-full gap-0 justify-start text-left p-0"
                                         disabled={isCreating}
                                     >
                                         <Flag

@@ -10,7 +10,7 @@ import { TodoSheet } from '../todo-sheet'
 import InstallPrompt from '@/components/install-prompt'
 import { useTodoLists } from '@/lib/hooks/useTodoLists'
 import { ResponsiveDialog } from '@/components/responsive-dialog'
-import AddTodoForm from '@/components/forms/add-todo-form'
+import AddTodoForm from '@/components/forms/add-todo-form.tsx'
 
 export default function AuthenticatedNavLinks({ email }: { email: string }) {
 
