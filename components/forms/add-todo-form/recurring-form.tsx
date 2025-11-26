@@ -2,8 +2,10 @@
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Clock, Plus, Repeat } from 'lucide-react'
+import { CalendarIcon, Clock, Plus, Repeat } from 'lucide-react'
 import { TodoList } from '@/types/todo'
 import { Label } from '../../ui/label'
 import { TodoFormData, TodoFormUIState, TodoFormActions } from './hooks/useTodoForm'
@@ -21,7 +23,7 @@ interface RecurringFormProps {
     isFormValid: () => boolean
 }
 
-type RecurrenceType = 'daily' | 'weekly' | 'monthly'
+type RecurrenceType = 'daily' | 'weekly' | 'monthly' | 'yearly'
 
 export default function RecurringForm({
     formData,
@@ -45,6 +47,7 @@ export default function RecurringForm({
     const [selectedDays, setSelectedDays] = useState<number[]>([1]) // 0=Sunday, 1=Monday, etc.
     const [selectedMonthDays, setSelectedMonthDays] = useState<number[]>([]) // Days of month (1-31, -1 for last day)
     const [nthWeekday, setNthWeekday] = useState<{ nth: number, weekday: number }>({ nth: 1, weekday: 1 }) // 1st Monday
+    const [isYearlyDatePopoverOpen, setIsYearlyDatePopoverOpen] = useState<boolean>(false)
 
     const weekDays = [
         { label: 'Sun', value: 0 },
@@ -93,6 +96,7 @@ export default function RecurringForm({
                         <SelectItem value="daily">Daily</SelectItem>
                         <SelectItem value="weekly">Weekly</SelectItem>
                         <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="yearly">Yearly</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
@@ -250,6 +254,46 @@ export default function RecurringForm({
                 </Tabs>
             )}
 
+            {/* Yearly Pattern - Calendar Selection */}
+            {recurrenceType === 'yearly' && (
+                <div className="my-5">
+                    <Label className="pl-1 pb-1">Select Date for Yearly Recurrence</Label>
+                    <Popover open={isYearlyDatePopoverOpen} onOpenChange={setIsYearlyDatePopoverOpen}>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                className="w-full justify-start text-left font-normal"
+                                disabled={isCreating}
+                            >
+                                <CalendarIcon className="h-4 w-4" />
+                                {formData.dueDate ? formData.dueDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : "Select date"}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-2" align="start">
+                            <div className="space-y-4">
+                                <div className='w-[230px] mx-auto min-h-[300px]'>
+                                    <Calendar
+                                        mode="single"
+                                        selected={formData.dueDate}
+                                        onSelect={(val) => {
+                                            actions.updateDueDate(val);
+                                            setIsYearlyDatePopoverOpen(false)
+                                        }}
+                                        className="rounded-md bg-transparent w-full p-0"
+                                        captionLayout='dropdown'
+                                    />
+                                </div>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+                    {formData.dueDate && (
+                        <div className="text-sm text-muted-foreground text-center mt-3 bg-muted/30 p-3 rounded-md">
+                            <strong>Preview:</strong> Every year on {formData.dueDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+                        </div>
+                    )}
+                </div>
+            )}
+
 
             <div className="flex-center flex-wrap my-5 gap-5">
                 {/* Time Selection */}
@@ -316,7 +360,8 @@ export default function RecurringForm({
                     type="submit"
                     disabled={!text.trim() || isCreating || !selectedListId ||
                         (recurrenceType === 'weekly' && selectedDays.length === 0) ||
-                        (recurrenceType === 'monthly' && selectedMonthDays.length === 0)}
+                        (recurrenceType === 'monthly' && selectedMonthDays.length === 0) ||
+                        (recurrenceType === 'yearly' && !formData.dueDate)}
                     className="px-6 shadow-none"
                 >
                     {todoId ?
