@@ -7,6 +7,9 @@ import { Clock, Plus, Repeat } from 'lucide-react'
 import { TodoList } from '@/types/todo'
 import { Label } from '../../ui/label'
 import { TodoFormData, TodoFormUIState, TodoFormActions } from './hooks/useTodoForm'
+import { TabsContent } from '@radix-ui/react-tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 interface RecurringFormProps {
     formData: TodoFormData
@@ -40,6 +43,8 @@ export default function RecurringForm({
 
     const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('daily')
     const [selectedDays, setSelectedDays] = useState<number[]>([1]) // 0=Sunday, 1=Monday, etc.
+    const [selectedMonthDays, setSelectedMonthDays] = useState<number[]>([]) // Days of month (1-31, -1 for last day)
+    const [nthWeekday, setNthWeekday] = useState<{ nth: number, weekday: number }>({ nth: 1, weekday: 1 }) // 1st Monday
 
     const weekDays = [
         { label: 'Sun', value: 0 },
@@ -56,6 +61,19 @@ export default function RecurringForm({
             prev.includes(day)
                 ? prev.filter(d => d !== day)
                 : [...prev, day].sort()
+        )
+    }
+
+    const handleMonthDayToggle = (day: number) => {
+        setSelectedMonthDays(prev =>
+            prev.includes(day)
+                ? prev.filter(d => d !== day)
+                : [...prev, day].sort((a, b) => {
+                    // Sort with -1 (last day) at the end
+                    if (a === -1) return 1
+                    if (b === -1) return -1
+                    return a - b
+                })
         )
     }
 
@@ -100,15 +118,140 @@ export default function RecurringForm({
                 </div>
             )}
 
-            {/* Monthly Pattern - Placeholder */}
+            {/* Monthly Pattern - Day Selection */}
             {recurrenceType === 'monthly' && (
-                <div className="space-y-3">
-                    <Label className="pl-1 pb-1 text-muted-foreground">Monthly options coming soon...</Label>
-                </div>
+                <Tabs defaultValue="date" className="p-0 m-0">
+                    <TabsList className="-mt-5">
+                        <TabsTrigger value="date">By Date</TabsTrigger>
+                        <TabsTrigger value="day">By Day</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="date">
+                        <div className="mt-5 space-y-4">
+                            <div className="space-y-2">
+                                <Label className="pl-1 pb-1">Add Days of Month</Label>
+                                <Select
+                                    value=""
+                                    onValueChange={(value) => {
+                                        const dayValue = value === "last" ? -1 : parseInt(value)
+                                        if (!selectedMonthDays.includes(dayValue)) {
+                                            handleMonthDayToggle(dayValue)
+                                        }
+                                    }}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Choose a day to add..." />
+                                    </SelectTrigger>
+                                    <SelectContent className='max-h-[350px]'>
+                                        <ScrollArea>
+                                            {Array.from({ length: 31 }, (_, i) => i + 1)
+                                                .filter(day => !selectedMonthDays.includes(day))
+                                                .map((day) => {
+                                                    const ordinal = day === 1 ? '1st' :
+                                                        day === 2 ? '2nd' :
+                                                            day === 3 ? '3rd' :
+                                                                day === 21 ? '21st' :
+                                                                    day === 22 ? '22nd' :
+                                                                        day === 23 ? '23rd' :
+                                                                            day === 31 ? '31st' :
+                                                                                `${day}th`
+                                                    return (
+                                                        <SelectItem key={day} value={day.toString()}>
+                                                            The {ordinal}
+                                                        </SelectItem>
+                                                    )
+                                                })}
+                                        </ScrollArea>
+                                        {!selectedMonthDays.includes(-1) && (
+                                            <SelectItem value="last">Last Day of Month</SelectItem>
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Selected Days Display */}
+                            <div className="space-y-2">
+                                <Label className="text-sm text-muted-foreground">Selected Days:</Label>
+                                {selectedMonthDays.length > 0 ? (
+                                    <div className="flex flex-wrap gap-1">
+                                        {selectedMonthDays.map((day) => (
+                                            <Button
+                                                key={day}
+                                                type="button"
+                                                variant="secondary"
+                                                size="sm"
+                                                onClick={() => handleMonthDayToggle(day)}
+                                                className="h-7 px-2 text-xs"
+                                            >
+                                                {day === -1 ? 'Last Day' : (
+                                                    day === 1 ? 'The 1st' :
+                                                        day === 2 ? 'The 2nd' :
+                                                            day === 3 ? 'The 3rd' :
+                                                                day === 21 ? 'The 21st' :
+                                                                    day === 22 ? 'The 22nd' :
+                                                                        day === 23 ? 'The 23rd' :
+                                                                            day === 31 ? 'The 31st' :
+                                                                                `The ${day}th`
+                                                )}
+                                                <span className="ml-1 text-xs opacity-60">×</span>
+                                            </Button>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-sm text-muted-foreground italic">None</div>
+                                )}
+                            </div>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="day">
+                        <div className="mt-5 space-y-4">
+                            <div className="flex items-center gap-3 flex-wrap">
+                                <div className="flex items-center gap-2">
+                                    <Label className="text-sm whitespace-nowrap">Every</Label>
+                                    <Select
+                                        value={nthWeekday.nth.toString()}
+                                        onValueChange={(value) => setNthWeekday(prev => ({ ...prev, nth: parseInt(value) }))}
+                                    >
+                                        <SelectTrigger className="w-24">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="1">1st</SelectItem>
+                                            <SelectItem value="2">2nd</SelectItem>
+                                            <SelectItem value="3">3rd</SelectItem>
+                                            <SelectItem value="4">4th</SelectItem>
+                                            <SelectItem value="-1">Last</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <Select
+                                        value={nthWeekday.weekday.toString()}
+                                        onValueChange={(value) => setNthWeekday(prev => ({ ...prev, weekday: parseInt(value) }))}
+                                    >
+                                        <SelectTrigger className="w-32">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="0">Sunday</SelectItem>
+                                            <SelectItem value="1">Monday</SelectItem>
+                                            <SelectItem value="2">Tuesday</SelectItem>
+                                            <SelectItem value="3">Wednesday</SelectItem>
+                                            <SelectItem value="4">Thursday</SelectItem>
+                                            <SelectItem value="5">Friday</SelectItem>
+                                            <SelectItem value="6">Saturday</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <Label className="text-sm whitespace-nowrap">of each month</Label>
+                                </div>
+                            </div>
+                        </div>
+                    </TabsContent>
+                </Tabs>
             )}
 
 
-            <div className="flex-center my-5 gap-x-7">
+            <div className="flex-center flex-wrap my-5 gap-5">
                 {/* Time Selection */}
                 <div className=" flex-1">
                     <Label htmlFor="recurring-time-picker" className="pl-1 pb-1">
@@ -171,7 +314,9 @@ export default function RecurringForm({
                 )}
                 <Button
                     type="submit"
-                    disabled={!text.trim() || isCreating || !selectedListId || (recurrenceType === 'weekly' && selectedDays.length === 0)}
+                    disabled={!text.trim() || isCreating || !selectedListId ||
+                        (recurrenceType === 'weekly' && selectedDays.length === 0) ||
+                        (recurrenceType === 'monthly' && selectedMonthDays.length === 0)}
                     className="px-6 shadow-none"
                 >
                     {todoId ?
