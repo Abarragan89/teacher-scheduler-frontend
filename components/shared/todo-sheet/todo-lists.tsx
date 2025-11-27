@@ -18,7 +18,7 @@ import { Separator } from '@radix-ui/react-select'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import AddTodoListForm from '@/components/forms/add-todolist-form'
 import { clientTodo } from '@/lib/api/services/todos/client'
-import AddTodoForm from '@/components/forms/add-todo-form'
+import AddTodoForm from '@/components/forms/add-todo-form.tsx'
 
 interface CurrentListProps {
     todoLists: TodoList[]

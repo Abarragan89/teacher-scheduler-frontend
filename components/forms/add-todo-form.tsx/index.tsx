@@ -68,6 +68,8 @@ export default function AddTodoForm({
         if (!formData.text.trim()) return
         actions.setCreating(true)
 
+        console.log('form data ', formData)
+
         try {
             const dueDateISO = combineDateAndTime(formData.dueDate, formData.time)
 
@@ -106,7 +108,13 @@ export default function AddTodoForm({
                 })
             } else {
                 // Create new todo
-                newTodo = await clientTodo.createTodoItem(formData.selectedListId, formData.text.trim(), dueDateISO || '', formData.priority)
+                newTodo = await clientTodo.createTodoItem(
+                    formData.selectedListId, 
+                    formData.text.trim(), 
+                    dueDateISO || '', 
+                    formData.priority,
+                    
+                )
                 // Update the React Query cache
                 queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
                     if (!oldData) return oldData
@@ -206,12 +214,9 @@ export default function AddTodoForm({
                                 todoLists={todoLists}
                                 todoId={todoId}
                                 onCancel={onCancel}
-                                isFormValid={isFormValid}
                             />
                         </TabsContent>
                     </Tabs>
-
-
                 </form>
             </div>
             <AddTodoListForm

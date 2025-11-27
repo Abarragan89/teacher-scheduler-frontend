@@ -7,7 +7,7 @@ import { TodoItem as BaseTodoItem } from '@/types/todo'
 import Link from 'next/link'
 import TodoListItem from '@/components/shared/todo-sheet/todo-list-item'
 import { ResponsiveDialog } from '@/components/responsive-dialog'
-import AddTodoForm from '@/components/forms/add-todo-form'
+import AddTodoForm from '@/components/forms/add-todo-form.tsx'
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 

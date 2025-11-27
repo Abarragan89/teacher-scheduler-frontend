@@ -20,7 +20,6 @@ interface RecurringFormProps {
     todoLists: TodoList[]
     todoId?: string
     onCancel?: () => void
-    isFormValid: () => boolean
 }
 
 type RecurrenceType = 'daily' | 'weekly' | 'monthly' | 'yearly'
@@ -31,12 +30,11 @@ export default function RecurringForm({
     actions,
     todoLists,
     todoId,
-    onCancel,
-    isFormValid
+    onCancel
 }: RecurringFormProps) {
     // Destructure properties from hook
     const { text, time, selectedListId } = formData
-    const { isCreating, isModalOpen } = uiState
+    const { isCreating } = uiState
     const {
         updateTime,
         updateSelectedListId,
@@ -48,6 +46,22 @@ export default function RecurringForm({
     const [selectedMonthDays, setSelectedMonthDays] = useState<number[]>([]) // Days of month (1-31, -1 for last day)
     const [nthWeekday, setNthWeekday] = useState<{ nth: number, weekday: number }>({ nth: 1, weekday: 1 }) // 1st Monday
     const [isYearlyDatePopoverOpen, setIsYearlyDatePopoverOpen] = useState<boolean>(false)
+
+    console.log('recurrenceType ', recurrenceType)
+    
+    // For Weekly
+    console.log('selectedDays ', selectedDays)
+
+    // For Monthly by Date
+    console.log('selectedMonthDays ', selectedMonthDays)
+
+    // For Monthly by Day
+    console.log('nthWeekday ', nthWeekday)  
+    
+    // For Yearly
+    console.log('yearly date ', formData.dueDate)
+
+
 
     const weekDays = [
         { label: 'Sun', value: 0 },

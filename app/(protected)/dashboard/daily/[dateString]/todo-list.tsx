@@ -1,6 +1,6 @@
 'use client'
 import { useDailyTodos } from '@/lib/hooks/useDailyTodos'
-import AddTodoForm from '@/components/forms/add-todo-form'
+import AddTodoForm from '@/components/forms/add-todo-form.tsx'
 import { DailyTodoItem } from '@/lib/hooks/useDailyTodos'
 import { useState, useEffect } from 'react'
 import { ResponsiveDialog } from '@/components/responsive-dialog'

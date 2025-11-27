@@ -8,7 +8,10 @@ export interface TodoFormData {
     dueDate: Date | undefined
     time: string
     priority: number
-    selectedListId: string
+    selectedListId: string,
+    isRecurring?: boolean
+    recurrencePattern?: {}
+
 }
 
 export interface TodoFormUIState {
@@ -56,7 +59,9 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
             ? new Date(currentTodo.dueDate as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
             : timeSlot || '07:00',
         priority: currentTodo?.priority || 1,
-        selectedListId: listId || todoLists[0]?.id || ''
+        selectedListId: listId || todoLists[0]?.id || '',
+        isRecurring: false,
+        recurrencePattern: {}
     })
 
     // UI state

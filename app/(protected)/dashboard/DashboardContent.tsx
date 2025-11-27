@@ -8,7 +8,7 @@ import TodoListItem from '@/components/shared/todo-sheet/todo-list-item'
 import { TodoItem as BaseTodoItem } from '@/types/todo'
 import { ResponsiveDialog } from '@/components/responsive-dialog'
 import { useState } from 'react'
-import AddTodoForm from '@/components/forms/add-todo-form'
+import AddTodoForm from '@/components/forms/add-todo-form.tsx'
 
 interface DashboardTodoItem extends BaseTodoItem {
     listName?: string
