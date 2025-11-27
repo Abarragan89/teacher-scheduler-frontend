@@ -226,8 +226,7 @@ export default function RecurringForm({
                                             <SelectItem value="-1">Last</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>
-
+                                </div>                            
                                 <div className="flex items-center gap-2">
                                     <Select
                                         value={nthWeekday.weekday.toString()}

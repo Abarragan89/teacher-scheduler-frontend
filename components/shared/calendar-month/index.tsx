@@ -41,8 +41,6 @@ export default function CalendarMonth() {
         fetchHolidays()
     }, [currentDate])
 
-    console.log('getReminders for data ', getRemindersForDate('2025-11-26'))
-
 
     // Get the first day of the current month
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)

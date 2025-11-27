@@ -38,6 +38,8 @@ export default function AddTodoForm({
 
     const inputRef = useRef<HTMLInputElement>(null)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const queryClient = useQueryClient()
+
 
     // Auto-resize textarea function
     const resizeTextarea = (textarea: HTMLTextAreaElement) => {
@@ -65,8 +67,6 @@ export default function AddTodoForm({
         e.preventDefault()
         if (!formData.text.trim()) return
         actions.setCreating(true)
-
-        const queryClient = useQueryClient()
 
         try {
             const dueDateISO = combineDateAndTime(formData.dueDate, formData.time)
