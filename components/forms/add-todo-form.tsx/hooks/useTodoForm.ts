@@ -10,7 +10,7 @@ export interface TodoFormData {
     priority: number
     selectedListId: string,
     isRecurring?: boolean
-    recurrencePattern?: {}
+    recurrencePattern?: RecurrencePattern
 
 }
 
@@ -21,12 +21,21 @@ export interface TodoFormUIState {
     isCreating: boolean
 }
 
+export interface RecurrencePattern {
+    type: 'daily' | 'weekly' | 'monthly' | 'yearly'
+    selectedDays?: number[]           // For weekly recurrence (0=Sunday, 1=Monday, etc.)
+    selectedMonthDays?: number[]      // For monthly recurrence (1-31, -1 for last day)
+    nthWeekday?: { nth: number, weekday: number } // For monthly recurrence (e.g., 1st Monday)
+}
+
 export interface TodoFormActions {
     updateText: (text: string) => void
     updateDueDate: (date: Date | undefined) => void
     updateTime: (time: string) => void
     updatePriority: (priority: number) => void
     updateSelectedListId: (listId: string) => void
+    updateRecurrencePattern: (pattern: RecurrencePattern) => void
+    updateIsRecurring: (isRecurring: boolean) => void
     toggleDatePopover: (open?: boolean) => void
     togglePriorityPopover: (open?: boolean) => void
     toggleModal: (open?: boolean) => void
@@ -61,8 +70,19 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
         priority: currentTodo?.priority || 1,
         selectedListId: listId || todoLists[0]?.id || '',
         isRecurring: false,
-        recurrencePattern: {}
+        recurrencePattern: {
+            type: 'daily',
+            selectedDays: [1],
+            selectedMonthDays: [],
+            nthWeekday: { nth: 1, weekday: 1 }
+        }
+
     })
+
+    //    const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('daily')
+    //     const [selectedDays, setSelectedDays] = useState<number[]>([1]) // 0=Sunday, 1=Monday, etc.
+    //     const [selectedMonthDays, setSelectedMonthDays] = useState<number[]>([]) // Days of month (1-31, -1 for last day)
+    //     const [nthWeekday, setNthWeekday] = useState<{ nth: number, weekday: number }>({ nth: 1, weekday: 1 }) // 1st Monday
 
     // UI state
     const [uiState, setUIState] = useState<TodoFormUIState>({
@@ -79,6 +99,8 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
         updateTime: (time: string) => setFormData(prev => ({ ...prev, time })),
         updatePriority: (priority: number) => setFormData(prev => ({ ...prev, priority })),
         updateSelectedListId: (selectedListId: string) => setFormData(prev => ({ ...prev, selectedListId })),
+        updateRecurrencePattern: (recurrencePattern: RecurrencePattern) => setFormData(prev => ({ ...prev, recurrencePattern })),
+        updateIsRecurring: (isRecurring: boolean) => setFormData(prev => ({ ...prev, isRecurring })),
 
         toggleDatePopover: (open?: boolean) => setUIState(prev => ({
             ...prev,

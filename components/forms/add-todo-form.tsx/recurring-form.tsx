@@ -33,7 +33,7 @@ export default function RecurringForm({
     onCancel
 }: RecurringFormProps) {
     // Destructure properties from hook
-    const { text, time, selectedListId } = formData
+    const { text, time, selectedListId, recurrencePattern } = formData
     const { isCreating } = uiState
     const {
         updateTime,
@@ -41,23 +41,20 @@ export default function RecurringForm({
         toggleModal
     } = actions
 
-    const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('daily')
-    const [selectedDays, setSelectedDays] = useState<number[]>([1]) // 0=Sunday, 1=Monday, etc.
-    const [selectedMonthDays, setSelectedMonthDays] = useState<number[]>([]) // Days of month (1-31, -1 for last day)
-    const [nthWeekday, setNthWeekday] = useState<{ nth: number, weekday: number }>({ nth: 1, weekday: 1 }) // 1st Monday
+
     const [isYearlyDatePopoverOpen, setIsYearlyDatePopoverOpen] = useState<boolean>(false)
 
-    console.log('recurrenceType ', recurrenceType)
-    
-    // For Weekly
-    console.log('selectedDays ', selectedDays)
+    console.log('recurrenceType ', recurrencePattern?.type)
 
-    // For Monthly by Date
-    console.log('selectedMonthDays ', selectedMonthDays)
+    // // For Weekly
+    // console.log('selectedDays ', selectedDays)
 
-    // For Monthly by Day
-    console.log('nthWeekday ', nthWeekday)  
-    
+    // // For Monthly by Date
+    // console.log('selectedMonthDays ', selectedMonthDays)
+
+    // // For Monthly by Day
+    // console.log('nthWeekday ', nthWeekday)  
+
     // For Yearly
     console.log('yearly date ', formData.dueDate)
 
@@ -73,33 +70,36 @@ export default function RecurringForm({
         { label: 'Sat', value: 6 }
     ]
 
-    const handleDayToggle = (day: number) => {
-        setSelectedDays(prev =>
-            prev.includes(day)
-                ? prev.filter(d => d !== day)
-                : [...prev, day].sort()
-        )
-    }
+    // const handleDayToggle = (day: number) => {
+    //     setSelectedDays(prev =>
+    //         prev.includes(day)
+    //             ? prev.filter(d => d !== day)
+    //             : [...prev, day].sort()
+    //     )
+    // }
 
-    const handleMonthDayToggle = (day: number) => {
-        setSelectedMonthDays(prev =>
-            prev.includes(day)
-                ? prev.filter(d => d !== day)
-                : [...prev, day].sort((a, b) => {
-                    // Sort with -1 (last day) at the end
-                    if (a === -1) return 1
-                    if (b === -1) return -1
-                    return a - b
-                })
-        )
-    }
+    // const handleMonthDayToggle = (day: number) => {
+    //     setSelectedMonthDays(prev =>
+    //         prev.includes(day)
+    //             ? prev.filter(d => d !== day)
+    //             : [...prev, day].sort((a, b) => {
+    //                 // Sort with -1 (last day) at the end
+    //                 if (a === -1) return 1
+    //                 if (b === -1) return -1
+    //                 return a - b
+    //             })
+    //     )
+    // }
 
     return (
         <>
             {/* Recurrence Type */}
             <div className="mb-6">
                 <Label className="pl-1 pb-1">Recurrence Pattern</Label>
-                <Select value={recurrenceType} onValueChange={(value: RecurrenceType) => setRecurrenceType(value)}>
+                <Select
+                    value={recurrencePattern?.type}
+                    onValueChange={(value: RecurrenceType) => (value)}
+                >
                     <SelectTrigger className="w-full">
                         <div className="flex items-center gap-2">
                             <Repeat className="h-4 w-4" />
@@ -116,7 +116,7 @@ export default function RecurringForm({
             </div>
 
             {/* Weekly Pattern - Day Selection */}
-            {recurrenceType === 'weekly' && (
+            {recurrencePattern?.type === 'weekly' && (
                 <div className="my-5">
                     <Label className="pl-1 pb-1">Select Days</Label>
                     <div className="grid grid-cols-7 gap-2">
@@ -124,9 +124,9 @@ export default function RecurringForm({
                             <Button
                                 key={day.value}
                                 type="button"
-                                variant={selectedDays.includes(day.value) ? "default" : "outline"}
+                                variant={recurrencePattern.selectedDays?.includes(day.value) ? "default" : "outline"}
                                 size="sm"
-                                onClick={() => handleDayToggle(day.value)}
+                                // onClick={() => handleDayToggle(day.value)}
                                 className="w-full"
                             >
                                 {day.label}
@@ -137,7 +137,7 @@ export default function RecurringForm({
             )}
 
             {/* Monthly Pattern - Day Selection */}
-            {recurrenceType === 'monthly' && (
+            {recurrencePattern?.type === 'monthly' && (
                 <Tabs defaultValue="date" className="p-0 m-0">
                     <TabsList className="-mt-5">
                         <TabsTrigger value="date">By Date</TabsTrigger>
@@ -151,8 +151,8 @@ export default function RecurringForm({
                                     value=""
                                     onValueChange={(value) => {
                                         const dayValue = value === "last" ? -1 : parseInt(value)
-                                        if (!selectedMonthDays.includes(dayValue)) {
-                                            handleMonthDayToggle(dayValue)
+                                        if (!recurrencePattern?.selectedMonthDays?.includes(dayValue)) {
+                                            // handleMonthDayToggle(dayValue)
                                         }
                                     }}
                                 >
@@ -162,7 +162,7 @@ export default function RecurringForm({
                                     <SelectContent className='max-h-[350px]'>
                                         <ScrollArea>
                                             {Array.from({ length: 31 }, (_, i) => i + 1)
-                                                .filter(day => !selectedMonthDays.includes(day))
+                                                .filter(day => !recurrencePattern?.selectedMonthDays?.includes(day))
                                                 .map((day) => {
                                                     const ordinal = day === 1 ? '1st' :
                                                         day === 2 ? '2nd' :
@@ -179,7 +179,7 @@ export default function RecurringForm({
                                                     )
                                                 })}
                                         </ScrollArea>
-                                        {!selectedMonthDays.includes(-1) && (
+                                        {!recurrencePattern?.selectedMonthDays?.includes(-1) && (
                                             <SelectItem value="last">Last Day of Month</SelectItem>
                                         )}
                                     </SelectContent>
@@ -189,15 +189,15 @@ export default function RecurringForm({
                             {/* Selected Days Display */}
                             <div className="space-y-2">
                                 <Label className="text-sm text-muted-foreground">Selected Days:</Label>
-                                {selectedMonthDays.length > 0 ? (
+                                {recurrencePattern?.selectedMonthDays && recurrencePattern?.selectedMonthDays?.length > 0 ? (
                                     <div className="flex flex-wrap gap-1">
-                                        {selectedMonthDays.map((day) => (
+                                        {recurrencePattern?.selectedMonthDays?.map((day) => (
                                             <Button
                                                 key={day}
                                                 type="button"
                                                 variant="secondary"
                                                 size="sm"
-                                                onClick={() => handleMonthDayToggle(day)}
+                                                // onClick={() => handleMonthDayToggle(day)}
                                                 className="h-7 px-2 text-xs"
                                             >
                                                 {day === -1 ? 'Last Day' : (
@@ -226,8 +226,8 @@ export default function RecurringForm({
                                 <div className="flex items-center gap-2">
                                     <Label className="text-sm whitespace-nowrap">Every</Label>
                                     <Select
-                                        value={nthWeekday.nth.toString()}
-                                        onValueChange={(value) => setNthWeekday(prev => ({ ...prev, nth: parseInt(value) }))}
+                                        value={recurrencePattern?.nthWeekday?.nth.toString()}
+                                        // onValueChange={(value) => setNthWeekday(prev => ({ ...prev, nth: parseInt(value) }))}
                                     >
                                         <SelectTrigger className="w-24">
                                             <SelectValue />
@@ -240,11 +240,11 @@ export default function RecurringForm({
                                             <SelectItem value="-1">Last</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>                            
+                                </div>
                                 <div className="flex items-center gap-2">
                                     <Select
-                                        value={nthWeekday.weekday.toString()}
-                                        onValueChange={(value) => setNthWeekday(prev => ({ ...prev, weekday: parseInt(value) }))}
+                                        value={recurrencePattern?.nthWeekday?.weekday.toString()}
+                                        // onValueChange={(value) => setNthWeekday(prev => ({ ...prev, weekday: parseInt(value) }))}
                                     >
                                         <SelectTrigger className="w-32">
                                             <SelectValue />
@@ -268,7 +268,7 @@ export default function RecurringForm({
             )}
 
             {/* Yearly Pattern - Calendar Selection */}
-            {recurrenceType === 'yearly' && (
+            {recurrencePattern?.type === 'yearly' && (
                 <div className="my-5">
                     <Label className="pl-1 pb-1">Select Date for Yearly Recurrence</Label>
                     <Popover open={isYearlyDatePopoverOpen} onOpenChange={setIsYearlyDatePopoverOpen}>
@@ -372,9 +372,9 @@ export default function RecurringForm({
                 <Button
                     type="submit"
                     disabled={!text.trim() || isCreating || !selectedListId ||
-                        (recurrenceType === 'weekly' && selectedDays.length === 0) ||
-                        (recurrenceType === 'monthly' && selectedMonthDays.length === 0) ||
-                        (recurrenceType === 'yearly' && !formData.dueDate)}
+                        (recurrencePattern?.type === 'weekly' && recurrencePattern?.selectedDays?.length === 0) ||
+                        (recurrencePattern?.type === 'monthly' && recurrencePattern?.selectedMonthDays?.length === 0) ||
+                        (recurrencePattern?.type === 'yearly' && !formData.dueDate)}
                     className="px-6 shadow-none"
                 >
                     {todoId ?
