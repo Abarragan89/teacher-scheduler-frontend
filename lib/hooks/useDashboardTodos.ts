@@ -2,6 +2,8 @@ import { useMemo } from 'react'
 import { useTodoLists } from './useTodoLists'
 import { TodoList } from '@/types/todo'
 
+
+// This is for the dashboard view, showing upcoming and priority todos
 export function useDashboardTodos() {
     const { data: todoLists, isLoading, error } = useTodoLists()
 

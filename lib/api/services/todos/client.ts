@@ -1,5 +1,6 @@
 import { TodoItem } from "@/types/todo";
 import { clientFetch } from "../../client";
+import { RecurrencePattern } from "@/components/forms/add-todo-form.tsx/hooks/useTodoForm";
 
 export const clientTodoLists = {
 
@@ -33,7 +34,7 @@ export const clientTodoLists = {
         if (!response.ok) throw new Error('Failed to delete todo list');
         return true;
     },
-    
+
     async setDefaultList(todoListId: string) {
         const response = await clientFetch(`/todo-list/set-default-list/${todoListId}`, {
             method: 'PUT',
@@ -44,25 +45,48 @@ export const clientTodoLists = {
 }
 
 export const clientTodo = {
-    async createTodoItem(todoListId: string, todoText: string, dueDate: string, priority: number) {
+    async createTodoItem(
+        todoListId: string,
+        todoText: string,
+        dueDate: string,
+        priority: number,
+        isRecurring: boolean = false,
+        recurrencePattern: RecurrencePattern = {
+            recurrenceType: 'daily',
+            yearlyDate: null,
+            time: '07:00',
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            selectedDays: [1],
+            selectedMonthDays: [],
+            nthWeekday: { nth: 1, weekday: 1 }
+        }
+    ) {
         const response = await clientFetch('/todo/create-list-item', {
             method: 'POST',
-            body: JSON.stringify({ todoListId, todoText, dueDate, priority }),
+            body: JSON.stringify({ todoListId, todoText, dueDate, priority, isRecurring, recurrencePattern }),
         });
         if (!response.ok) throw new Error('Failed to create todo item');
+        return response.json();
+    },
+
+    async getRecurringTodosInRange(startDate: string, endDate: string) {
+        const response = await clientFetch(`/todo/get-recurring-todos-in-range/${startDate}/${endDate}`);
+        if (!response.ok) throw new Error('Failed to fetch recurring todos in range');
         return response.json();
     },
 
     async updateTodo(todoItem: TodoItem) {
         const response = await clientFetch('/todo/update-list-item', {
             method: 'PUT',
-            body: JSON.stringify({ 
-                todoId: todoItem.id, 
-                todoText: todoItem.text, 
-                completed: todoItem.completed, 
+            body: JSON.stringify({
+                todoId: todoItem.id,
+                todoText: todoItem.text,
+                completed: todoItem.completed,
                 priority: todoItem.priority,
                 dueDate: todoItem.dueDate,
-                todoListId: todoItem.todoListId
+                todoListId: todoItem.todoListId,
+                isRecurring: todoItem.isRecurring,
+                recurrencePattern: todoItem.recurrencePattern
             }),
         });
         if (!response.ok) throw new Error('Failed to update todo item');

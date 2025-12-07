@@ -33,7 +33,7 @@ export default function AddTodoForm({
         todoLists,
         currentTodo,
         formatDisplayDate,
-        isFormValid
+        isFormValid,
     } = useTodoForm({ listId, todoId, timeSlot })
 
     const inputRef = useRef<HTMLInputElement>(null)
@@ -60,6 +60,8 @@ export default function AddTodoForm({
         const combined = new Date(date)
         const [hours, minutes] = time.split(':').map(Number)
         combined.setHours(hours, minutes, 0, 0)
+
+        // Convert to ISO string (UTC)
         return combined.toISOString()
     }
 
@@ -67,8 +69,6 @@ export default function AddTodoForm({
         e.preventDefault()
         if (!formData.text.trim()) return
         actions.setCreating(true)
-
-        console.log('form data ', formData)
 
         try {
             const dueDateISO = combineDateAndTime(formData.dueDate, formData.time)
@@ -78,9 +78,12 @@ export default function AddTodoForm({
                 const updatedTodo: TodoItem = {
                     ...currentTodo,
                     text: formData.text.trim(),
-                    dueDate: dueDateISO || '',
+                    dueDate: dueDateISO || null,
                     priority: formData.priority,
-                    todoListId: formData.selectedListId
+                    todoListId: formData.selectedListId,
+                    isRecurring: formData.isRecurring,
+                    recurrencePattern: formData.recurrencePattern
+
                 }
                 // Update existing todo
                 newTodo = await clientTodo.updateTodo(updatedTodo)
@@ -107,13 +110,20 @@ export default function AddTodoForm({
                     })
                 })
             } else {
+
                 // Create new todo
                 newTodo = await clientTodo.createTodoItem(
-                    formData.selectedListId, 
-                    formData.text.trim(), 
-                    dueDateISO || '', 
+                    formData.selectedListId,
+                    formData.text.trim(),
+                    dueDateISO || '',
                     formData.priority,
-                    
+                    formData.isRecurring,
+                    {
+                        ...formData.recurrencePattern,
+                        time: formData.time,
+                        yearlyDate: formData.dueDate ? formData.dueDate.toISOString().split('T')[0] : null,
+                        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                    }
                 )
                 // Update the React Query cache
                 queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
@@ -169,8 +179,8 @@ export default function AddTodoForm({
                 <form onSubmit={handleSubmit}>
                     <Tabs defaultValue="one-time" className="p-0">
                         <TabsList className='mb-4'>
-                            <TabsTrigger value="one-time">One-Time</TabsTrigger>
-                            <TabsTrigger value="recurring">Reoccuring</TabsTrigger>
+                            <TabsTrigger onClick={() => actions.updateIsRecurring(false)} value="one-time">One-Time</TabsTrigger>
+                            <TabsTrigger onClick={() => actions.updateIsRecurring(true)} value="recurring">Recurring</TabsTrigger>
                         </TabsList>
 
                         <Button className='p-2.5 px-3.5' variant={'outline'} asChild>

@@ -246,13 +246,13 @@ export default function FocusedEditingTodoItem({
                     className="cursor-pointer"
                     onClick={() => !todo.deleting && onEdit?.()}
                 >
-                    <p className={`text-[15px] ml-1 font-medium leading-normal rounded px-2 py-1 transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                    <p className={`text-[15px] font-medium leading-normal rounded px-2 py-[2px] transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
                         }`}>
                         {todo.text}
                     </p>
 
                     {/* Display-only info when not editing */}
-                    <div className="flex items-center gap-3 ml-3 mt-1">
+                    <div className="flex items-center gap-3 ml-2 mt-1">
                         {displayConfig.showCategory && (
                             <CategoryDisplay category={todo.listName} />
                         )}

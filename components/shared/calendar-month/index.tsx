@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useCalendarReminders } from '@/lib/hooks/useCalendarReminders'
 import { clientDays } from '@/lib/api/services/days/client'
+import { useRecurringTodos } from '@/lib/hooks/useRecurringTodos'
+import { TodoItem } from '@/types/todo'
 
 export default function CalendarMonth() {
 
@@ -17,6 +19,12 @@ export default function CalendarMonth() {
         currentDate.getFullYear(),
         currentDate.getMonth() + 1 // Convert to 1-indexed month
     )
+
+    const { getRecurringTodoForDate } = useRecurringTodos({
+        startDate: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0],
+        endDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split('T')[0]
+    })
+
 
     async function fetchHolidays() {
         try {
@@ -58,7 +66,6 @@ export default function CalendarMonth() {
             days.push(new Date(currentCalendarDate))
             currentCalendarDate.setDate(currentCalendarDate.getDate() + 1)
         }
-
         return days
     }
 
@@ -111,17 +118,24 @@ export default function CalendarMonth() {
         const dateString = date.toISOString().split('T')[0] // YYYY-MM-DD
         const dayReminders = getRemindersForDate(dateString)
 
-        if (!dayReminders || dayReminders.reminders.length === 0) {
+        const recurringTodosForDate = getRecurringTodoForDate(dateString)
+        const allReminders = [...dayReminders?.reminders || [], ...recurringTodosForDate ?? []]
+
+        if (!allReminders || allReminders.length === 0) {
             return null
         }
+
+        const shouldShowOverflow = allReminders.length > 3
+        const displayReminders = shouldShowOverflow ? allReminders.slice(0, 2) : allReminders.slice(0, 3)
+        const overflowCount = shouldShowOverflow ? allReminders.length - 2 : 0
 
         return (
             <div className="mt-1 space-y-1 w-full">
                 {/* Display todos based on new logic: all if ≤3, first 2 if >3 */}
-                {dayReminders.displayReminders.map((reminder) => (
+                {displayReminders.map((reminder: TodoItem) => (
                     <div
                         key={reminder.id}
-                        className={`text-[.65rem] sm:text-[.75rem] px-0.5 py-0.3 rounded text-left relative overflow-hidden whitespace-nowrap ${getPriorityColor(reminder.priority)}`}
+                        className={`text-[.65rem] sm:text-[.70rem] px-0.5 py-0.3 rounded text-left relative overflow-hidden whitespace-nowrap ${getPriorityColor(reminder.priority)}`}
                         title={reminder.text} // Show full text on hover
                         style={{
                             maskImage: 'linear-gradient(to right, black 80%, transparent 100%)',
@@ -133,9 +147,9 @@ export default function CalendarMonth() {
                 ))}
 
                 {/* Show overflow count if there are more than 3 todos */}
-                {dayReminders.overflowCount > 0 && (
+                {overflowCount > 0 && (
                     <div className="text-sm pt-[1px] text-ring text-center">
-                        +{dayReminders.overflowCount}
+                        +{overflowCount}
                     </div>
                 )}
             </div>
@@ -212,7 +226,7 @@ export default function CalendarMonth() {
                         >
                             {/* Date number with holiday emoji */}
                             <div className={`self-center flex items-center justify-center relative
-                                ${isToday(date) ? 'bg-ring text-accent rounded-full w-7 h-7' : ''}
+                                ${isToday(date) ? 'bg-ring text-accent rounded-full w-6 h-6' : ''}
                             `}>
                                 {date.getDate()}
                                 {holiday?.emoji && (

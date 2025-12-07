@@ -24,8 +24,6 @@ export function TimePicker({
     initialEndTime?: string
 }) {
 
-    console.log('initial time ', initialStartTime, initialEndTime);
-
     const [startTime, setStartTime] = useState<string>(initialStartTime || "07:00");
     const [endTime, setEndTime] = useState<string>(initialEndTime || "08:00");
     const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);

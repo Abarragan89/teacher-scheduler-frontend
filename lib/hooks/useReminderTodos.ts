@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useTodoLists } from './useTodoLists'
 import { TodoList } from '@/types/todo'
 
+// This is the reminder page that shows today's, this week's, and this month's todos
 export function useReminderTodos() {
     const { data: todoLists, isLoading, error } = useTodoLists()
 

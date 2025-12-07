@@ -9,10 +9,9 @@ export interface CalendarReminder extends TodoItem {
 export interface DayReminders {
     date: string // YYYY-MM-DD format
     reminders: CalendarReminder[]
-    displayReminders: CalendarReminder[] // First 3 reminders
-    overflowCount: number // How many more beyond the first 3
 }
 
+// This hook fetches and organizes reminders for a calendar view
 export function useCalendarReminders(year: number, month: number) {
     const { data: todoLists, isLoading, error } = useTodoLists()
 
@@ -70,16 +69,10 @@ export function useCalendarReminders(year: number, month: number) {
         const dayRemindersMap: Record<string, DayReminders> = {}
 
         Object.entries(remindersByDate).forEach(([dateKey, reminders]) => {
-            // New logic: if 3 or fewer, show all; if more than 3, show only first 2
-            const shouldShowOverflow = reminders.length > 3
-            const displayReminders = shouldShowOverflow ? reminders.slice(0, 2) : reminders.slice(0, 3)
-            const overflowCount = shouldShowOverflow ? reminders.length - 2 : 0
 
             dayRemindersMap[dateKey] = {
                 date: dateKey,
                 reminders,
-                displayReminders,
-                overflowCount
             }
         })
 

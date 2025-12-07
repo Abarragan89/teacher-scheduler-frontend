@@ -10,19 +10,12 @@ import {
 import { ListTodo } from "lucide-react"
 import TodoLists from "./todo-lists"
 import { TodoList } from "@/types/todo"
-import { useQuery } from "@tanstack/react-query"
-import { clientTodoLists } from "@/lib/api/services/todos/client"
+import { useTodoLists } from "@/lib/hooks/useTodoLists"
 
 export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
 
-    const { data: allLists } = useQuery({
-        queryKey: ['todos'],
-        queryFn: clientTodoLists.getTodoLists,
-        initialData: todoLists,
-        // Add more reasonable caching:
-        staleTime: 5 * 60 * 1000, // 5 minutes
-        // cacheTime: 10 * 60 * 1000, // 10 minutes
-    })
+
+    const {data: allLists} = useTodoLists();
 
     return (
         <Sheet>

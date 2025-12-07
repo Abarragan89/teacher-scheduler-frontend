@@ -179,6 +179,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 newTodoText.trim(),
                 '', // No due date for simple add
                 1   // Default priority
+                
             )
 
             // Update React Query cache
@@ -381,11 +382,11 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
 
 
 
-
                 {/* Flexbox Layout for TODO Lists */}
                 <ScrollArea className="h-[calc(100vh-330px)] w-full">
                     <div className="space-y-0 mr-3 transition-all duration-300 ease-in-out">
-                        {sortedCurrentList.todos.map(todo => (
+                        {/* Dont' show recurring todos in the recurring sheet */}
+                        {sortedCurrentList.todos.filter(todo => !todo.isRecurring).map(todo => (
                             <TodoListItem
                                 key={todo.id}
                                 todo={todo}

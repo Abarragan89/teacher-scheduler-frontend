@@ -22,6 +22,7 @@ export default async function DashboardLayout({
 
     // Fetch todo lists on server - single API call
     todoLists = await serverTodoLists.getTodoLists();
+
   } catch (error) {
     console.error('Authentication or data fetch failed:', error);
     authResult = { authenticated: false, user: { email: '' } };

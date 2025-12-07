@@ -9,8 +9,8 @@ export interface TodoFormData {
     time: string
     priority: number
     selectedListId: string,
-    isRecurring?: boolean
-    recurrencePattern?: RecurrencePattern
+    isRecurring: boolean
+    recurrencePattern: RecurrencePattern
 
 }
 
@@ -22,10 +22,13 @@ export interface TodoFormUIState {
 }
 
 export interface RecurrencePattern {
-    type: 'daily' | 'weekly' | 'monthly' | 'yearly'
-    selectedDays?: number[]           // For weekly recurrence (0=Sunday, 1=Monday, etc.)
-    selectedMonthDays?: number[]      // For monthly recurrence (1-31, -1 for last day)
-    nthWeekday?: { nth: number, weekday: number } // For monthly recurrence (e.g., 1st Monday)
+    recurrenceType: 'daily' | 'weekly' | 'monthly' | 'yearly'
+    selectedDays: number[]           // For weekly recurrence (0=Sunday, 1=Monday, etc.)
+    selectedMonthDays: number[]      // For monthly recurrence (1-31, -1 for last day)
+    nthWeekday: { nth: number, weekday: number } // For monthly recurrence (e.g., 1st Monday)
+    time: string                   // Time of the recurring todo
+    yearlyDate: String | null              // For yearly recurrence
+    timeZone: string               // Time zone for the recurrence
 }
 
 export interface TodoFormActions {
@@ -71,18 +74,18 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
         selectedListId: listId || todoLists[0]?.id || '',
         isRecurring: false,
         recurrencePattern: {
-            type: 'daily',
+            recurrenceType: 'daily',
             selectedDays: [1],
+            time: currentTodo?.dueDate
+                ? new Date(currentTodo.dueDate as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+                : timeSlot || '07:00',
             selectedMonthDays: [],
-            nthWeekday: { nth: 1, weekday: 1 }
+            nthWeekday: { nth: 1, weekday: 1 },
+            yearlyDate: currentTodo?.dueDate ? new Date(currentTodo.dueDate as string).toISOString().split('T')[0] : null,
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
         }
 
     })
-
-    //    const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('daily')
-    //     const [selectedDays, setSelectedDays] = useState<number[]>([1]) // 0=Sunday, 1=Monday, etc.
-    //     const [selectedMonthDays, setSelectedMonthDays] = useState<number[]>([]) // Days of month (1-31, -1 for last day)
-    //     const [nthWeekday, setNthWeekday] = useState<{ nth: number, weekday: number }>({ nth: 1, weekday: 1 }) // 1st Monday
 
     // UI state
     const [uiState, setUIState] = useState<TodoFormUIState>({
@@ -122,7 +125,17 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
                 dueDate: undefined,
                 time: '07:00',
                 priority: 1,
-                selectedListId: listId || todoLists[0]?.id || ''
+                selectedListId: listId || todoLists[0]?.id || '',
+                isRecurring: false,
+                recurrencePattern: {
+                    recurrenceType: formData.recurrencePattern.recurrenceType,
+                    time: '07:00',
+                    selectedDays: [1],
+                    selectedMonthDays: [],
+                    nthWeekday: { nth: 1, weekday: 1 },
+                    yearlyDate: null,
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                }
             })
             setUIState({
                 isDatePopoverOpen: false,
