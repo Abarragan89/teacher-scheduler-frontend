@@ -29,6 +29,16 @@ export const updateTodoItem = (listId: string, todoId: string, text: string, que
                         id: `temp-todo-${Date.now()}`,
                         text: '',
                         completed: false,
+                        isRecurring: false,
+                        recurrencePattern: {
+                            recurrenceType: 'daily',
+                            selectedDays: [1],
+                            time: '07:00',
+                            selectedMonthDays: [],
+                            nthWeekday: { nth: 1, weekday: 1 },
+                            yearlyDate: null,
+                            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                        },
                         priority: 1,
                         dueDate: null,
                     })

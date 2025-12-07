@@ -18,9 +18,19 @@ export const addNewTodoList = (state: TodoState, queryClient: QueryClient) => {
         todos: [{
             id: `temp-todo-${Date.now()}`,
             text: '',
+            isRecurring: false,
             completed: false,
             priority: 1,
             dueDate: null,
+            recurrencePattern: {
+                recurrenceType: 'daily',
+                selectedDays: [1],
+                time: '07:00',
+                selectedMonthDays: [],
+                nthWeekday: { nth: 1, weekday: 1 },
+                yearlyDate: null,
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            }
         }],
     }
 
