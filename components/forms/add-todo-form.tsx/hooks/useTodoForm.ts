@@ -27,8 +27,11 @@ export interface RecurrencePattern {
     selectedMonthDays: number[]      // For monthly recurrence (1-31, -1 for last day)
     nthWeekday: { nth: number, weekday: number } // For monthly recurrence (e.g., 1st Monday)
     time: string                   // Time of the recurring todo
-    yearlyDate: String | null              // For yearly recurrence
+    yearlyDate: string | null              // For yearly recurrence
     timeZone: string               // Time zone for the recurrence
+    startDate: Date | undefined,
+    endDate: Date | undefined,
+    monthPatternType: 'BY_DAY' | 'BY_DATE' // For monthly recurrence
 }
 
 export interface TodoFormActions {
@@ -40,7 +43,7 @@ export interface TodoFormActions {
     updateRecurrencePattern: (pattern: RecurrencePattern) => void
     updateIsRecurring: (isRecurring: boolean) => void
     toggleDatePopover: (open?: boolean) => void
-    togglePriorityPopover: (open?: boolean) => void
+    togglePriorityPopover: (open?: boolean) => void,
     toggleModal: (open?: boolean) => void
     setCreating: (creating: boolean) => void
     resetForm: () => void
@@ -82,7 +85,10 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
             selectedMonthDays: [],
             nthWeekday: { nth: 1, weekday: 1 },
             yearlyDate: currentTodo?.dueDate ? new Date(currentTodo.dueDate as string).toISOString().split('T')[0] : null,
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            startDate: undefined,
+            endDate: undefined,
+            monthPatternType: 'BY_DATE'
         }
 
     })
@@ -134,7 +140,10 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
                     selectedMonthDays: [],
                     nthWeekday: { nth: 1, weekday: 1 },
                     yearlyDate: null,
-                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    startDate: undefined,
+                    endDate: undefined,
+                     monthPatternType: 'BY_DATE'
                 }
             })
             setUIState({

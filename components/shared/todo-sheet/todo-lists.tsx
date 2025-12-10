@@ -303,7 +303,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 {/* Sort Buttons */}
                 <div className="flex-between">
                     <div className='flex items-center gap-x-3'>
-                        <Label className="text-sm text-muted-foreground">Sort by:</Label>
+                        <Label className="text-xs text-muted-foreground">Sort by:</Label>
                         <Button
                             onClick={() => setSortBy('created')}
                             className={`hover:cursor-pointer p-0 font-bold

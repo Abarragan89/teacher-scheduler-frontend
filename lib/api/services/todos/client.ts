@@ -58,7 +58,10 @@ export const clientTodo = {
             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             selectedDays: [1],
             selectedMonthDays: [],
-            nthWeekday: { nth: 1, weekday: 1 }
+            nthWeekday: { nth: 1, weekday: 1 },
+            startDate: undefined,
+            endDate: undefined,
+             monthPatternType: 'BY_DATE'
         }
     ) {
         const response = await clientFetch('/todo/create-list-item', {

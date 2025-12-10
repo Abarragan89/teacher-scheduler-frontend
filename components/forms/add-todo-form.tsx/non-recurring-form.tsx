@@ -35,9 +35,9 @@ export default function NonRecurringForm({
     return (
         <div className="space-y-4">
             {/* Due Date and Priority Row */}
-            <div className="flex-between flex-wrap gap-5 xs:gap-x-16  text-sm">
+            <div className="flex-between flex-wrap gap-5 xs:gap-x-8  text-sm">
                 {/* Due Date */}
-                <div className="w-full min-w-[140px] flex-2">
+                <div className="w-full min-w-[180px] flex-2">
                     <Label className='pl-1 pb-1'>Due Date <span className='text-xs opacity-60'>(optional)</span></Label>
                     <Popover open={uiState.isDatePopoverOpen} onOpenChange={actions.toggleDatePopover}>
                         <PopoverTrigger asChild>
@@ -89,7 +89,7 @@ export default function NonRecurringForm({
             </div>
 
             {/* List and Priority Selection */}
-            <div className="flex-between flex-wrap gap-5 xs:gap-x-16 text-sm">
+            <div className="flex-between flex-wrap gap-5 xs:gap-x-8 text-sm">
                 {/* List Selection */}
                 <div className="w-full min-w-[140px] flex-2">
                     <Label className="pl-1 pb-1">List</Label>

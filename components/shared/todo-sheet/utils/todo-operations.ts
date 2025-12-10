@@ -37,7 +37,10 @@ export const updateTodoItem = (listId: string, todoId: string, text: string, que
                             selectedMonthDays: [],
                             nthWeekday: { nth: 1, weekday: 1 },
                             yearlyDate: null,
-                            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                            startDate: undefined,
+                            endDate: undefined,
+                            monthPatternType: 'BY_DATE'
                         },
                         priority: 1,
                         dueDate: null,

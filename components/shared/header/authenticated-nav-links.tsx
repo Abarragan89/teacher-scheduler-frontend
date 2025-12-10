@@ -11,6 +11,17 @@ import InstallPrompt from '@/components/install-prompt'
 import { useTodoLists } from '@/lib/hooks/useTodoLists'
 import { ResponsiveDialog } from '@/components/responsive-dialog'
 import AddTodoForm from '@/components/forms/add-todo-form.tsx'
+import {
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet"
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 export default function AuthenticatedNavLinks({ email }: { email: string }) {
 
@@ -45,16 +56,19 @@ export default function AuthenticatedNavLinks({ email }: { email: string }) {
 
     return (
         <>
-            {showAddTodoModal && (
-                <ResponsiveDialog
-                    title='Add New Todo'
-                    isOpen={showAddTodoModal}
-                    setIsOpen={setShowAddTodoModal}
-                >
-                    <AddTodoForm />
-                </ResponsiveDialog>
 
-            )}
+            <Sheet  open={showAddTodoModal} onOpenChange={setShowAddTodoModal}>
+                <SheetContent className='p-4'>
+                    <SheetHeader>
+                        <SheetTitle className='mb-3'>New Todo</SheetTitle>
+                    </SheetHeader>
+                    <ScrollArea className='h-[85vh]'>
+                        <AddTodoForm />
+                    </ScrollArea>
+                </SheetContent>
+            </Sheet>
+
+
             <NavigationMenu>
                 <NavigationMenuList className="gap-x-2">
                     <NavigationMenuItem>

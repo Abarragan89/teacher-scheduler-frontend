@@ -26,7 +26,7 @@ export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
             </SheetTrigger>
             <SheetContent className="p-5" tabIndex={-1}>
                 <SheetHeader>
-                    <SheetTitle className="text-muted-foreground">ToDo Lists</SheetTitle>
+                    <SheetTitle>ToDo Lists</SheetTitle>
                 </SheetHeader>
                 <TodoLists
                     todoLists={allLists}

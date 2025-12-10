@@ -177,7 +177,7 @@ export default function AddTodoForm({
         <div>
             <div>
                 <form onSubmit={handleSubmit}>
-                    <Tabs defaultValue="one-time" className="p-0">
+                    <Tabs defaultValue="one-time" className="p-1">
                         <TabsList className='mb-4'>
                             <TabsTrigger onClick={() => actions.updateIsRecurring(false)} value="one-time">One-Time</TabsTrigger>
                             <TabsTrigger onClick={() => actions.updateIsRecurring(true)} value="recurring">Recurring</TabsTrigger>
