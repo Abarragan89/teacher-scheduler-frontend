@@ -133,6 +133,7 @@ export default function DateTimePicker({
                                 onSelect={handleDateSelect}
                                 className="rounded-md bg-transparent w-full p-1"
                                 captionLayout='dropdown'
+                                endMonth={new Date(2040, 11)}
                             />
                         </div>
                         <div className="flex gap-x-4 -mt-3">

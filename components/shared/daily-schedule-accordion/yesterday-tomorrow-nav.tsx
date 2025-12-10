@@ -71,6 +71,7 @@ export default function YesterdayTomorrowNav({ dateString }: { dateString: strin
                             }}
                             className="rounded-md bg-transparent w-full p-1"
                             captionLayout='dropdown'
+                            endMonth={new Date(2040, 11)}
                         />
                     </div>
                 </PopoverContent>

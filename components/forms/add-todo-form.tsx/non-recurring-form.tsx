@@ -63,6 +63,7 @@ export default function NonRecurringForm({
                                         }}
                                         className="rounded-md bg-transparent w-full p-0"
                                         captionLayout='dropdown'
+                                        endMonth={new Date(2040, 11)}
                                     />
                                 </div>
                             </div>

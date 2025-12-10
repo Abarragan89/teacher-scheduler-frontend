@@ -307,6 +307,7 @@ export default function RecurringForm({
                                         }}
                                         className="rounded-md bg-transparent w-full p-0"
                                         captionLayout='dropdown'
+                                        endMonth={new Date(2040, 11)}
                                     />
                                 </div>
                             </div>
@@ -384,7 +385,7 @@ export default function RecurringForm({
                             >
                                 <CalendarIcon className="h-4 w-4" />
                                 {formData.recurrencePattern.startDate ?
-                                    formData.recurrencePattern.startDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) :
+                                    formData.recurrencePattern.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) :
                                     "Select date"}
                             </Button>
                         </PopoverTrigger>
@@ -400,6 +401,7 @@ export default function RecurringForm({
                                         }}
                                         className="rounded-md bg-transparent w-full p-0"
                                         captionLayout='dropdown'
+                                        endMonth={new Date(2040, 11)}
                                     />
                                 </div>
                             </div>
@@ -418,7 +420,7 @@ export default function RecurringForm({
                             >
                                 <CalendarIcon className="h-4 w-4" />
                                 {formData.recurrencePattern.endDate ?
-                                    formData.recurrencePattern.endDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) :
+                                    formData.recurrencePattern.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) :
                                     "Select date"}
                             </Button>
                         </PopoverTrigger>
@@ -434,6 +436,7 @@ export default function RecurringForm({
                                         }}
                                         className="rounded-md bg-transparent w-full p-0"
                                         captionLayout='dropdown'
+                                        endMonth={new Date(2040, 11)}
                                     />
                                 </div>
                             </div>

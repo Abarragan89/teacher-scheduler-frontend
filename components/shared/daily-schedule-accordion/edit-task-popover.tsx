@@ -108,6 +108,7 @@ export default function EditTaskPopover({
                                 onSelect={setDate}
                                 className="rounded-md bg-transparent w-full pt-1"
                                 captionLayout='dropdown'
+                                endMonth={new Date(2040, 11)}
                             />
                         </div>
                         <div className="flex-center gap-x-4 mb-2">

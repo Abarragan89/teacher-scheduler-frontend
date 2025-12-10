@@ -86,7 +86,7 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
             nthWeekday: { nth: 1, weekday: 1 },
             yearlyDate: currentTodo?.dueDate ? new Date(currentTodo.dueDate as string).toISOString().split('T')[0] : null,
             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            startDate: undefined,
+            startDate: new Date(),
             endDate: undefined,
             monthPatternType: 'BY_DATE'
         }
@@ -141,7 +141,7 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
                     nthWeekday: { nth: 1, weekday: 1 },
                     yearlyDate: null,
                     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                    startDate: undefined,
+                    startDate: new Date(),
                     endDate: undefined,
                      monthPatternType: 'BY_DATE'
                 }
