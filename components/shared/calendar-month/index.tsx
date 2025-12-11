@@ -57,20 +57,33 @@ export default function CalendarMonth() {
     const startDate = new Date(firstDayOfMonth)
     startDate.setDate(startDate.getDate() - firstDayOfMonth.getDay()) // Go back to Sunday
 
-    // Generate 42 days (6 rows × 7 days) for the calendar grid
+    // Generate calendar days - only current month dates
     const generateCalendarDays = () => {
         const days = []
-        const currentCalendarDate = new Date(startDate)
+        const year = currentDate.getFullYear()
+        const month = currentDate.getMonth()
 
-        for (let i = 0; i < 35; i++) {
-            days.push(new Date(currentCalendarDate))
-            currentCalendarDate.setDate(currentCalendarDate.getDate() + 1)
+        // Get the number of days in the current month
+        const daysInMonth = new Date(year, month + 1, 0).getDate()
+
+        // Generate only the days for the current month
+        for (let day = 1; day <= daysInMonth; day++) {
+            days.push(new Date(year, month, day))
         }
+
         return days
     }
 
     const days = generateCalendarDays()
     const today = new Date()
+
+    // Helper function to get the starting day of the week for the first day of month
+    const getFirstDayOfWeek = () => {
+        const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+        return firstDayOfMonth.getDay() // 0 = Sunday, 1 = Monday, etc.
+    }
+
+    const firstDayOfWeek = getFirstDayOfWeek()
 
     // Navigation functions
     const goToPreviousMonth = () => {
@@ -205,7 +218,9 @@ export default function CalendarMonth() {
                         {day}
                     </div>
                 ))}
-
+                {Array.from({ length: firstDayOfWeek }, (_, index) => (
+                    <div key={`empty-${index}`} className="h-28 md:h-32 border-b" />
+                ))}
                 {/* Calendar days */}
                 {days.map((date, index) => {
                     const holiday = getHolidayForDate(date)
