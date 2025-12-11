@@ -72,8 +72,9 @@ export default function AddTodoForm({
 
         try {
             const dueDateISO = combineDateAndTime(formData.dueDate, formData.time)
+            // let newTodo: TodoItem
 
-            let newTodo: TodoItem
+            // IF editing existing todo
             if (currentTodo) {
                 const updatedTodo: TodoItem = {
                     ...currentTodo,
@@ -86,7 +87,7 @@ export default function AddTodoForm({
 
                 }
                 // Update existing todo
-                newTodo = await clientTodo.updateTodo(updatedTodo)
+                let newTodo = await clientTodo.updateTodo(updatedTodo)
                 queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
                     if (!oldData) return oldData
 
@@ -112,7 +113,7 @@ export default function AddTodoForm({
             } else {
 
                 // Create new todo
-                newTodo = await clientTodo.createTodoItem(
+                const  newTodo = await clientTodo.createTodoItem(
                     formData.selectedListId,
                     formData.text.trim(),
                     dueDateISO || '',
@@ -125,6 +126,9 @@ export default function AddTodoForm({
                         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
                     }
                 )
+
+                const isArrayOfTodos = Array.isArray(newTodo)
+
                 // Update the React Query cache
                 queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
                     if (!oldData) return oldData
@@ -132,13 +136,21 @@ export default function AddTodoForm({
                     return oldData.map(list => {
                         if (list.id === formData.selectedListId) {
                             // Remove any empty temp todos and add the new one
-                            const filteredTodos = list.todos.filter(todo =>
-                                !todo.id.startsWith('temp-') || todo.text.trim() !== ''
-                            )
+                            const filteredTodos = list.todos.filter(todo =>!todo.id.startsWith('temp-') || todo.text.trim() !== '')
 
                             // Add the new todo and sort by priority (descending)
-                            const updatedTodos = [...filteredTodos, newTodo].sort((a, b) => b.priority - a.priority)
-
+                            let updatedTodos: TodoItem[]  | []= []
+                            // Array of todos (recurring creation)
+                            if (isArrayOfTodos) {
+                                 updatedTodos = [...filteredTodos, ...newTodo].sort((a, b) => b.priority - a.priority)
+                                return {
+                                    ...list,
+                                    todos: updatedTodos
+                                }
+                            // Single todo item
+                            } else {
+                                updatedTodos = [...filteredTodos, newTodo].sort((a, b) => b.priority - a.priority)
+                            }
                             return {
                                 ...list,
                                 todos: updatedTodos
@@ -148,10 +160,8 @@ export default function AddTodoForm({
                     })
                 })
             }
-
             // Reset form
             actions.resetForm()
-
             // Call completion callback
             onComplete?.()
         } catch (error) {

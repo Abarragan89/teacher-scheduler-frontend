@@ -62,7 +62,7 @@ export default function CalendarMonth() {
         const days = []
         const currentCalendarDate = new Date(startDate)
 
-        for (let i = 0; i < 42; i++) {
+        for (let i = 0; i < 35; i++) {
             days.push(new Date(currentCalendarDate))
             currentCalendarDate.setDate(currentCalendarDate.getDate() + 1)
         }
