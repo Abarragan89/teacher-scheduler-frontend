@@ -16,6 +16,7 @@ interface AddTodoFormProps {
     onComplete?: () => void // Callback for when form completes
     onCancel?: () => void   // Callback for cancel action
     timeSlot?: string      // Optional time slot for pre-filling time
+    isRecurring?: boolean  // Indicates if the todo is recurring
 }
 
 export default function AddTodoForm({
@@ -23,7 +24,8 @@ export default function AddTodoForm({
     todoId,
     onComplete,
     onCancel,
-    timeSlot
+    timeSlot,
+    isRecurring
 }: AddTodoFormProps) {
 
     const {
@@ -53,6 +55,8 @@ export default function AddTodoForm({
             resizeTextarea(textareaRef.current)
         }
     }, [formData.text])
+
+    console.log('current todo', currentTodo)
 
     function combineDateAndTime(date: Date | undefined, time: string): string | null {
         if (!date) return null

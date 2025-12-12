@@ -145,6 +145,7 @@ export default function TodoList({ dateString }: TodoListProps) {
                 <AddTodoForm
                     listId={currentTodo?.listId}
                     todoId={currentTodo?.id}
+                    isRecurring={currentTodo?.isRecurring}
                     onComplete={() => setShowEditTodoModal(false)}
                 />
             </ResponsiveDialog>

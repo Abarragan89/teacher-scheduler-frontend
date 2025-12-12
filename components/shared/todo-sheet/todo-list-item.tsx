@@ -1,12 +1,10 @@
 'use client'
-import React, { useState } from 'react'
+import React from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import useSound from 'use-sound'
 import { CheckCircle, Circle, Calendar, Clock, Flag } from 'lucide-react'
 import { TodoItem } from '@/types/todo'
 import { toggleTodoCompletion } from './utils/todo-operations'
-import AddTodoForm from '@/components/forms/add-todo-form.tsx'
-import { ResponsiveDialog } from '@/components/responsive-dialog'
 
 interface ExtendedTodoItem extends TodoItem {
     listName?: string

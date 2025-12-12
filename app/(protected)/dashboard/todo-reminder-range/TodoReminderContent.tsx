@@ -197,6 +197,7 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
                 <AddTodoForm
                     listId={listId}
                     todoId={currentTodo?.id}
+                    isRecurring={currentTodo?.isRecurring}
                     onComplete={() => setShowEditTodoModal(false)}
                 />
             </ResponsiveDialog>

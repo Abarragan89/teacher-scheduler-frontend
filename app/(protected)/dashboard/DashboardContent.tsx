@@ -83,6 +83,7 @@ export default function DashboardContent() {
                 <AddTodoForm
                     listId={listId}
                     todoId={todo.id}
+                    isRecurring={todo.isRecurring}
                     onComplete={() => setIsEditing(false)}
 
                 />
