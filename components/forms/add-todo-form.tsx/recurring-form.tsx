@@ -22,7 +22,7 @@ interface RecurringFormProps {
     onCancel?: () => void
 }
 
-type RecurrenceType = 'daily' | 'weekly' | 'monthly' | 'yearly'
+type RecurrenceType = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
 
 export default function RecurringForm({
     formData,
@@ -34,11 +34,12 @@ export default function RecurringForm({
 }: RecurringFormProps) {
 
     // Destructure properties from hook
-    const { text, time, selectedListId, recurrencePattern } = formData
-    const { isCreating } = uiState
+    const { text, time, selectedListId, recurrencePattern, dueDate } = formData
+    const { isCreating, editScope } = uiState
     const {
         updateTime,
         updateSelectedListId,
+        updateEditScope,
         toggleModal
     } = actions
 
@@ -59,7 +60,7 @@ export default function RecurringForm({
 
     function updateSelectedDaysWeekly(newDay: number) {
         // Ensure selectedDays is always an array
-        const selectedDays: number[] = recurrencePattern?.selectedDays;
+        const selectedDays: number[] = recurrencePattern?.daysOfWeek;
         const isSelected = selectedDays.includes(newDay);
 
         const newSelectedDays = isSelected
@@ -68,7 +69,7 @@ export default function RecurringForm({
 
         actions.updateRecurrencePattern({
             ...recurrencePattern,
-            selectedDays: newSelectedDays,
+            daysOfWeek: newSelectedDays,
         });
     }
 
@@ -76,34 +77,30 @@ export default function RecurringForm({
         const newDayAsNum = newDay === "last" ? -1 : parseInt(newDay)
         actions.updateRecurrencePattern({
             ...recurrencePattern,
-            selectedMonthDays: [...recurrencePattern?.selectedMonthDays, newDayAsNum],
+            daysOfMonth: [...recurrencePattern?.daysOfMonth, newDayAsNum],
         });
     }
 
     function removeSelectedDatesMonthly(newDay: number) {
-        const updatedArray: number[] = recurrencePattern.selectedMonthDays?.filter(num => num !== newDay)
+        const updatedArray: number[] = recurrencePattern.daysOfMonth?.filter(num => num !== newDay)
         actions.updateRecurrencePattern({
             ...recurrencePattern,
-            selectedMonthDays: updatedArray,
+            daysOfMonth: updatedArray,
         });
     }
 
 
     function updatedSelectedDaysMonthlyNth(nth: number) {
-        const updatedNthWeekday = { ...recurrencePattern.nthWeekday, nth }
-        actions.updateRecurrencePattern({
-            ...recurrencePattern,
-            nthWeekday: updatedNthWeekday
-        });
+        const updatedNthWeekday = { ...recurrencePattern, nthWeekdayOccurrence: nth }
+        actions.updateRecurrencePattern(updatedNthWeekday);
 
     }
 
     function updatedSelectedDaysMonthlyWeekday(weekday: number) {
-        const updatedNthWeekday = { ...recurrencePattern.nthWeekday, weekday }
-        actions.updateRecurrencePattern({
-            ...recurrencePattern,
-            nthWeekday: updatedNthWeekday
-        });
+    // function updateNthWeekdayDay(weekday: number) {
+        // const updatedNthWeekday = { ...recurrencePattern.nthWeekday, weekday }
+        const updatedNthWeekday = { ...recurrencePattern, nthWeekdayDay: weekday }
+        actions.updateRecurrencePattern(updatedNthWeekday);
     }
 
     return (
@@ -112,8 +109,8 @@ export default function RecurringForm({
             <div className="mb-6">
                 <Label className="pl-1 pb-1">Recurrence Pattern</Label>
                 <Select
-                    value={recurrencePattern?.recurrenceType}
-                    onValueChange={(value: RecurrenceType) => actions.updateRecurrencePattern({ ...recurrencePattern, recurrenceType: value })}
+                    value={recurrencePattern?.type}
+                    onValueChange={(value: RecurrenceType) => actions.updateRecurrencePattern({ ...recurrencePattern, type: value })}
                 >
                     <SelectTrigger className="w-full">
                         <div className="flex items-center gap-2">
@@ -122,16 +119,16 @@ export default function RecurringForm({
                         </div>
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="daily">Daily</SelectItem>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="monthly">Monthly</SelectItem>
-                        <SelectItem value="yearly">Yearly</SelectItem>
+                        <SelectItem value="DAILY">Daily</SelectItem>
+                        <SelectItem value="WEEKLY">Weekly</SelectItem>
+                        <SelectItem value="MONTHLY">Monthly</SelectItem>
+                        <SelectItem value="YEARLY">Yearly</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
 
             {/* Weekly Pattern - Day Selection */}
-            {recurrencePattern?.recurrenceType === 'weekly' && (
+            {recurrencePattern?.type === 'WEEKLY' && (
                 <div className="my-5">
                     <Label className="pl-1 pb-1">Select Days</Label>
                     <div className="grid grid-cols-7 gap-1 xs:gap-2">
@@ -139,7 +136,7 @@ export default function RecurringForm({
                             <Button
                                 key={day.value}
                                 type="button"
-                                variant={recurrencePattern.selectedDays?.includes(day.value) ? "default" : "outline"}
+                                variant={recurrencePattern.daysOfWeek?.includes(day.value) ? "default" : "outline"}
                                 size="sm"
                                 onClick={() => updateSelectedDaysWeekly(day.value)}
                                 className="w-full text-xs xs:text-sm"
@@ -152,13 +149,13 @@ export default function RecurringForm({
             )}
 
             {/* Monthly Pattern - Day Selection */}
-            {recurrencePattern?.recurrenceType === 'monthly' && (
-                <Tabs defaultValue="date" className="p-0 m-0">
+            {recurrencePattern?.type === 'MONTHLY' && (
+                <Tabs defaultValue={recurrencePattern?.monthPatternType || 'BY_DATE'} className="p-0 m-0">
                     <TabsList className="-mt-5">
-                        <TabsTrigger onClick={() => actions.updateRecurrencePattern({ ...recurrencePattern, monthPatternType: 'BY_DATE' })} value="date">By Date</TabsTrigger>
-                        <TabsTrigger onClick={() => actions.updateRecurrencePattern({ ...recurrencePattern, monthPatternType: 'BY_DAY' })} value="day">By Day</TabsTrigger>
+                        <TabsTrigger onClick={() => actions.updateRecurrencePattern({ ...recurrencePattern, monthPatternType: 'BY_DATE' })} value="BY_DATE">By Date</TabsTrigger>
+                        <TabsTrigger onClick={() => actions.updateRecurrencePattern({ ...recurrencePattern, monthPatternType: 'BY_DAY' })} value="BY_DAY">By Day</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="date">
+                    <TabsContent value="BY_DATE">
                         <div className="mt-5 space-y-4">
                             <div className="space-y-2">
                                 <Select
@@ -171,7 +168,7 @@ export default function RecurringForm({
                                     <SelectContent className='max-h-[350px]'>
                                         <ScrollArea>
                                             {Array.from({ length: 31 }, (_, i) => i + 1)
-                                                .filter(day => !recurrencePattern?.selectedMonthDays?.includes(day))
+                                                .filter(day => !recurrencePattern?.daysOfMonth?.includes(day))
                                                 .map((day) => {
                                                     const ordinal = day === 1 ? '1st' :
                                                         day === 2 ? '2nd' :
@@ -188,7 +185,7 @@ export default function RecurringForm({
                                                     )
                                                 })}
                                         </ScrollArea>
-                                        {!recurrencePattern?.selectedMonthDays?.includes(-1) && (
+                                        {!recurrencePattern?.daysOfMonth?.includes(-1) && (
                                             <SelectItem value="last">Last Day of Month</SelectItem>
                                         )}
                                     </SelectContent>
@@ -197,9 +194,9 @@ export default function RecurringForm({
 
                             {/* Selected Days Display */}
                             <div className="flex items-center gap-x-2 space-y-2">
-                                {recurrencePattern?.selectedMonthDays && recurrencePattern?.selectedMonthDays?.length > 0 ? (
+                                {recurrencePattern?.daysOfMonth && recurrencePattern?.daysOfMonth?.length > 0 ? (
                                     <div className="flex flex-wrap gap-2">
-                                        {recurrencePattern?.selectedMonthDays?.map((day) => (
+                                        {recurrencePattern?.daysOfMonth?.map((day) => (
                                             <Button
                                                 key={day}
                                                 type="button"
@@ -232,7 +229,7 @@ export default function RecurringForm({
                     </TabsContent>
 
 
-                    <TabsContent value="day">
+                    <TabsContent value="BY_DAY">
                         <div className="mt-5">
                             <Label className="text-sm mb-1 ml-1">
                                 Repeat Every
@@ -240,7 +237,7 @@ export default function RecurringForm({
                             <div className="flex items-center gap-3 flex-wrap">
                                 <div className="flex items-center gap-2">
                                     <Select
-                                        value={recurrencePattern?.nthWeekday?.nth.toString()}
+                                        value={recurrencePattern?.nthWeekdayOccurrence?.toString()}
                                         onValueChange={(value) => updatedSelectedDaysMonthlyNth(parseInt(value))}
                                     >
                                         <SelectTrigger className="w-24">
@@ -256,7 +253,7 @@ export default function RecurringForm({
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Select
-                                        value={recurrencePattern?.nthWeekday?.weekday.toString()}
+                                        value={recurrencePattern?.nthWeekdayDay?.toString()}
                                         onValueChange={(value) => updatedSelectedDaysMonthlyWeekday(parseInt(value))}
                                     >
                                         <SelectTrigger className="w-32">
@@ -281,7 +278,7 @@ export default function RecurringForm({
             )}
 
             {/* Yearly Pattern - Calendar Selection */}
-            {recurrencePattern?.recurrenceType === 'yearly' && (
+            {recurrencePattern?.type === 'YEARLY' && (
                 <div className="my-5">
                     <Label className="pl-1 pb-1">Select Date for Yearly Recurrence</Label>
                     <Popover open={isYearlyDatePopoverOpen} onOpenChange={setIsYearlyDatePopoverOpen}>
@@ -445,6 +442,53 @@ export default function RecurringForm({
                 </div>
             </div>
 
+            {/* Scope Selection for Editing Recurring Todos */}
+            {todoId && (
+                <div className="mt-6 p-4 border border-border rounded-md bg-muted/30">
+                    {/* <Label className="text-sm font-medium mb-3 block">Edit Scope</Label> */}
+                    <div className="space-y-3">
+                        <div className="flex items-start space-x-3">
+                            <input
+                                type="radio"
+                                id="edit-single"
+                                name="edit-scope"
+                                value="single"
+                                checked={editScope === 'single'}
+                                onChange={(e) => updateEditScope(e.target.value as 'single' | 'future')}
+                                className="mt-1"
+                            />
+                            <div className="space-y-1">
+                                <Label htmlFor="edit-single" className="text-sm font-medium cursor-pointer">
+                                    Edit this occurrence only
+                                </Label>
+                                <p className="text-xs text-muted-foreground">
+                                    Changes will only apply to this specific todo instance
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                            <input
+                                type="radio"
+                                id="edit-future"
+                                name="edit-scope"
+                                value="future"
+                                checked={editScope === 'future'}
+                                onChange={(e) => updateEditScope(e.target.value as 'single' | 'future')}
+                                className="mt-1"
+                            />
+                            <div className="space-y-1">
+                                <Label htmlFor="edit-future" className="text-sm font-medium cursor-pointer">
+                                    Edit this and all future occurrences
+                                </Label>
+                                <p className="text-xs text-muted-foreground">
+                                    Changes will apply to this todo and all upcoming instances
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Submit Button */}
             <div className={`flex justify-start gap-5 mt-7`}>
                 {onCancel && (
@@ -461,16 +505,17 @@ export default function RecurringForm({
                 <Button
                     type="submit"
                     disabled={!text.trim() || isCreating || !selectedListId ||
-                        (recurrencePattern?.recurrenceType === 'weekly' && recurrencePattern?.selectedDays?.length === 0) ||
-                        (recurrencePattern?.recurrenceType === 'monthly' && recurrencePattern?.selectedMonthDays?.length === 0 && recurrencePattern.monthPatternType === "BY_DATE") ||
-                        (recurrencePattern?.recurrenceType === 'yearly' && !formData.dueDate)}
+                        (recurrencePattern?.type === 'WEEKLY' && recurrencePattern?.daysOfWeek?.length === 0) ||
+                        (recurrencePattern?.type === 'MONTHLY' && recurrencePattern?.daysOfMonth?.length === 0 && recurrencePattern.monthPatternType === "BY_DATE") ||
+                        (recurrencePattern?.type === 'YEARLY' && !dueDate)}
                     className="px-6 shadow-none"
                 >
-                    {todoId ?
-                        isCreating ? 'Saving...' : 'Save Recurring Todo'
-                        :
+                    {todoId ? (
+                        isCreating ? 'Updating...' :
+                            editScope === 'single' ? 'Update This Todo' : 'Update All Future'
+                    ) : (
                         isCreating ? 'Creating...' : '+ Create Recurring Todo'
-                    }
+                    )}
                 </Button>
             </div>
         </>

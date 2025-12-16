@@ -1,6 +1,8 @@
 'use client'
 import { useDashboardTodos } from '@/lib/hooks/useDashboardTodos'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Calendar, Flag } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
@@ -75,19 +77,6 @@ export default function DashboardContent() {
 
     return (
         <div className="wrapper grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-28">
-            <ResponsiveDialog
-                isOpen={isEditing}
-                setIsOpen={setIsEditing}
-                title="Edit ToDo"
-            >
-                <AddTodoForm
-                    listId={listId}
-                    todoId={todo.id}
-                    isRecurring={todo.isRecurring}
-                    onComplete={() => setIsEditing(false)}
-
-                />
-            </ResponsiveDialog>
             {/* Upcoming Todos by Due Date */}
             <Card>
                 <CardHeader>

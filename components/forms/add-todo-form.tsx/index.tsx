@@ -24,8 +24,7 @@ export default function AddTodoForm({
     todoId,
     onComplete,
     onCancel,
-    timeSlot,
-    isRecurring
+    timeSlot
 }: AddTodoFormProps) {
 
     const {
@@ -56,7 +55,6 @@ export default function AddTodoForm({
         }
     }, [formData.text])
 
-    console.log('current todo', currentTodo)
 
     function combineDateAndTime(date: Date | undefined, time: string): string | null {
         if (!date) return null
@@ -90,6 +88,12 @@ export default function AddTodoForm({
                     recurrencePattern: formData.recurrencePattern
 
                 }
+                
+                // For recurring todos, pass the edit scope
+                // const updateOptions = currentTodo.isRecurring ? {
+                //     editScope: uiState.editScope
+                // } : undefined
+                
                 // Update existing todo
                 let newTodo = await clientTodo.updateTodo(updatedTodo)
                 queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
@@ -125,7 +129,7 @@ export default function AddTodoForm({
                     formData.isRecurring,
                     {
                         ...formData.recurrencePattern,
-                        time: formData.time,
+                        timeOfDay: formData.time,
                         yearlyDate: formData.dueDate ? formData.dueDate.toISOString().split('T')[0] : null,
                         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
                     }
@@ -187,14 +191,33 @@ export default function AddTodoForm({
         }
     }, []) // Run only on mount
 
+    // Check if we're editing a recurring todo
+    const isEditing = currentTodo !== undefined
+    // Determine the initial tab value based on editing state
+    const initialTabValue =  formData.isRecurring ? "recurring" : "one-time"
+
     return (
         <div>
             <div>
                 <form onSubmit={handleSubmit}>
-                    <Tabs defaultValue="one-time" className="p-1">
+                    <Tabs value={initialTabValue} className="p-1">
                         <TabsList className='mb-4'>
-                            <TabsTrigger onClick={() => actions.updateIsRecurring(false)} value="one-time">One-Time</TabsTrigger>
-                            <TabsTrigger onClick={() => actions.updateIsRecurring(true)} value="recurring">Recurring</TabsTrigger>
+                            <TabsTrigger 
+                                onClick={() => !isEditing && actions.updateIsRecurring(false)} 
+                                value="one-time"
+                                disabled={isEditing}
+                                className={isEditing ? "opacity-50 cursor-not-allowed" : ""}
+                            >
+                                One-Time
+                            </TabsTrigger>
+                            <TabsTrigger 
+                                onClick={() => !isEditing && actions.updateIsRecurring(true)} 
+                                value="recurring"
+                                disabled={isEditing}
+                                className={isEditing ? "opacity-50 cursor-not-allowed" : ""}
+                            >
+                                Recurring
+                            </TabsTrigger>
                         </TabsList>
 
                         <Button className='p-2.5 px-3.5' variant={'outline'} asChild>

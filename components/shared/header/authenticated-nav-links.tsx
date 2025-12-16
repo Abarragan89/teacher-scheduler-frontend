@@ -58,7 +58,7 @@ export default function AuthenticatedNavLinks({ email }: { email: string }) {
         <>
 
             <Sheet  open={showAddTodoModal} onOpenChange={setShowAddTodoModal}>
-                <SheetContent className='p-4'>
+                <SheetContent side="left" className='p-4'>
                     <SheetHeader>
                         <SheetTitle className='mb-3'>New Todo</SheetTitle>
                     </SheetHeader>

@@ -5,11 +5,14 @@ import useSound from 'use-sound'
 import { CheckCircle, Circle, Calendar, Clock, Flag } from 'lucide-react'
 import { TodoItem } from '@/types/todo'
 import { toggleTodoCompletion } from './utils/todo-operations'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import AddTodoForm from '@/components/forms/add-todo-form.tsx'
 
 interface ExtendedTodoItem extends TodoItem {
     listName?: string
-    todoListId?: string
     category?: string
+    listId?: string
 }
 
 type TodoContext = 'reminder' | 'dashboard' | 'todosheet' | 'daily'
@@ -192,78 +195,100 @@ export default function FocusedEditingTodoItem({
     // Sound effects
     const [playCompleteSound] = useSound('/sounds/todoWaterClick.wav', { volume: 0.4 })
     const [playTodoRemovedSound] = useSound('/sounds/todoRemoved.wav', { volume: 0.3 })
+    const [showEditTodoModal, setShowEditTodoModal] = React.useState(false)
+
+    console.log('Rendering TodoListItem for todo:', todo)
 
     return (
-        <div
-            className={`flex items-start gap-1 border-b pb-3 mb-1 transition-all duration-300 ease-in-out ${todo.deleting
-                ? 'opacity-0 scale-95 -translate-y-1'
-                : todo.isNew
-                    ? 'animate-slide-in-from-top'
-                    : todo.slideDown
-                        ? 'animate-slide-down'
-                        : 'opacity-100 scale-100 translate-y-0'
-                } ${className}`}
-            style={{
-                height: todo.deleting ? '0px' : 'auto',
-                minHeight: todo.deleting ? '0px' : '50px',
-                paddingTop: todo.deleting ? '0px' : '4px',
-                paddingBottom: todo.deleting ? '0px' : '5px',
-                transition: 'all 300ms cubic-bezier(0.4, 0.0, 0.2, 1)',
-                transformOrigin: 'top center',
-                ...(todo.isNew && {
-                    animation: 'slideInFromTop 300ms ease-out forwards'
-                }),
-                ...(todo.slideDown && {
-                    transform: 'translateY(60px)',
-                    transition: 'transform 300ms ease-out'
-                })
-            }}
-        >
-            {/* Checkbox */}
-            <div className={`flex-shrink-0 pt-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
-                }`}>
-                <button
-                    onClick={() => toggleTodoCompletion(listId, todo.id, playCompleteSound, playTodoRemovedSound, queryClient)}
-                    className={`flex-shrink-0 hover:cursor-pointer rounded transition-all duration-300 ${todo.deleting
-                        ? 'opacity-0 pointer-events-none transform scale-50'
-                        : 'transform scale-100'
-                        }`}
-                    disabled={todo.deleting}
-                >
-                    {todo.completed ? (
-                        <CheckCircle className="w-5 h-5 text-ring" />
-                    ) : (
-                        <Circle className="w-5 h-5 text-muted-foreground" />
-                    )}
-                </button>
-            </div>
+        <>
+            <Sheet open={showEditTodoModal} onOpenChange={setShowEditTodoModal}>
+                <SheetContent side="left" className='p-4'>
+                    <SheetHeader>
+                        <SheetTitle className='mb-3'>Edit Todo</SheetTitle>
+                    </SheetHeader>
+                    <ScrollArea className='h-[85vh]'>
+                        <AddTodoForm
+                            listId={todo?.listId}
+                            todoId={todo?.id}
+                            isRecurring={todo?.isRecurring}
+                            onComplete={() => setShowEditTodoModal(false)}
+                        />
+                    </ScrollArea>
+                </SheetContent>
+            </Sheet>
+            <div
+                className={`flex items-start gap-1 border-b pb-3 mb-1 transition-all duration-300 ease-in-out ${todo.deleting
+                    ? 'opacity-0 scale-95 -translate-y-1'
+                    : todo.isNew
+                        ? 'animate-slide-in-from-top'
+                        : todo.slideDown
+                            ? 'animate-slide-down'
+                            : 'opacity-100 scale-100 translate-y-0'
+                    } ${className}`}
+                style={{
+                    height: todo.deleting ? '0px' : 'auto',
+                    minHeight: todo.deleting ? '0px' : '50px',
+                    paddingTop: todo.deleting ? '0px' : '4px',
+                    paddingBottom: todo.deleting ? '0px' : '5px',
+                    transition: 'all 300ms cubic-bezier(0.4, 0.0, 0.2, 1)',
+                    transformOrigin: 'top center',
+                    ...(todo.isNew && {
+                        animation: 'slideInFromTop 300ms ease-out forwards'
+                    }),
+                    ...(todo.slideDown && {
+                        transform: 'translateY(60px)',
+                        transition: 'transform 300ms ease-out'
+                    })
+                }}
+            >
+                {/* Checkbox */}
+                <div className={`flex-shrink-0 pt-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
+                    }`}>
+                    <button
+                        onClick={() => toggleTodoCompletion(listId, todo.id, playCompleteSound, playTodoRemovedSound, queryClient)}
+                        className={`flex-shrink-0 hover:cursor-pointer rounded transition-all duration-300 ${todo.deleting
+                            ? 'opacity-0 pointer-events-none transform scale-50'
+                            : 'transform scale-100'
+                            }`}
+                        disabled={todo.deleting}
+                    >
+                        {todo.completed ? (
+                            <CheckCircle className="w-5 h-5 text-ring" />
+                        ) : (
+                            <Circle className="w-5 h-5 text-muted-foreground" />
+                        )}
+                    </button>
+                </div>
 
-            {/* Content */}
-            <div className={`hover:text-ring flex-1 min-w-0 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'}`}>
+                {/* Content */}
                 <div
-                    className="cursor-pointer"
-                    onClick={() => !todo.deleting && onEdit?.()}
-                >
-                    <p className={`text-[15px] font-medium leading-normal rounded px-2 py-[2px] transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
-                        }`}>
-                        {todo.text}
-                    </p>
+                    onClick={() => setShowEditTodoModal(true)}
+                    className={`hover:text-ring flex-1 min-w-0 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'}`}>
+                    <div
+                        className="cursor-pointer"
+                        onClick={() => !todo.deleting && onEdit?.()}
+                    >
+                        <p className={`text-[15px] font-medium leading-normal rounded px-2 py-[2px] transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                            }`}>
+                            {todo.text}
+                        </p>
 
-                    {/* Display-only info when not editing */}
-                    <div className="flex items-center gap-3 ml-2 mt-1">
-                        {displayConfig.showCategory && (
-                            <CategoryDisplay category={todo.listName} />
-                        )}
-                        {displayConfig.showDueDate && (
-                            <DueDateDisplay dueDate={todo.dueDate} context={context} />
-                        )}
-                        {displayConfig.showPriority && (
-                            <PriorityDisplay priority={todo.priority} />
-                        )}
+                        {/* Display-only info when not editing */}
+                        <div className="flex items-center gap-3 ml-2 mt-1">
+                            {displayConfig.showCategory && (
+                                <CategoryDisplay category={todo.listName} />
+                            )}
+                            {displayConfig.showDueDate && (
+                                <DueDateDisplay dueDate={todo.dueDate} context={context} />
+                            )}
+                            {displayConfig.showPriority && (
+                                <PriorityDisplay priority={todo.priority} />
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }
 

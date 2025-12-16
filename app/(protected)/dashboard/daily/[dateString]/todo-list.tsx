@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react'
 import { ResponsiveDialog } from '@/components/responsive-dialog'
 import TodoListItem from '@/components/shared/todo-sheet/todo-list-item'
 import { clientDays } from '@/lib/api/services/days/client'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { ScrollArea } from '@radix-ui/react-scroll-area'
 
 interface TodoListProps {
     dateString: string
@@ -135,32 +137,6 @@ export default function TodoList({ dateString }: TodoListProps) {
                     </div>
                 ))}
             </div>
-
-            {/* Edit Modal */}
-            <ResponsiveDialog
-                isOpen={showEditTodoModal}
-                setIsOpen={setShowEditTodoModal}
-                title="Edit ToDo"
-            >
-                <AddTodoForm
-                    listId={currentTodo?.listId}
-                    todoId={currentTodo?.id}
-                    isRecurring={currentTodo?.isRecurring}
-                    onComplete={() => setShowEditTodoModal(false)}
-                />
-            </ResponsiveDialog>
-
-            {/* Add New in Time Frame Modal */}
-            <ResponsiveDialog
-                isOpen={isAddingTodo}
-                setIsOpen={setIsAddingTodo}
-                title="Add ToDo"
-            >
-                <AddTodoForm
-                    onComplete={() => setIsAddingTodo(false)}
-                    timeSlot={timeSlot}
-                />
-            </ResponsiveDialog>
         </>
     )
 }

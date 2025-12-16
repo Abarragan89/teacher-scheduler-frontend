@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { TodoItem, TodoList } from '@/types/todo'
+import { TodoItem, TodoList, RecurrencePattern } from '@/types/todo'
 
 export interface TodoFormData {
     text: string
@@ -11,7 +11,6 @@ export interface TodoFormData {
     selectedListId: string,
     isRecurring: boolean
     recurrencePattern: RecurrencePattern
-
 }
 
 export interface TodoFormUIState {
@@ -19,21 +18,10 @@ export interface TodoFormUIState {
     isPriorityPopoverOpen: boolean
     isModalOpen: boolean
     isCreating: boolean
+    editScope: 'single' | 'future' // For editing recurring todos
 }
 
-export interface RecurrencePattern {
-    recurrenceType: 'daily' | 'weekly' | 'monthly' | 'yearly'
-    selectedDays: number[]           // For weekly recurrence (0=Sunday, 1=Monday, etc.)
-    selectedMonthDays: number[]      // For monthly recurrence (1-31, -1 for last day)
-    nthWeekday: { nth: number, weekday: number } // For monthly recurrence (e.g., 1st Monday)
-    time: string                   // Time of the recurring todo
-    yearlyDate: string | null              // For yearly recurrence
-    timeZone: string               // Time zone for the recurrence
-    startDate: Date | undefined,
-    endDate: Date | undefined,
-    monthPatternType: 'BY_DAY' | 'BY_DATE' // For monthly recurrence
-}
- 
+
 export interface TodoFormActions {
     updateText: (text: string) => void
     updateDueDate: (date: Date | undefined) => void
@@ -42,6 +30,7 @@ export interface TodoFormActions {
     updateSelectedListId: (listId: string) => void
     updateRecurrencePattern: (pattern: RecurrencePattern) => void
     updateIsRecurring: (isRecurring: boolean) => void
+    updateEditScope: (scope: 'single' | 'future') => void
     toggleDatePopover: (open?: boolean) => void
     togglePriorityPopover: (open?: boolean) => void,
     toggleModal: (open?: boolean) => void
@@ -53,6 +42,17 @@ interface UseTodoFormProps {
     listId?: string
     todoId?: string
     timeSlot?: string
+}
+
+// Helper function to safely parse comma-separated strings to number arrays
+function parseCommaSeparatedNumbers(value: string | number[] | undefined): number[] {
+    if (Array.isArray(value)) {
+        return value
+    }
+    if (typeof value === 'string' && value.trim()) {
+        return value.split(',').map(str => parseInt(str.trim())).filter(num => !isNaN(num))
+    }
+    return []
 }
 
 export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {}) {
@@ -74,23 +74,38 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
             ? new Date(currentTodo.dueDate as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
             : timeSlot || '07:00',
         priority: currentTodo?.priority || 1,
-        selectedListId: listId || todoLists[0]?.id || '',
-        isRecurring: false,
-        recurrencePattern: {
-            recurrenceType: 'daily',
-            selectedDays: [1],
-            time: currentTodo?.dueDate
+        selectedListId: listId || currentTodo?.todoListId || todoLists[0]?.id || '',
+        isRecurring: currentTodo?.isRecurring || false,
+        recurrencePattern: currentTodo?.recurrencePattern ? {
+            type: currentTodo.recurrencePattern.type || 'DAILY',
+            daysOfWeek: parseCommaSeparatedNumbers(currentTodo.recurrencePattern.daysOfWeek),
+            timeOfDay: currentTodo?.dueDate
                 ? new Date(currentTodo.dueDate as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
                 : timeSlot || '07:00',
-            selectedMonthDays: [],
-            nthWeekday: { nth: 1, weekday: 1 },
+            daysOfMonth: parseCommaSeparatedNumbers(currentTodo.recurrencePattern.daysOfMonth),
+            // nthWeekday: { nth: currentTodo?.recurrencePattern?.nthWeekdayDay || 1, weekday: currentTodo?.recurrencePattern?.nthWeekdayOccurrence || 1 },
+            nthWeekdayDay: currentTodo?.recurrencePattern?.nthWeekdayDay,
+            nthWeekdayOccurrence: currentTodo?.recurrencePattern?.nthWeekdayOccurrence,
             yearlyDate: currentTodo?.dueDate ? new Date(currentTodo.dueDate as string).toISOString().split('T')[0] : null,
+            timeZone: currentTodo.recurrencePattern.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+            startDate: currentTodo.recurrencePattern.startDate ? new Date(currentTodo.recurrencePattern.startDate) : new Date(),
+            endDate: currentTodo.recurrencePattern.endDate ? new Date(currentTodo.recurrencePattern.endDate) : undefined,
+            monthPatternType: currentTodo.recurrencePattern.monthPatternType || 'BY_DATE'
+        } : 
+        // Default values  recurrence pattern if not there
+        {
+            type: 'DAILY',
+            daysOfWeek: [1],
+            timeOfDay: timeSlot || '07:00',
+            daysOfMonth: [],
+            nthWeekdayDay: undefined,
+            nthWeekdayOccurrence: undefined,
+            yearlyDate: null,
             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             startDate: new Date(),
             endDate: undefined,
             monthPatternType: 'BY_DATE'
         }
-
     })
 
     // UI state
@@ -98,7 +113,8 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
         isDatePopoverOpen: false,
         isPriorityPopoverOpen: false,
         isModalOpen: false,
-        isCreating: false
+        isCreating: false,
+        editScope: 'single'
     })
 
     // Actions
@@ -110,6 +126,7 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
         updateSelectedListId: (selectedListId: string) => setFormData(prev => ({ ...prev, selectedListId })),
         updateRecurrencePattern: (recurrencePattern: RecurrencePattern) => setFormData(prev => ({ ...prev, recurrencePattern })),
         updateIsRecurring: (isRecurring: boolean) => setFormData(prev => ({ ...prev, isRecurring })),
+        updateEditScope: (editScope: 'single' | 'future') => setUIState(prev => ({ ...prev, editScope })),
 
         toggleDatePopover: (open?: boolean) => setUIState(prev => ({
             ...prev,
@@ -134,23 +151,25 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
                 selectedListId: listId || todoLists[0]?.id || '',
                 isRecurring: false,
                 recurrencePattern: {
-                    recurrenceType: formData.recurrencePattern.recurrenceType,
-                    time: '07:00',
-                    selectedDays: [1],
-                    selectedMonthDays: [],
-                    nthWeekday: { nth: 1, weekday: 1 },
+                    type: formData.recurrencePattern.type,
+                    timeOfDay: '07:00',
+                    daysOfWeek: [1],
+                    daysOfMonth: [],
+                    nthWeekdayDay: undefined,
+                    nthWeekdayOccurrence: undefined,
                     yearlyDate: null,
                     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                     startDate: new Date(),
                     endDate: undefined,
-                     monthPatternType: 'BY_DATE'
+                    monthPatternType: 'BY_DATE'
                 }
             })
             setUIState({
                 isDatePopoverOpen: false,
                 isPriorityPopoverOpen: false,
                 isModalOpen: false,
-                isCreating: false
+                isCreating: false,
+                editScope: 'single'
             })
         }
     }

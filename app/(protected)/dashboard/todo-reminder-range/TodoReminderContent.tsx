@@ -189,18 +189,6 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
 
     return (
         <div className="wrapper">
-            <ResponsiveDialog
-                isOpen={showEditTodoModal}
-                setIsOpen={setShowEditTodoModal}
-                title="Edit ToDo"
-            >
-                <AddTodoForm
-                    listId={listId}
-                    todoId={currentTodo?.id}
-                    isRecurring={currentTodo?.isRecurring}
-                    onComplete={() => setShowEditTodoModal(false)}
-                />
-            </ResponsiveDialog>
             <div className="mb-4">
                 <h1 className="text-2xl font-bold">Todo Reminders</h1>
             </div>

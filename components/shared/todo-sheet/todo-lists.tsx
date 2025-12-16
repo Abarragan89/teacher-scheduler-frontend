@@ -409,20 +409,6 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 onListCreated={handleListCreated}
                 todoListsLength={todoLists.length}
             />
-
-            {/* Edit todo modal */}
-            <ResponsiveDialog
-                isOpen={showEditTodoModal}
-                setIsOpen={setShowEditTodoModal}
-                title="Edit ToDo"
-            >
-                <AddTodoForm
-                    listId={listId}
-                    todoId={currentTodo?.id}
-                    isRecurring={currentTodo?.isRecurring}
-                    onComplete={() => setShowEditTodoModal(false)}
-                />
-            </ResponsiveDialog>
         </div>
     )
 }
