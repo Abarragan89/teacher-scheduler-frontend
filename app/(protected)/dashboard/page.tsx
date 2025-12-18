@@ -2,7 +2,6 @@ import React from 'react'
 import CalendarMonth from '@/components/shared/calendar-month';
 import DashboardContent from './DashboardContent';
 import PushNotificationManager from '@/components/push-notifications';
-import { serverFetch } from '@/lib/api/server';
 
 export default async function Dashboard() {
 

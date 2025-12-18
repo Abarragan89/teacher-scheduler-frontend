@@ -80,7 +80,7 @@ export default function NonRecurringForm({
                         <Input
                             type="time"
                             id="time-picker"
-                            value={formData.time}
+                            value={formData.dueDate?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) || ''}
                             onChange={(e) => actions.updateTime(e.target.value)}
                             className="bg-background text-sm appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                         />

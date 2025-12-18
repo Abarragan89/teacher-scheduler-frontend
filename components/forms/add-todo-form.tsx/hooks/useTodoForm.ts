@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { TodoItem, TodoList, RecurrencePattern } from '@/types/todo'
+import { toTodoFormData } from '../utils/format-todo-form'
 
 export interface TodoFormData {
     text: string
@@ -44,69 +45,49 @@ interface UseTodoFormProps {
     timeSlot?: string
 }
 
-// Helper function to safely parse comma-separated strings to number arrays
-function parseCommaSeparatedNumbers(value: string | number[] | undefined): number[] {
-    if (Array.isArray(value)) {
-        return value
-    }
-    if (typeof value === 'string' && value.trim()) {
-        return value.split(',').map(str => parseInt(str.trim())).filter(num => !isNaN(num))
-    }
-    return []
-}
+
 
 export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {}) {
     const queryClient = useQueryClient()
-
     // Get all todo lists from React Query cache
     const todoLists = (queryClient.getQueryData(['todos']) as TodoList[]) || []
+
 
     // Find current todo if editing
     const currentTodo: TodoItem | undefined = todoId
         ? todoLists.flatMap(list => list.todos).find(todo => todo.id === todoId)
         : undefined
 
+    console.log('Current Todo:', currentTodo)
+
+    const [formData, setFormData] = useState<TodoFormData>( () =>
+        toTodoFormData({ currentTodo, listId, timeSlot, todoLists })
+    )
     // Form data state
-    const [formData, setFormData] = useState<TodoFormData>({
-        text: currentTodo?.text || '',
-        dueDate: currentTodo?.dueDate ? new Date(currentTodo.dueDate as string) : undefined,
-        time: currentTodo?.dueDate
-            ? new Date(currentTodo.dueDate as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
-            : timeSlot || '07:00',
-        priority: currentTodo?.priority || 1,
-        selectedListId: listId || currentTodo?.todoListId || todoLists[0]?.id || '',
-        isRecurring: currentTodo?.isRecurring || false,
-        recurrencePattern: currentTodo?.recurrencePattern ? {
-            type: currentTodo.recurrencePattern.type || 'DAILY',
-            daysOfWeek: parseCommaSeparatedNumbers(currentTodo.recurrencePattern.daysOfWeek),
-            timeOfDay: currentTodo?.dueDate
-                ? new Date(currentTodo.dueDate as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
-                : timeSlot || '07:00',
-            daysOfMonth: parseCommaSeparatedNumbers(currentTodo.recurrencePattern.daysOfMonth),
-            // nthWeekday: { nth: currentTodo?.recurrencePattern?.nthWeekdayDay || 1, weekday: currentTodo?.recurrencePattern?.nthWeekdayOccurrence || 1 },
-            nthWeekdayDay: currentTodo?.recurrencePattern?.nthWeekdayDay,
-            nthWeekdayOccurrence: currentTodo?.recurrencePattern?.nthWeekdayOccurrence,
-            yearlyDate: currentTodo?.dueDate ? new Date(currentTodo.dueDate as string).toISOString().split('T')[0] : null,
-            timeZone: currentTodo.recurrencePattern.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-            startDate: currentTodo.recurrencePattern.startDate ? new Date(currentTodo.recurrencePattern.startDate) : new Date(),
-            endDate: currentTodo.recurrencePattern.endDate ? new Date(currentTodo.recurrencePattern.endDate) : undefined,
-            monthPatternType: currentTodo.recurrencePattern.monthPatternType || 'BY_DATE'
-        } : 
-        // Default values  recurrence pattern if not there
-        {
-            type: 'DAILY',
-            daysOfWeek: [1],
-            timeOfDay: timeSlot || '07:00',
-            daysOfMonth: [],
-            nthWeekdayDay: undefined,
-            nthWeekdayOccurrence: undefined,
-            yearlyDate: null,
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            startDate: new Date(),
-            endDate: undefined,
-            monthPatternType: 'BY_DATE'
-        }
-    })
+    // const [formData, setFormData] = useState<TodoFormData>({
+    //     text: currentTodo?.text || '',
+    //     dueDate: currentTodo?.dueDate ? new Date(currentTodo.dueDate as string) : undefined,
+    //     time: currentTodo?.dueDate
+    //         ? new Date(currentTodo.dueDate as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+    //         : timeSlot || '07:00',
+    //     priority: currentTodo?.priority || 1,
+    //     selectedListId: listId || currentTodo?.todoListId || todoLists[0]?.id || '',
+    //     isRecurring: currentTodo?.isRecurring || false,
+    //     recurrencePattern: currentTodo?.recurrencePattern ?
+    //         currentTodo.recurrencePattern :
+    //         {
+    //             type: 'DAILY',
+    //             daysOfWeek: [1],
+    //             timeOfDay: timeSlot || '07:00',
+    //             daysOfMonth: [],
+    //             nthWeekdayOccurrence: { ordinal: 2, weekday: 5 },
+    //             yearlyDate: null,
+    //             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    //             startDate: new Date(),
+    //             endDate: undefined,
+    //             monthPatternType: 'BY_DATE'
+    //         }
+    // })
 
     // UI state
     const [uiState, setUIState] = useState<TodoFormUIState>({
@@ -155,8 +136,7 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
                     timeOfDay: '07:00',
                     daysOfWeek: [1],
                     daysOfMonth: [],
-                    nthWeekdayDay: undefined,
-                    nthWeekdayOccurrence: undefined,
+                    nthWeekdayOccurrence: { ordinal: 1, weekday: 5 },
                     yearlyDate: null,
                     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                     startDate: new Date(),

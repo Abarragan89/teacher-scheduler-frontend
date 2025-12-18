@@ -1,6 +1,6 @@
 import { TodoItem } from "@/types/todo";
 import { clientFetch } from "../../client";
-import { RecurrencePattern } from "@/components/forms/add-todo-form.tsx/hooks/useTodoForm";
+import { RecurrencePattern } from "@/types/todo";
 
 export const clientTodoLists = {
 
@@ -58,7 +58,7 @@ export const clientTodo = {
             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             daysOfWeek: [1],
             daysOfMonth: [],
-            nthWeekday: { nth: 1, weekday: 1 },
+            nthWeekdayOccurrence: { ordinal: 1, weekday: 1 },
             startDate: undefined,
             endDate: undefined,
              monthPatternType: 'BY_DATE'

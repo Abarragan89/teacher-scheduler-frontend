@@ -34,7 +34,7 @@ export default function RecurringForm({
 }: RecurringFormProps) {
 
     // Destructure properties from hook
-    const { text, time, selectedListId, recurrencePattern, dueDate } = formData
+    const { text, selectedListId, recurrencePattern, dueDate } = formData
     const { isCreating, editScope } = uiState
     const {
         updateTime,
@@ -90,16 +90,14 @@ export default function RecurringForm({
     }
 
 
-    function updatedSelectedDaysMonthlyNth(nth: number) {
-        const updatedNthWeekday = { ...recurrencePattern, nthWeekdayOccurrence: nth }
+    function updatedSelectedDaysMonthlyNth(ordinal: number) {
+        const updatedNthWeekday = { ...recurrencePattern, nthWeekdayOccurrence: {...recurrencePattern.nthWeekdayOccurrence, ordinal} }
         actions.updateRecurrencePattern(updatedNthWeekday);
 
     }
 
     function updatedSelectedDaysMonthlyWeekday(weekday: number) {
-    // function updateNthWeekdayDay(weekday: number) {
-        // const updatedNthWeekday = { ...recurrencePattern.nthWeekday, weekday }
-        const updatedNthWeekday = { ...recurrencePattern, nthWeekdayDay: weekday }
+        const updatedNthWeekday = { ...recurrencePattern, nthWeekdayOccurrence: {...recurrencePattern.nthWeekdayOccurrence, weekday } }
         actions.updateRecurrencePattern(updatedNthWeekday);
     }
 
@@ -237,7 +235,7 @@ export default function RecurringForm({
                             <div className="flex items-center gap-3 flex-wrap">
                                 <div className="flex items-center gap-2">
                                     <Select
-                                        value={recurrencePattern?.nthWeekdayOccurrence?.toString()}
+                                        value={recurrencePattern?.nthWeekdayOccurrence?.ordinal.toString()}
                                         onValueChange={(value) => updatedSelectedDaysMonthlyNth(parseInt(value))}
                                     >
                                         <SelectTrigger className="w-24">
@@ -253,7 +251,7 @@ export default function RecurringForm({
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Select
-                                        value={recurrencePattern?.nthWeekdayDay?.toString()}
+                                        value={recurrencePattern?.nthWeekdayOccurrence?.weekday.toString()}
                                         onValueChange={(value) => updatedSelectedDaysMonthlyWeekday(parseInt(value))}
                                     >
                                         <SelectTrigger className="w-32">
@@ -331,8 +329,8 @@ export default function RecurringForm({
                             type="time"
                             id="recurring-time-picker"
                             required
-                            value={time}
-                            onChange={(e) => updateTime(e.target.value)}
+                            value={recurrencePattern?.timeOfDay || ''}
+                            onChange={(e) => actions.updateRecurrencePattern({ ...recurrencePattern, timeOfDay: e.target.value })}
                             className="bg-background text-sm appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                         />
                         <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
