@@ -1,3 +1,4 @@
+import { defaultRecurrencePattern } from '@/components/forms/add-todo-form.tsx/utils/format-todo-form'
 import { clientTodoLists } from '@/lib/api/services/todos/client'
 import { TodoList } from '@/types/todo'
 import { QueryClient } from '@tanstack/react-query'
@@ -22,18 +23,7 @@ export const addNewTodoList = (state: TodoState, queryClient: QueryClient) => {
             completed: false,
             priority: 1,
             dueDate: null,
-            recurrencePattern: {
-                type: 'DAILY',
-                daysOfWeek: [1],
-                timeOfDay: '07:00',
-                daysOfMonth: [],
-                nthWeekday: { nth: 1, weekday: 1 },
-                yearlyDate: null,
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                startDate: undefined,
-                endDate: undefined,
-                monthPatternType: 'BY_DATE'
-            }
+            recurrencePattern: defaultRecurrencePattern('07:00'),
         }],
     }
 

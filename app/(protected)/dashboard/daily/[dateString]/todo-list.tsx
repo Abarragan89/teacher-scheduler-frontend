@@ -1,13 +1,9 @@
 'use client'
 import { useDailyTodos } from '@/lib/hooks/useDailyTodos'
-import AddTodoForm from '@/components/forms/add-todo-form.tsx'
 import { DailyTodoItem } from '@/lib/hooks/useDailyTodos'
 import { useState, useEffect } from 'react'
-import { ResponsiveDialog } from '@/components/responsive-dialog'
 import TodoListItem from '@/components/shared/todo-sheet/todo-list-item'
 import { clientDays } from '@/lib/api/services/days/client'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { ScrollArea } from '@radix-ui/react-scroll-area'
 
 interface TodoListProps {
     dateString: string
@@ -18,8 +14,7 @@ export default function TodoList({ dateString }: TodoListProps) {
 
     const { todos } = useDailyTodos(dateString)
     const [holiday, setHoliday] = useState<{ date: string, name: string, emoji?: string } | null>(null)
-    const [isAddingTodo, setIsAddingTodo] = useState(false);
-    const [timeSlot, setTimeSlot] = useState<string>('');
+
 
     // Keep only the modal state for editing
     const [showEditTodoModal, setShowEditTodoModal] = useState(false);
@@ -64,11 +59,6 @@ export default function TodoList({ dateString }: TodoListProps) {
         return `${hours.toString().padStart(2, '0')}:00`;
     }
 
-    function openAddTodoModal(time: string) {
-        setIsAddingTodo(true);
-        setTimeSlot(convertTo24Hour(time));
-    }
-
     return (
         <>
             {/* Holiday Banner */}
@@ -89,7 +79,6 @@ export default function TodoList({ dateString }: TodoListProps) {
                 {timeBlocks.map((time) => (
                     <div key={time} className='flex w-full border-b min-h-[60px]'>
                         <p
-                            onClick={() => openAddTodoModal(time)}
                             className='hover:cursor-pointer hover:text-ring text-md font-bold w-[65px] border-r pl-3 pt-1'>{time.split(" ")[0]} <span className='text-xs'>{time.split(" ")[1]}</span></p>
                         <div className="space-y-0 transition-all duration-300 ease-in-out w-full">
                             {todos.filter((todo) => {

@@ -1,6 +1,7 @@
 import { TodoItem } from "@/types/todo";
 import { clientFetch } from "../../client";
 import { RecurrencePattern } from "@/types/todo";
+import { defaultRecurrencePattern } from "@/components/forms/add-todo-form.tsx/utils/format-todo-form";
 
 export const clientTodoLists = {
 
@@ -51,18 +52,7 @@ export const clientTodo = {
         dueDate: string,
         priority: number,
         isRecurring: boolean = false,
-        recurrencePattern: RecurrencePattern = {
-            type: 'DAILY',
-            yearlyDate: null,
-            timeOfDay: '07:00',
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            daysOfWeek: [1],
-            daysOfMonth: [],
-            nthWeekdayOccurrence: { ordinal: 1, weekday: 1 },
-            startDate: undefined,
-            endDate: undefined,
-             monthPatternType: 'BY_DATE'
-        }
+        recurrencePattern: RecurrencePattern = defaultRecurrencePattern('07:00')
     ) {
         const response = await clientFetch('/todo/create-list-item', {
             method: 'POST',

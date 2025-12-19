@@ -33,13 +33,13 @@ export function toTodoFormData({
     : undefined
 
   const time =
-    dueDate
+    currentTodo?.dueDate && dueDate
       ? dueDate.toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
       })
-      : timeSlot ?? DEFAULT_TIME
+      : timeSlot || ""
 
   return {
     text: currentTodo?.text ?? '',
@@ -56,7 +56,7 @@ export function toTodoFormData({
       currentTodo?.recurrencePattern
         ? {
           ...currentTodo.recurrencePattern,
-          timeOfDay: currentTodo.recurrencePattern.timeOfDay ?? time,
+          timeOfDay: currentTodo.recurrencePattern.timeOfDay ?? "07:00",
           startDate: currentTodo.recurrencePattern.startDate ? new Date(currentTodo.recurrencePattern.startDate) : new Date(),
           endDate: currentTodo.recurrencePattern.endDate ? new Date(currentTodo.recurrencePattern.endDate) : undefined,
         }

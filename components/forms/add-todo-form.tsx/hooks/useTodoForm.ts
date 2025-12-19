@@ -22,7 +22,6 @@ export interface TodoFormUIState {
     editScope: 'single' | 'future' // For editing recurring todos
 }
 
-
 export interface TodoFormActions {
     updateText: (text: string) => void
     updateDueDate: (date: Date | undefined) => void
@@ -45,8 +44,6 @@ interface UseTodoFormProps {
     timeSlot?: string
 }
 
-
-
 export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {}) {
     const queryClient = useQueryClient()
     // Get all todo lists from React Query cache
@@ -63,31 +60,6 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
     const [formData, setFormData] = useState<TodoFormData>( () =>
         toTodoFormData({ currentTodo, listId, timeSlot, todoLists })
     )
-    // Form data state
-    // const [formData, setFormData] = useState<TodoFormData>({
-    //     text: currentTodo?.text || '',
-    //     dueDate: currentTodo?.dueDate ? new Date(currentTodo.dueDate as string) : undefined,
-    //     time: currentTodo?.dueDate
-    //         ? new Date(currentTodo.dueDate as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
-    //         : timeSlot || '07:00',
-    //     priority: currentTodo?.priority || 1,
-    //     selectedListId: listId || currentTodo?.todoListId || todoLists[0]?.id || '',
-    //     isRecurring: currentTodo?.isRecurring || false,
-    //     recurrencePattern: currentTodo?.recurrencePattern ?
-    //         currentTodo.recurrencePattern :
-    //         {
-    //             type: 'DAILY',
-    //             daysOfWeek: [1],
-    //             timeOfDay: timeSlot || '07:00',
-    //             daysOfMonth: [],
-    //             nthWeekdayOccurrence: { ordinal: 2, weekday: 5 },
-    //             yearlyDate: null,
-    //             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    //             startDate: new Date(),
-    //             endDate: undefined,
-    //             monthPatternType: 'BY_DATE'
-    //         }
-    // })
 
     // UI state
     const [uiState, setUIState] = useState<TodoFormUIState>({
@@ -101,7 +73,16 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
     // Actions
     const actions: TodoFormActions = {
         updateText: (text: string) => setFormData(prev => ({ ...prev, text })),
-        updateDueDate: (dueDate: Date | undefined) => setFormData(prev => ({ ...prev, dueDate })),
+
+        // updateDueDate: (dueDate: Date | undefined) => setFormData(prev => ({ ...prev, dueDate })),
+        updateDueDate: (dueDate: Date | undefined) => setFormData(prev => {
+            if (formData.time === "") {
+                return { ...prev, dueDate, time: '07:00' }
+            } else {
+                return { ...prev, dueDate }
+            }
+        }),
+
         updateTime: (time: string) => setFormData(prev => ({ ...prev, time })),
         updatePriority: (priority: number) => setFormData(prev => ({ ...prev, priority })),
         updateSelectedListId: (selectedListId: string) => setFormData(prev => ({ ...prev, selectedListId })),
@@ -124,26 +105,7 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
         setCreating: (isCreating: boolean) => setUIState(prev => ({ ...prev, isCreating })),
 
         resetForm: () => {
-            setFormData({
-                text: '',
-                dueDate: undefined,
-                time: '07:00',
-                priority: 1,
-                selectedListId: listId || todoLists[0]?.id || '',
-                isRecurring: false,
-                recurrencePattern: {
-                    type: formData.recurrencePattern.type,
-                    timeOfDay: '07:00',
-                    daysOfWeek: [1],
-                    daysOfMonth: [],
-                    nthWeekdayOccurrence: { ordinal: 1, weekday: 5 },
-                    yearlyDate: null,
-                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                    startDate: new Date(),
-                    endDate: undefined,
-                    monthPatternType: 'BY_DATE'
-                }
-            })
+            setFormData(toTodoFormData({todoLists}))
             setUIState({
                 isDatePopoverOpen: false,
                 isPriorityPopoverOpen: false,

@@ -74,7 +74,6 @@ export default function AddTodoForm({
 
         try {
             const dueDateISO = combineDateAndTime(formData.dueDate, formData.time)
-            // let newTodo: TodoItem
 
             // IF editing existing todo
             if (currentTodo) {

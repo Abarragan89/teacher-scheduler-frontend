@@ -3,6 +3,7 @@ import { TodoState } from './todo-list-operations'
 import { clientTodo } from '@/lib/api/services/todos/client'
 import { QueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { defaultRecurrencePattern } from '@/components/forms/add-todo-form.tsx/utils/format-todo-form'
 
 // Update a todo item text on change (No backend update)
 export const updateTodoItem = (listId: string, todoId: string, text: string, queryClient: QueryClient) => {
@@ -30,18 +31,7 @@ export const updateTodoItem = (listId: string, todoId: string, text: string, que
                         text: '',
                         completed: false,
                         isRecurring: false,
-                        recurrencePattern: {
-                            type: 'DAILY',
-                            daysOfWeek: [1],
-                            timeOfDay: '07:00',
-                            daysOfMonth: [],
-                            nthWeekday: { nth: 1, weekday: 1 },
-                            yearlyDate: null,
-                            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                            startDate: undefined,
-                            endDate: undefined,
-                            monthPatternType: 'BY_DATE'
-                        },
+                        recurrencePattern: defaultRecurrencePattern('07:00'),
                         priority: 1,
                         dueDate: null,
                     })
@@ -287,7 +277,7 @@ export const handleTodoBlur = async (
 // Handle Due Date Update (backend update and frontend update)
 export const handleDueDateUpdate = async (
     todoId: string,
-    dueDate: String | null,
+    dueDate: string | null,
     queryClient: QueryClient,
     listId: string
 ) => {

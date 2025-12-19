@@ -329,7 +329,7 @@ export default function RecurringForm({
                             type="time"
                             id="recurring-time-picker"
                             required
-                            value={recurrencePattern?.timeOfDay || ''}
+                            value={recurrencePattern?.timeOfDay || '07:00'}
                             onChange={(e) => actions.updateRecurrencePattern({ ...recurrencePattern, timeOfDay: e.target.value })}
                             className="bg-background text-sm appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                         />
