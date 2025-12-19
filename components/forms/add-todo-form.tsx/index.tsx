@@ -37,6 +37,8 @@ export default function AddTodoForm({
         isFormValid,
     } = useTodoForm({ listId, todoId, timeSlot })
 
+    console.log('AddTodoForm - formData:', formData)
+
     const inputRef = useRef<HTMLInputElement>(null)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const queryClient = useQueryClient()
@@ -126,12 +128,7 @@ export default function AddTodoForm({
                     dueDateISO || '',
                     formData.priority,
                     formData.isRecurring,
-                    {
-                        ...formData.recurrencePattern,
-                        timeOfDay: formData.time,
-                        yearlyDate: formData.dueDate ? formData.dueDate.toISOString().split('T')[0] : null,
-                        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
-                    }
+                    formData.recurrencePattern,
                 )
 
                 const isArrayOfTodos = Array.isArray(newTodo)
