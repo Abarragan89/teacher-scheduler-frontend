@@ -107,6 +107,13 @@ export default function EditTaskPopover({
                                 selected={date}
                                 onSelect={setDate}
                                 className="rounded-md bg-transparent w-full pt-1"
+                                disabled={(date) => {
+                                    // Disable dates before today (but allow today)
+                                    const today = new Date();
+                                    today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+                                    return date < today;
+                                }}
+                                startMonth={new Date()}
                                 captionLayout='dropdown'
                                 endMonth={new Date(2040, 11)}
                             />

@@ -7,8 +7,7 @@ export interface DailyTodoItem extends TodoItem {
     listId: string
 }
 
-
-// This hook fetches and organizes todos for a specific day
+// HOOK TO FETCH TODOS FOR A SPECIFIC DAY
 export function useDailyTodos(dateString: string) {
     const { data: todoLists, isLoading, error } = useTodoLists()
 

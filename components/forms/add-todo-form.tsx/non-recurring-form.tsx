@@ -56,14 +56,21 @@ export default function NonRecurringForm({
                                 <div className='w-[230px] mx-auto min-h-[300px]'>
                                     <Calendar
                                         mode="single"
+                                        captionLayout='dropdown'
                                         selected={formData.dueDate}
                                         onSelect={(val) => {
                                             actions.updateDueDate(val);
                                             actions.toggleDatePopover(false)
                                         }}
-                                        className="rounded-md bg-transparent w-full p-0"
-                                        captionLayout='dropdown'
+                                        disabled={(date) => {
+                                            // Disable dates before today (but allow today)
+                                            const today = new Date();
+                                            today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+                                            return date < today;
+                                        }}
+                                        startMonth={new Date()}
                                         endMonth={new Date(2040, 11)}
+                                        className="rounded-md bg-transparent w-full p-0"
                                     />
                                 </div>
                             </div>

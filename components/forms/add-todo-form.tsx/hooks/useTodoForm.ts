@@ -35,7 +35,7 @@ export interface TodoFormActions {
     togglePriorityPopover: (open?: boolean) => void,
     toggleModal: (open?: boolean) => void
     setCreating: (creating: boolean) => void
-    resetForm: () => void
+    resetForm: (newTodo: TodoItem) => void
 }
 
 interface UseTodoFormProps {
@@ -55,9 +55,7 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
         ? todoLists.flatMap(list => list.todos).find(todo => todo.id === todoId)
         : undefined
 
-    console.log('Current Todo:', currentTodo)
-
-    const [formData, setFormData] = useState<TodoFormData>( () =>
+    const [formData, setFormData] = useState<TodoFormData>(() =>
         toTodoFormData({ currentTodo, listId, timeSlot, todoLists })
     )
 
@@ -74,7 +72,7 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
     const actions: TodoFormActions = {
         updateText: (text: string) => setFormData(prev => ({ ...prev, text })),
 
-        // updateDueDate: (dueDate: Date | undefined) => setFormData(prev => ({ ...prev, dueDate })),
+        // setting the date and possibly the time if it is not already set
         updateDueDate: (dueDate: Date | undefined) => setFormData(prev => {
             if (formData.time === "") {
                 return { ...prev, dueDate, time: '07:00' }
@@ -104,8 +102,8 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
         })),
         setCreating: (isCreating: boolean) => setUIState(prev => ({ ...prev, isCreating })),
 
-        resetForm: () => {
-            setFormData(toTodoFormData({todoLists}))
+        resetForm: (formResetPrevState: TodoItem) => {
+            setFormData(toTodoFormData({ todoLists, formResetPrevState }))
             setUIState({
                 isDatePopoverOpen: false,
                 isPriorityPopoverOpen: false,

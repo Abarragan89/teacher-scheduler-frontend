@@ -23,7 +23,7 @@ export const addNewTodoList = (state: TodoState, queryClient: QueryClient) => {
             completed: false,
             priority: 1,
             dueDate: null,
-            recurrencePattern: defaultRecurrencePattern('07:00'),
+            recurrencePattern: defaultRecurrencePattern(),
         }],
     }
 

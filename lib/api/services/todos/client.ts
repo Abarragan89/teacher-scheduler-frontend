@@ -52,7 +52,7 @@ export const clientTodo = {
         dueDate: string,
         priority: number,
         isRecurring: boolean = false,
-        recurrencePattern: RecurrencePattern = defaultRecurrencePattern('07:00')
+        recurrencePattern: RecurrencePattern = defaultRecurrencePattern()
     ) {
         const response = await clientFetch('/todo/create-list-item', {
             method: 'POST',

@@ -3,7 +3,7 @@ import { useTodoLists } from './useTodoLists'
 import { TodoList } from '@/types/todo'
 
 
-// This is for the dashboard view, showing upcoming and priority todos
+//  THIS IS THE DASHBOARD HOOK THAT SHOWS UPCOMING AND PRIORITY TODOS
 export function useDashboardTodos() {
     const { data: todoLists, isLoading, error } = useTodoLists()
 

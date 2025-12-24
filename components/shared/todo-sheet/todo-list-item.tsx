@@ -197,8 +197,6 @@ export default function FocusedEditingTodoItem({
     const [playTodoRemovedSound] = useSound('/sounds/todoRemoved.wav', { volume: 0.3 })
     const [showEditTodoModal, setShowEditTodoModal] = React.useState(false)
 
-    console.log('Rendering TodoListItem for todo:', todo)
-
     return (
         <>
             <Sheet open={showEditTodoModal} onOpenChange={setShowEditTodoModal}>

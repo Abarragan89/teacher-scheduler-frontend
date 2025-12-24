@@ -6,15 +6,17 @@ import { Button } from '@/components/ui/button'
 import { useCalendarReminders } from '@/lib/hooks/useCalendarReminders'
 import { clientDays } from '@/lib/api/services/days/client'
 import { useRecurringTodos } from '@/lib/hooks/useRecurringTodos'
-import { TodoItem } from '@/types/todo'
+import { TodoItem, TodoList } from '@/types/todo'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function CalendarMonth() {
 
     const router = useRouter()
+    const queryClient = useQueryClient()
     const [currentDate, setCurrentDate] = useState(new Date())
     const [holidays, setHolidays] = useState<Array<{ date: string, name: string, emoji?: string }>>([])
 
-    // Get calendar reminders for the current month
+    // Fetched Data to get reminders fo the month
     const { getRemindersForDate, isLoading } = useCalendarReminders(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1 // Convert to 1-indexed month
@@ -129,10 +131,13 @@ export default function CalendarMonth() {
     // Helper function to render todos for a specific date
     const renderDateTodos = (date: Date) => {
         const dateString = date.toISOString().split('T')[0] // YYYY-MM-DD
+
+        // Get both regular and recurring todos for the date
         const dayReminders = getRemindersForDate(dateString)
 
-        const recurringTodosForDate = getRecurringTodoForDate(dateString)
-        const allReminders = [...dayReminders?.reminders || [], ...recurringTodosForDate ?? []]
+
+        // Combine both regular and recurring todos and without duplicates
+        const allReminders = [...dayReminders?.reminders || []]
 
         if (!allReminders || allReminders.length === 0) {
             return null

@@ -21,6 +21,7 @@ export default async function DashboardLayout({
     authResult = { authenticated: true, user };
 
     // Fetch todo lists on server - single API call
+    // Will pass this to PrefetchTodoLists to prefill React Query cache
     todoLists = await serverTodoLists.getTodoLists();
 
   } catch (error) {
@@ -36,6 +37,7 @@ export default async function DashboardLayout({
   return (
     <>
       <ClientQueryProvider>
+        {/* This prefetch needs to wrap children to ensure useEffect runs before children are rendered */}
         <PrefetchTodoLists initialData={todoLists}>
           <Header
             isAuthenticated={authResult.authenticated}

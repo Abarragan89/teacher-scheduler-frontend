@@ -11,7 +11,7 @@ export interface DayReminders {
     reminders: CalendarReminder[]
 }
 
-// This hook fetches and organizes reminders for a calendar view
+// HOOK TO FETCH CALENDAR REMINDERS FOR A GIVEN MONTH
 export function useCalendarReminders(year: number, month: number) {
     const { data: todoLists, isLoading, error } = useTodoLists()
 
@@ -25,6 +25,7 @@ export function useCalendarReminders(year: number, month: number) {
                     if (!todo.dueDate) return false
 
                     const todoDate = new Date(String(todo.dueDate))
+                    // Only return what is in range
                     return todoDate.getFullYear() === year &&
                         todoDate.getMonth() === month - 1 // month is 0-indexed
                 })

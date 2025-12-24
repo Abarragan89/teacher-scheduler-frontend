@@ -34,10 +34,9 @@ export default function RecurringForm({
 }: RecurringFormProps) {
 
     // Destructure properties from hook
-    const { text, selectedListId, recurrencePattern, dueDate } = formData
+    const { text, selectedListId, recurrencePattern } = formData
     const { isCreating, editScope } = uiState
     const {
-        updateTime,
         updateSelectedListId,
         updateEditScope,
         toggleModal
@@ -91,13 +90,13 @@ export default function RecurringForm({
 
 
     function updatedSelectedDaysMonthlyNth(ordinal: number) {
-        const updatedNthWeekday = { ...recurrencePattern, nthWeekdayOccurrence: {...recurrencePattern.nthWeekdayOccurrence, ordinal} }
+        const updatedNthWeekday = { ...recurrencePattern, nthWeekdayOccurrence: { ...recurrencePattern.nthWeekdayOccurrence, ordinal } }
         actions.updateRecurrencePattern(updatedNthWeekday);
 
     }
 
     function updatedSelectedDaysMonthlyWeekday(weekday: number) {
-        const updatedNthWeekday = { ...recurrencePattern, nthWeekdayOccurrence: {...recurrencePattern.nthWeekdayOccurrence, weekday } }
+        const updatedNthWeekday = { ...recurrencePattern, nthWeekdayOccurrence: { ...recurrencePattern.nthWeekdayOccurrence, weekday } }
         actions.updateRecurrencePattern(updatedNthWeekday);
     }
 
@@ -287,7 +286,7 @@ export default function RecurringForm({
                                 disabled={isCreating}
                             >
                                 <CalendarIcon className="h-4 w-4" />
-                                {formData.dueDate ? formData.dueDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : "Select date"}
+                                {formData?.recurrencePattern?.yearlyDate ? formData.recurrencePattern.yearlyDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : "Select date"}
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-2" align="start">
@@ -295,9 +294,9 @@ export default function RecurringForm({
                                 <div className='w-[230px] mx-auto min-h-[300px]'>
                                     <Calendar
                                         mode="single"
-                                        selected={formData.dueDate}
+                                        selected={formData?.recurrencePattern?.yearlyDate}
                                         onSelect={(val) => {
-                                            actions.updateDueDate(val);
+                                            actions.updateRecurrencePattern({ ...formData.recurrencePattern, yearlyDate: val });
                                             setIsYearlyDatePopoverOpen(false)
                                         }}
                                         className="rounded-md bg-transparent w-full p-0"
@@ -308,11 +307,11 @@ export default function RecurringForm({
                             </div>
                         </PopoverContent>
                     </Popover>
-                    {formData.dueDate && (
+                    {/* {formData.recurrencePattern?.yearlyDate && (
                         <div className="text-sm text-muted-foreground text-center mt-3 bg-muted/30 p-3 rounded-md">
-                            <strong>Preview:</strong> Every year on {formData.dueDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+                            <strong>Preview:</strong> Every year on {formData.recurrencePattern.yearlyDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
                         </div>
-                    )}
+                    )} */}
                 </div>
             )}
 
@@ -391,10 +390,24 @@ export default function RecurringForm({
                                         mode="single"
                                         selected={formData?.recurrencePattern?.startDate}
                                         onSelect={(val) => {
-                                            actions.updateRecurrencePattern({ ...recurrencePattern, startDate: val });
+                                            const updatedPattern = { ...recurrencePattern, startDate: val };
+
+                                            // Only update endDate if it exists AND is earlier than the new startDate
+                                            if (recurrencePattern.endDate && val && recurrencePattern.endDate < val) {
+                                                updatedPattern.endDate = val;
+                                            }
+
+                                            actions.updateRecurrencePattern(updatedPattern);
                                             setIsStartDatePopoverOpen(false)
                                         }}
                                         className="rounded-md bg-transparent w-full p-0"
+                                        disabled={(date) => {
+                                            // Disable dates before today (but allow today)
+                                            const today = new Date();
+                                            today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+                                            return date < today;
+                                        }}
+                                        startMonth={new Date()}
                                         captionLayout='dropdown'
                                         endMonth={new Date(2040, 11)}
                                     />
@@ -429,6 +442,14 @@ export default function RecurringForm({
                                             actions.updateRecurrencePattern({ ...recurrencePattern, endDate: val });
                                             setEndDatePopoverOpen(false)
                                         }}
+                                        disabled={(date) => {
+                                            // Disable dates before start date (but allow start date)
+                                            if (!formData.recurrencePattern.startDate) return false;
+                                            const startDate = new Date(formData.recurrencePattern.startDate);
+                                            startDate.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+                                            return date < startDate;
+                                        }}
+                                        startMonth={formData.recurrencePattern.startDate || new Date()}
                                         className="rounded-md bg-transparent w-full p-0"
                                         captionLayout='dropdown'
                                         endMonth={new Date(2040, 11)}
@@ -505,7 +526,7 @@ export default function RecurringForm({
                     disabled={!text.trim() || isCreating || !selectedListId ||
                         (recurrencePattern?.type === 'WEEKLY' && recurrencePattern?.daysOfWeek?.length === 0) ||
                         (recurrencePattern?.type === 'MONTHLY' && recurrencePattern?.daysOfMonth?.length === 0 && recurrencePattern.monthPatternType === "BY_DATE") ||
-                        (recurrencePattern?.type === 'YEARLY' && !dueDate)}
+                        (recurrencePattern?.type === 'YEARLY' && !recurrencePattern?.yearlyDate)}
                     className="px-6 shadow-none"
                 >
                     {todoId ? (

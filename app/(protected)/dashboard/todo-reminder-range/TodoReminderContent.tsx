@@ -6,9 +6,6 @@ import { Calendar, Clock, Flag } from 'lucide-react'
 import { TodoItem as BaseTodoItem } from '@/types/todo'
 import Link from 'next/link'
 import TodoListItem from '@/components/shared/todo-sheet/todo-list-item'
-import { ResponsiveDialog } from '@/components/responsive-dialog'
-import AddTodoForm from '@/components/forms/add-todo-form.tsx'
-import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
 interface ReminderTodoItem extends BaseTodoItem {
@@ -21,9 +18,6 @@ interface TodoReminderContentProps {
 
 export default function TodoReminderContent({ view }: TodoReminderContentProps) {
     const { todayTodos, weekTodos, monthTodos, isLoading } = useReminderTodos()
-    const [showEditTodoModal, setShowEditTodoModal] = useState(false);
-    const [currentTodo, setCurrentTodo] = useState<ReminderTodoItem | null>(null);
-    const [listId, setListId] = useState<string>('');
     const queryClient = useQueryClient();
 
     const findListIdForTodo = (todoId: string) => {
@@ -37,11 +31,7 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
         }
         return null
     }
-    function showEditModalHandler(todo: ReminderTodoItem) {
-        setCurrentTodo(todo);
-        setListId(findListIdForTodo(todo.id) || '');
-        setShowEditTodoModal(true);
-    }
+
     if (isLoading) {
         return (
             <div className="wrapper">
@@ -110,7 +100,6 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
                                 key={todo.id}
                                 todo={todo}
                                 listId={todo.todoListId || ''}
-                                onEdit={() => showEditModalHandler(todo)}
                             />
                         ))}
                     </div>
@@ -144,7 +133,6 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
                                 key={todo.id}
                                 todo={todo}
                                 listId={todo.todoListId || ''}
-                                onEdit={() => showEditModalHandler(todo)}
                             />
                         ))}
                     </div>
@@ -178,7 +166,6 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
                                 key={todo.id}
                                 todo={todo}
                                 listId={todo.todoListId || ''}
-                                onEdit={() => showEditModalHandler(todo)}
                             />
                         ))}
                     </div>

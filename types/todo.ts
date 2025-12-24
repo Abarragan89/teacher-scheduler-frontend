@@ -23,11 +23,12 @@ export interface TodoList {
 
 export interface RecurrencePattern {
     type: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
+    todoListId?: string
     daysOfWeek: number[]           // For weekly recurrence (0=Sunday, 1=Monday, etc.)
     daysOfMonth: number[]      // For monthly recurrence (1-31, -1 for last day)
     nthWeekdayOccurrence: { ordinal: number, weekday: number }        // For monthly recurrence (e.g., Monday=1, Tuesday=2, etc.)
     timeOfDay: string                   // Time of the recurring todo
-    yearlyDate: string | null              // For yearly recurrence
+    yearlyDate: Date | undefined              // For yearly recurrence
     timeZone: string               // Time zone for the recurrence
     startDate: Date | undefined,
     endDate: Date | undefined,
@@ -36,18 +37,18 @@ export interface RecurrencePattern {
 
 
 export function createDefaultRecurrencePattern(
-  time: string
+    time: string
 ): RecurrencePattern {
-  return {
-    type: 'DAILY',
-    daysOfWeek: [1],
-    daysOfMonth: [],
-    nthWeekdayOccurrence: { ordinal: 1, weekday: 1 },
-    yearlyDate: null,
-    timeOfDay: time,
-    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    startDate: new Date(),
-    endDate: undefined,
-    monthPatternType: 'BY_DATE',
-  };
+    return {
+        type: 'DAILY',
+        daysOfWeek: [1],
+        daysOfMonth: [],
+        nthWeekdayOccurrence: { ordinal: 1, weekday: 1 },
+        yearlyDate: undefined,
+        timeOfDay: time,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        startDate: new Date(),
+        endDate: undefined,
+        monthPatternType: 'BY_DATE',
+    };
 }

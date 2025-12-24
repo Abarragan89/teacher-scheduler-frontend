@@ -37,8 +37,6 @@ export default function AddTodoForm({
         isFormValid,
     } = useTodoForm({ listId, todoId, timeSlot })
 
-    console.log('AddTodoForm - formData:', formData)
-
     const inputRef = useRef<HTMLInputElement>(null)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const queryClient = useQueryClient()
@@ -74,6 +72,7 @@ export default function AddTodoForm({
         if (!formData.text.trim()) return
         actions.setCreating(true)
 
+        let newTodo: TodoItem
         try {
             const dueDateISO = combineDateAndTime(formData.dueDate, formData.time)
 
@@ -90,13 +89,8 @@ export default function AddTodoForm({
 
                 }
                 
-                // For recurring todos, pass the edit scope
-                // const updateOptions = currentTodo.isRecurring ? {
-                //     editScope: uiState.editScope
-                // } : undefined
-                
                 // Update existing todo
-                let newTodo = await clientTodo.updateTodo(updatedTodo)
+                newTodo = await clientTodo.updateTodo(updatedTodo)
                 queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
                     if (!oldData) return oldData
 
@@ -121,8 +115,8 @@ export default function AddTodoForm({
                 })
             } else {
 
-                // Create new todo
-                const  newTodo = await clientTodo.createTodoItem(
+                // If recurring, may return array of todos
+                const newTodoOrTodos = await clientTodo.createTodoItem(
                     formData.selectedListId,
                     formData.text.trim(),
                     dueDateISO || '',
@@ -131,7 +125,14 @@ export default function AddTodoForm({
                     formData.recurrencePattern,
                 )
 
-                const isArrayOfTodos = Array.isArray(newTodo)
+                const isArrayOfTodos = Array.isArray(newTodoOrTodos)
+
+                // I need one copy of newTodo for updating cache
+                if (isArrayOfTodos) {
+                    newTodo = newTodoOrTodos[0]
+                } else {
+                    newTodo = newTodoOrTodos
+                }
 
                 // Update the React Query cache
                 queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
@@ -146,7 +147,7 @@ export default function AddTodoForm({
                             let updatedTodos: TodoItem[]  | []= []
                             // Array of todos (recurring creation)
                             if (isArrayOfTodos) {
-                                 updatedTodos = [...filteredTodos, ...newTodo].sort((a, b) => b.priority - a.priority)
+                                 updatedTodos = [...filteredTodos, ...newTodoOrTodos].sort((a, b) => b.priority - a.priority)
                                 return {
                                     ...list,
                                     todos: updatedTodos
@@ -165,7 +166,7 @@ export default function AddTodoForm({
                 })
             }
             // Reset form
-            actions.resetForm()
+            actions.resetForm(newTodo)
             // Call completion callback
             onComplete?.()
         } catch (error) {

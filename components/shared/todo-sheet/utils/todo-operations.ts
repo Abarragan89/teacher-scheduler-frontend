@@ -31,7 +31,7 @@ export const updateTodoItem = (listId: string, todoId: string, text: string, que
                         text: '',
                         completed: false,
                         isRecurring: false,
-                        recurrencePattern: defaultRecurrencePattern('07:00'),
+                        recurrencePattern: defaultRecurrencePattern(),
                         priority: 1,
                         dueDate: null,
                     })
