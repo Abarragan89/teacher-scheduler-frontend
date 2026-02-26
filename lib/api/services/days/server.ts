@@ -11,11 +11,17 @@ export const serverDays = {
     },
 
     async findSingleDay(dayId: string) {
-        console.log('Finding single day with ID:', dayId);
         const response = await serverFetch(`/days/single-day/${dayId}`, {
             method: 'GET',
         });
-        console.log('Response status:', response.status);
+        if (!response.ok) throw new Error('Failed to find day');
+        return response.json();
+    },
+
+    async findSingleDayPublic(dayId: string) {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/days/single-day-public/${dayId}`, {
+            method: 'GET',
+        });
         if (!response.ok) throw new Error('Failed to find day');
         return response.json();
     }

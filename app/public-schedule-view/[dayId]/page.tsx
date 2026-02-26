@@ -18,7 +18,7 @@ export default async function PublicScheduleView({ params }: PublicScheduleViewP
 
     const { dayId } = await params;
 
-    const currentDay: DayData = await serverDays.findSingleDay(dayId);
+    const currentDay: DayData = await serverDays.findSingleDayPublic(dayId);
 
     return (
         <main>
