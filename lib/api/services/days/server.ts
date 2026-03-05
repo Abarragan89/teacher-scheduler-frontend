@@ -18,8 +18,8 @@ export const serverDays = {
         return response.json();
     },
 
-    async findSingleDayPublic(dayId: string) {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/days/single-day-public/${dayId}`, {
+    async findSingleDayPublic(userId: string, dateString: string) {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/days/single-day-public/${userId}/${dateString}`, {
             method: 'GET',
         });
         if (!response.ok) throw new Error('Failed to find day');

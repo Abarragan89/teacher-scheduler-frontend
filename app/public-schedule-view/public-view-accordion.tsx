@@ -10,13 +10,16 @@ import SchedulePrintView from '@/components/shared/daily-schedule-accordion/sche
 import { SingleTaskView } from '@/components/single-task-view'
 import { AccordionState } from '@/components/shared/daily-schedule-accordion/utils/types'
 import { formatTime } from '@/lib/utils'
+import YesterdayTomorrowNav from '@/components/shared/daily-schedule-accordion/yesterday-tomorrow-nav'
 
 export default function PublicViewAccordion({
     schedule,
-    dayDate
+    dayDate,
+    userId
 }: {
     schedule: Schedule
-    dayDate?: string
+    dayDate: string
+    userId: string
 }) {
 
     const [tasks, setTasks] = useState<Task[]>(schedule.tasks || [])
@@ -92,36 +95,43 @@ export default function PublicViewAccordion({
                     state={accordionState}
                 />
             )}
-            <div className="flex text-sm items-center justify-end gap-x-2 mb-2">
+            <div className="flex text-sm items-center justify-between gap-x-2 mb-2 print:hidden">
                 <>
-                    <Printer
-                        className='text-muted-foreground'
-                        onClick={() => window.print()}
-                        size={20}
+                    <YesterdayTomorrowNav
+                        userId={userId}
+                        dateString={dayDate}
+                        isPublicView={true}
                     />
-                    <div>
-                        <Button title="Close all tasks" onClick={() => setOpenAccordions([])} variant={'ghost'}>
-                            <ChevronsDownUp
-                                size={19}
-                                strokeWidth={2.5}
-                                className="text-muted-foreground"
+                    <>
+                        <div className='flex items-center'>
+                            <Printer
+                                className='text-muted-foreground mr-2'
+                                onClick={() => window.print()}
+                                size={20}
                             />
-                        </Button>
-                        <Button
-                            title="Expand all tasks"
-                            onClick={() => setOpenAccordions(tasks.map(tasks => tasks.id))} variant={'ghost'}>
-                            <ChevronsUpDown
-                                size={19}
-                                strokeWidth={2.5}
-                                className="text-muted-foreground"
-                            />
-                        </Button>
-                    </div>
+                            <Button title="Close all tasks" onClick={() => setOpenAccordions([])} variant={'ghost'}>
+                                <ChevronsDownUp
+                                    size={19}
+                                    strokeWidth={2.5}
+                                    className="text-muted-foreground"
+                                />
+                            </Button>
+                            <Button
+                                title="Expand all tasks"
+                                onClick={() => setOpenAccordions(tasks.map(tasks => tasks.id))} variant={'ghost'}>
+                                <ChevronsUpDown
+                                    size={19}
+                                    strokeWidth={2.5}
+                                    className="text-muted-foreground"
+                                />
+                            </Button>
+                        </div>
+                    </>
                 </>
             </div>
             <Accordion
                 type="multiple"
-                className="w-full space-y-2"
+                className="w-full space-y-2 print:hidden"
                 value={openAccordions}
                 onValueChange={setOpenAccordions}
             >

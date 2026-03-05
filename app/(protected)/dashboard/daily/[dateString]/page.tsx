@@ -63,7 +63,7 @@ export default async function page({ params, searchParams }: pageProps) {
                     {view === 'todos' && <TodoList dateString={dateString} />}
                     {view === 'schedule' && (
                         <DailyScheduleAccordion
-                            dayId={currentDay.id}
+                            dateString={dateString}
                             scheduleData={currentDay.schedule}
                             currentDay={currentDay.dayDate.replace(/-/g, "/")}
                         />

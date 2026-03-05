@@ -12,39 +12,100 @@ import {
 import { Calendar } from '@/components/ui/calendar'
 import { useSearchParams } from 'next/navigation';
 
-export default function YesterdayTomorrowNav({ dateString }: { dateString: string }) {
+export default function YesterdayTomorrowNav({
+    dateString,
+    isPublicView,
+    userId,
+    alwaysDisplayCalendar = false
+}: {
+    dateString: string
+    isPublicView?: boolean
+    userId?: string
+    alwaysDisplayCalendar?: boolean
+}) {
 
     const router = useRouter();
     const searchParams = useSearchParams();
     const viewParam = searchParams.get('view');
     const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false);
-    const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(new Date(dateString));
+    const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(parseLocalDate(dateString));
+
+    function formatLocalDate(date: Date): string {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function parseLocalDate(str: string): Date {
+        const [y, m, d] = str.split('-').map(Number);
+        // always produces local midnight for the given date parts
+        return new Date(y, m - 1, d);
+    }
 
     function goToYesterday() {
-        const yesterday = new Date(dateString)
-        yesterday.setDate(yesterday.getDate() - 1)
-        const formattedDate = yesterday.toISOString().split('T')[0]
-        router.push(`/dashboard/daily/${formattedDate}/${viewParam ? `?view=${viewParam}` : ''}`)
+        const date = parseLocalDate(dateString);
+        date.setDate(date.getDate() - 1);
+        const formattedDate = formatLocalDate(date);
+        if (isPublicView && userId) {
+            router.push(`/public-schedule-view/${userId}/${formattedDate}`)
+        } else {
+            router.push(`/dashboard/daily/${formattedDate}${viewParam ? `?view=${viewParam}` : ''}`)
+        }
     }
 
     function goToTomorrow() {
-        const tomorrow = new Date(dateString)
-        tomorrow.setDate(tomorrow.getDate() + 1)
-        const formattedDate = tomorrow.toISOString().split('T')[0]
-        router.push(`/dashboard/daily/${formattedDate}/${viewParam ? `?view=${viewParam}` : ''}`)
+        const date = parseLocalDate(dateString);
+        date.setDate(date.getDate() + 1);
+        const formattedDate = formatLocalDate(date);
+        if (isPublicView && userId) {
+            router.push(`/public-schedule-view/${userId}/${formattedDate}`)
+        } else {
+            router.push(`/dashboard/daily/${formattedDate}${viewParam ? `?view=${viewParam}` : ''}`)
+        }
     }
 
     function goToSelectedDate(date: Date | undefined) {
         if (!date) return;
-
-        const formattedDate = date.toISOString().split('T')[0]
+        const formattedDate = formatLocalDate(date);
         setIsCalendarOpen(false)
-        router.push(`/dashboard/daily/${formattedDate}/${viewParam ? `?view=${viewParam}` : ''}`)
+        if (isPublicView && userId) {
+            router.push(`/public-schedule-view/${userId}/${formattedDate}`)
+        } else {
+            router.push(`/dashboard/daily/${formattedDate}${viewParam ? `?view=${viewParam}` : ''}`)
+        }
+    }
+
+    if (isPublicView && alwaysDisplayCalendar) {
+        return (
+            <Calendar
+                mode="single"
+                captionLayout="dropdown"
+                className="border rounded-lg p-5 max-w-md mx-auto relative"
+                onSelect={(date) => {
+                    setSelectedDate(date)
+                    goToSelectedDate(date)
+                }}
+                selected={selectedDate}
+                classNames={{
+                    month_caption: "mb-10 max-w-md mx-auto",
+                    months_dropdown: "w-full",
+                    root: "w-full",
+                    months: "w-full",
+                    month: "w-full",
+                    month_grid: "w-full",
+                    weekdays: "w-full flex",
+                    weekday: "flex-1 text-center",
+                    week: "w-full flex",
+                    day: "flex-1 text-center",
+                    day_button: "w-full",
+                }}
+            />
+        )
     }
 
     return (
         <div className="flex flex-start text-muted-foreground gap-x-2 print:!hidden">
-
             <Button title="Go to yesterday" onClick={goToYesterday} variant={"ghost"}>
                 <FaAnglesLeft />
             </Button>

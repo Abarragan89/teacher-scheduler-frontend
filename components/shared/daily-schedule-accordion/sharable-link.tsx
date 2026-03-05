@@ -4,17 +4,19 @@ import React from 'react'
 import { toast } from 'sonner';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Printer, Share } from 'lucide-react';
+import { useUser } from '@/components/providers/UserProvider';
 
 export default function SharableLink({
-    dayId
+    dateString
 }: {
-    dayId: string
+    dateString: string
 }) {
+    const { userId } = useUser();
 
 
     const handleCopyClick = async () => {
         try {
-            await navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_APP_URL}/public-schedule-view/${dayId}`);
+            await navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_APP_URL}/public-schedule-view/${userId}/${dateString}`);
             toast.success('Link copied to clipboard!');
         } catch (err) {
             console.error('Failed to copy link:', err);

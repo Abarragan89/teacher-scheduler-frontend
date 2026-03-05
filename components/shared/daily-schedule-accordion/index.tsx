@@ -46,12 +46,14 @@ const DynamicTaskItem = dynamic(() => import('./task-item'), {
 export default function DailyScheduleAccordion({
     scheduleData,
     currentDay,
-    dayId
+    dateString
 }: {
     scheduleData: Schedule,
     currentDay: string,
-    dayId: string
+    dateString: string
 }) {
+
+
 
     const [tasks, setTasks] = useState<Task[]>(() => {
         return scheduleData?.tasks?.map(task => {
@@ -169,7 +171,7 @@ export default function DailyScheduleAccordion({
                     </Button>
 
                     <SharableLink
-                        dayId={dayId}
+                       dateString={dateString}
                     />
 
                     <span>View</span>
