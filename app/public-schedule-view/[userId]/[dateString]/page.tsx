@@ -4,6 +4,7 @@ import { DayData } from "@/types/day";
 import PublicViewAccordion from "../../public-view-accordion";
 import Header from "@/components/shared/header";
 import YesterdayTomorrowNav from "@/components/shared/daily-schedule-accordion/yesterday-tomorrow-nav";
+import { Metadata } from "next";
 
 interface PublicScheduleViewProps {
     params: Promise<{
