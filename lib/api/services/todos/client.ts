@@ -52,20 +52,24 @@ export const clientTodo = {
         dueDate: string,
         priority: number,
         isRecurring: boolean = false,
-        recurrencePattern: RecurrencePattern = defaultRecurrencePattern()
+        recurrencePattern: RecurrencePattern = defaultRecurrencePattern(),
+        viewStartDate: string = '',
+        viewEndDate: string = '',
     ) {
         const response = await clientFetch('/todo/create-list-item', {
             method: 'POST',
-            body: JSON.stringify({ todoListId, todoText, dueDate, priority, isRecurring, recurrencePattern }),
+            body: JSON.stringify({ todoListId, todoText, dueDate, priority, isRecurring, recurrencePattern, viewStartDate, viewEndDate }),
         });
         if (!response.ok) throw new Error('Failed to create todo item');
         return response.json();
     },
 
     async getRecurringTodosInRange(startDate: string, endDate: string) {
-        const response = await clientFetch(`/todo/get-recurring-todos-in-range/${startDate}/${endDate}`);
+        const response = await clientFetch(`/recurrence/todos-in-range/${startDate}/${endDate}`);
         if (!response.ok) throw new Error('Failed to fetch recurring todos in range');
-        return response.json();
+        const data = await response.json();
+        return data;
+
     },
 
     async updateTodo(todoItem: TodoItem) {

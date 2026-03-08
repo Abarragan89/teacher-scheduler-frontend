@@ -1,16 +1,11 @@
 'use client'
 import { useDashboardTodos } from '@/lib/hooks/useDashboardTodos'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Calendar, Flag } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import TodoListItem from '@/components/shared/todo-sheet/todo-list-item'
 import { TodoItem as BaseTodoItem } from '@/types/todo'
-import { ResponsiveDialog } from '@/components/responsive-dialog'
-import { useState } from 'react'
-import AddTodoForm from '@/components/forms/add-todo-form.tsx'
 
 interface DashboardTodoItem extends BaseTodoItem {
     listName?: string
@@ -19,9 +14,6 @@ interface DashboardTodoItem extends BaseTodoItem {
 export default function DashboardContent() {
     const { upcomingTodos, priorityTodos, isLoading } = useDashboardTodos()
     const queryClient = useQueryClient()
-    const [isEditing, setIsEditing] = useState(false);
-    const [todo, setTodo] = useState<DashboardTodoItem>({} as DashboardTodoItem);
-    const [listId, setListId] = useState<string>('');
 
     if (isLoading) {
         return (
@@ -68,12 +60,12 @@ export default function DashboardContent() {
         return null
     }
 
-    const setModalData = (todo: DashboardTodoItem) => {
-        const listId = findListIdForTodo(todo.id) || '';
-        setTodo(todo);
-        setListId(listId);
-        setIsEditing(true);
-    }
+    // const setModalData = (todo: DashboardTodoItem) => {
+    //     const listId = findListIdForTodo(todo.id) || '';
+    //     setTodo(todo);
+    //     setListId(listId);
+    //     setIsEditing(true);
+    // }
 
     return (
         <div className="wrapper grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-28">
@@ -98,7 +90,6 @@ export default function DashboardContent() {
                                     key={todo.id}
                                     todo={todo}
                                     listId={findListIdForTodo(todo.id) || ''}
-                                    onEdit={() => setModalData(todo)}
                                 />
                             ))}
                         </div>
@@ -127,7 +118,6 @@ export default function DashboardContent() {
                                     key={todo.id}
                                     todo={todo}
                                     listId={findListIdForTodo(todo.id) || ''}
-                                    onEdit={() => setModalData(todo)}
                                 />
                             ))}
                         </div>

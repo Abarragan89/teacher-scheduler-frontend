@@ -9,6 +9,7 @@ import NonRecurringForm from './non-recurring-form'
 import { useTodoForm } from './hooks/useTodoForm'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import RecurringForm from './recurring-form'
+import { useViewDateRange } from '@/lib/hooks/useViewDateRange'
 
 interface AddTodoFormProps {
     listId?: string // Make optional since we'll have dropdown
@@ -40,6 +41,7 @@ export default function AddTodoForm({
     const inputRef = useRef<HTMLInputElement>(null)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const queryClient = useQueryClient()
+    const { viewStartDate, viewEndDate } = useViewDateRange()
 
 
     // Auto-resize textarea function
@@ -88,7 +90,7 @@ export default function AddTodoForm({
                     recurrencePattern: formData.recurrencePattern
 
                 }
-                
+
                 // Update existing todo
                 newTodo = await clientTodo.updateTodo(updatedTodo)
                 queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
@@ -123,6 +125,8 @@ export default function AddTodoForm({
                     formData.priority,
                     formData.isRecurring,
                     formData.recurrencePattern,
+                    viewStartDate,
+                    viewEndDate,
                 )
 
                 const isArrayOfTodos = Array.isArray(newTodoOrTodos)
@@ -141,18 +145,18 @@ export default function AddTodoForm({
                     return oldData.map(list => {
                         if (list.id === formData.selectedListId) {
                             // Remove any empty temp todos and add the new one
-                            const filteredTodos = list.todos.filter(todo =>!todo.id.startsWith('temp-') || todo.text.trim() !== '')
+                            const filteredTodos = list.todos.filter(todo => !todo.id.startsWith('temp-') || todo.text.trim() !== '')
 
                             // Add the new todo and sort by priority (descending)
-                            let updatedTodos: TodoItem[]  | []= []
+                            let updatedTodos: TodoItem[] | [] = []
                             // Array of todos (recurring creation)
                             if (isArrayOfTodos) {
-                                 updatedTodos = [...filteredTodos, ...newTodoOrTodos].sort((a, b) => b.priority - a.priority)
+                                updatedTodos = [...filteredTodos, ...newTodoOrTodos].sort((a, b) => b.priority - a.priority)
                                 return {
                                     ...list,
                                     todos: updatedTodos
                                 }
-                            // Single todo item
+                                // Single todo item
                             } else {
                                 updatedTodos = [...filteredTodos, newTodo].sort((a, b) => b.priority - a.priority)
                             }
@@ -191,7 +195,7 @@ export default function AddTodoForm({
     // Check if we're editing a recurring todo
     const isEditing = currentTodo !== undefined
     // Determine the initial tab value based on editing state
-    const initialTabValue =  formData.isRecurring ? "recurring" : "one-time"
+    const initialTabValue = formData.isRecurring ? "recurring" : "one-time"
 
     return (
         <div>
@@ -199,16 +203,16 @@ export default function AddTodoForm({
                 <form onSubmit={handleSubmit}>
                     <Tabs value={initialTabValue} className="p-1">
                         <TabsList className='mb-4'>
-                            <TabsTrigger 
-                                onClick={() => !isEditing && actions.updateIsRecurring(false)} 
+                            <TabsTrigger
+                                onClick={() => !isEditing && actions.updateIsRecurring(false)}
                                 value="one-time"
                                 disabled={isEditing}
                                 className={isEditing ? "opacity-50 cursor-not-allowed" : ""}
                             >
                                 One-Time
                             </TabsTrigger>
-                            <TabsTrigger 
-                                onClick={() => !isEditing && actions.updateIsRecurring(true)} 
+                            <TabsTrigger
+                                onClick={() => !isEditing && actions.updateIsRecurring(true)}
                                 value="recurring"
                                 disabled={isEditing}
                                 className={isEditing ? "opacity-50 cursor-not-allowed" : ""}

@@ -19,6 +19,7 @@ export function useDashboardTodos() {
             }))
         )
 
+
         // Top 8 by due date (earliest first)
         const upcomingTodos = allTodos
             .filter((todo) => todo.dueDate) // Only todos with due dates

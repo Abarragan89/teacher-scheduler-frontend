@@ -13,7 +13,7 @@ export default function Header({
 }) {
 
   return (
-    <header className="print:!hidden py-6 flex-between max-w-6xl mx-auto wrapper">
+    <header className="print:!hidden flex-between mx-auto wrapper">
       <Link
         href={"/"}
         className='flex justify-center items-end'

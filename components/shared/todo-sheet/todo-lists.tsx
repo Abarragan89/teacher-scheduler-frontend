@@ -19,6 +19,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import AddTodoListForm from '@/components/forms/add-todolist-form'
 import { clientTodo } from '@/lib/api/services/todos/client'
 import AddTodoForm from '@/components/forms/add-todo-form.tsx'
+import { useViewDateRange } from '@/lib/hooks/useViewDateRange'
 
 interface CurrentListProps {
     todoLists: TodoList[]
@@ -26,6 +27,7 @@ interface CurrentListProps {
 
 export default function TodoLists({ todoLists }: CurrentListProps) {
     const queryClient = useQueryClient()
+    const { viewStartDate, viewEndDate } = useViewDateRange()
 
     const [currentListIndex, setCurrentListIndex] = useState(0);
     const [focusedText, setFocusedText] = useState<string>('');
@@ -178,8 +180,11 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 currentList.id,
                 newTodoText.trim(),
                 '', // No due date for simple add
-                1   // Default priority
-                
+                1,  // Default priority
+                false,
+                undefined,
+                viewStartDate,
+                viewEndDate,
             )
 
             // Update React Query cache

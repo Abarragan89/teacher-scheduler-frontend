@@ -359,7 +359,9 @@ export const addTodoItem = async (
     priority: number,
     queryClient: QueryClient,
     setNewTodoText: (text: string) => void,
-    newTodoTextareaRef: React.RefObject<HTMLTextAreaElement | null>
+    newTodoTextareaRef: React.RefObject<HTMLTextAreaElement | null>,
+    viewStartDate: string = '',
+    viewEndDate: string = '',
 ) => {
     if (text.trim() === '') {
         toast.error('Todo text cannot be empty.');
@@ -400,6 +402,10 @@ export const addTodoItem = async (
             text.trim(),
             dueDate,
             priority,
+            false,
+            undefined,
+            viewStartDate,
+            viewEndDate,
         )
 
         // Focus the textarea again

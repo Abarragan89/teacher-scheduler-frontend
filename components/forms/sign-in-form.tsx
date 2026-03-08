@@ -76,7 +76,9 @@ export default function SigninForm() {
                         </FormItem>
                     )}
                 />
-                {showConfirmation && (
+                {showConfirmation ? (
+                    <p className='text-center text-sm text-ring mb-2 -mt-5'>An email has been sent to your email. Check your spam folder</p>
+                ) : (
                     <p className='text-center text-sm text-ring mb-2 -mt-5'>An email has been sent to your email. Check your spam folder</p>
                 )}
                 {!showConfirmation && (

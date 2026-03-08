@@ -3,14 +3,19 @@ import CalendarMonth from '@/components/shared/calendar-month';
 import DashboardContent from './DashboardContent';
 import PushNotificationManager from '@/components/push-notifications';
 
-export default async function Dashboard() {
+export default async function Dashboard({
+  searchParams
+}: {
+  searchParams: Promise<{ month?: string }>
+}) {
+  const { month } = await searchParams;
 
   return (
     <main>
       <div className="px-3 sm:px-5 md:px-8 lg:px-20 max-w-5xl mx-auto">
         <PushNotificationManager />
       </div>
-      <CalendarMonth />
+      <CalendarMonth initialMonth={month} />
       <DashboardContent />
     </main>
   )

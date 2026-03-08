@@ -6,9 +6,11 @@ import { ResponsiveDialog } from './responsive-dialog'
 import SigninForm from './forms/sign-in-form';
 
 export default function SigninBtn({
-    variant = 'default'
+    isGetStarted = false,
+    isSignInInHeader = false
 }: {
-    variant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined
+    isGetStarted?: boolean
+    isSignInInHeader?: boolean
 }) {
 
     const [openModal, setOpenModal] = useState<boolean>(false)
@@ -16,9 +18,6 @@ export default function SigninBtn({
     return (
 
         <>
-            <Button variant={variant} onClick={() => setOpenModal(true)}>
-                Sign In
-            </Button>
             <ResponsiveDialog
                 title='Sign In'
                 isOpen={openModal}
@@ -28,6 +27,22 @@ export default function SigninBtn({
             >
                 <SigninForm />
             </ResponsiveDialog>
+
+            {isGetStarted && (
+                <Button onClick={() => setOpenModal(true)} size="lg" className="text-base px-8">
+                    Get Started Free
+                </Button>
+            )}
+            {isSignInInHeader && (
+                <Button onClick={() => setOpenModal(true)} size="lg" variant="outline" className="text-base px-8">
+                    Sign Up
+                </Button>
+            )}
+            {!isGetStarted && !isSignInInHeader && (
+                <Button onClick={() => setOpenModal(true)} variant="outline" size="sm" className="text-sm">
+                    Sign In
+                </Button>
+            )}
         </>
     )
 }

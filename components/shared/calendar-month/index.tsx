@@ -1,19 +1,27 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useCalendarReminders } from '@/lib/hooks/useCalendarReminders'
 import { clientDays } from '@/lib/api/services/days/client'
 import { useRecurringTodos } from '@/lib/hooks/useRecurringTodos'
-import { TodoItem, TodoList } from '@/types/todo'
-import { useQueryClient } from '@tanstack/react-query'
+import { TodoItem } from '@/types/todo'
 
-export default function CalendarMonth() {
+export default function CalendarMonth({ initialMonth }: { initialMonth?: string }) {
 
     const router = useRouter()
-    const queryClient = useQueryClient()
-    const [currentDate, setCurrentDate] = useState(new Date())
+    const pathname = usePathname()
+
+    const parseInitialDate = () => {
+        if (initialMonth) {
+            const [y, m] = initialMonth.split('-').map(Number);
+            if (y && m) return new Date(y, m - 1, 1);
+        }
+        return new Date();
+    }
+
+    const [currentDate, setCurrentDate] = useState(parseInitialDate)
     const [holidays, setHolidays] = useState<Array<{ date: string, name: string, emoji?: string }>>([])
 
     // Fetched Data to get reminders fo the month
@@ -22,11 +30,11 @@ export default function CalendarMonth() {
         currentDate.getMonth() + 1 // Convert to 1-indexed month
     )
 
+    // Fetch recurring todos for the month
     const { getRecurringTodoForDate } = useRecurringTodos({
         startDate: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0],
         endDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split('T')[0]
     })
-
 
     async function fetchHolidays() {
         try {
@@ -87,13 +95,20 @@ export default function CalendarMonth() {
 
     const firstDayOfWeek = getFirstDayOfWeek()
 
+    // Sync month to URL and update state
+    const updateMonth = (date: Date) => {
+        const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        router.replace(`${pathname}?month=${month}`, { scroll: false });
+        setCurrentDate(date);
+    }
+
     // Navigation functions
     const goToPreviousMonth = () => {
-        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
+        updateMonth(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
     }
 
     const goToNextMonth = () => {
-        setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
+        updateMonth(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
     }
 
     // Handle date click - navigate to daily view
@@ -132,12 +147,15 @@ export default function CalendarMonth() {
     const renderDateTodos = (date: Date) => {
         const dateString = date.toISOString().split('T')[0] // YYYY-MM-DD
 
-        // Get both regular and recurring todos for the date
+        // Get one time reminders for the date
         const dayReminders = getRemindersForDate(dateString)
+
+        // Get recurring todos for the date
+        const dayRecurring = getRecurringTodoForDate(dateString)
 
 
         // Combine both regular and recurring todos and without duplicates
-        const allReminders = [...dayReminders?.reminders || []]
+        const allReminders = [...(dayReminders?.reminders || []), ...dayRecurring]
 
         if (!allReminders || allReminders.length === 0) {
             return null
@@ -189,7 +207,7 @@ export default function CalendarMonth() {
                     <div className="mt-2 text-center">
                         <Button
                             variant={'ghost'}
-                            onClick={() => setCurrentDate(new Date())}
+                            onClick={() => updateMonth(new Date())}
                         >
                             Today
                         </Button>
