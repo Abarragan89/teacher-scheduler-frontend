@@ -9,13 +9,12 @@ import {
 } from "@/components/ui/sheet"
 import { ListTodo } from "lucide-react"
 import TodoLists from "./todo-lists"
-import { TodoList } from "@/types/todo"
 import { useTodoLists } from "@/lib/hooks/useTodoLists"
+import { TodoList } from "@/types/todo"
 
-export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
+export function TodoSheet() {
 
-
-    const {data: allLists} = useTodoLists();
+    const { data: allLists = [] } = useTodoLists();
 
     return (
         <Sheet>
@@ -29,7 +28,7 @@ export function TodoSheet({ todoLists }: { todoLists: TodoList[] }) {
                     <SheetTitle>ToDo Lists</SheetTitle>
                 </SheetHeader>
                 <TodoLists
-                    todoLists={allLists}
+                    todoLists={allLists as TodoList[]}
                 />
             </SheetContent>
         </Sheet>

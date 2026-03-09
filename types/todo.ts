@@ -8,6 +8,7 @@ export interface TodoItem {
     dueDate: string | null
     isRecurring: boolean
     recurrencePattern: RecurrencePattern
+    patternId?: string   // For identifying which recurring pattern this todo belongs to
     createdAt?: string   // For sorting by creation date
     deleting?: boolean  // For smooth deletion animation
     isNew?: boolean      // For new item slide-in animation

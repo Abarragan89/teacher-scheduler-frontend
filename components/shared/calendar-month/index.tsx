@@ -153,9 +153,20 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
         // Get recurring todos for the date
         const dayRecurring = getRecurringTodoForDate(dateString)
 
+        // Get patternIds already represented in dayReminders to avoid duplicates
+        const existingPatternIds = new Set(
+            (dayReminders?.reminders || [])
+                .map((t: TodoItem) => t.patternId)
+                .filter(Boolean)
+        )
+
+        // Only include recurring todos whose pattern isn't already shown
+        const uniqueRecurring = dayRecurring.filter(
+            (todo: TodoItem) => !existingPatternIds.has(todo.patternId)
+        )
 
         // Combine both regular and recurring todos and without duplicates
-        const allReminders = [...(dayReminders?.reminders || []), ...dayRecurring]
+        const allReminders = [...(dayReminders?.reminders || []), ...uniqueRecurring]
 
         if (!allReminders || allReminders.length === 0) {
             return null

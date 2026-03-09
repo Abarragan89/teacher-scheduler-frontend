@@ -96,6 +96,12 @@ export const clientTodo = {
         });
         if (!response.ok) throw new Error('Failed to delete todo item');
         return true;
+    },
+
+    async getNextOccurrences() {
+        const response = await clientFetch('/recurrence/next-occurrences');
+        if (!response.ok) throw new Error('Failed to fetch next occurrences of recurring todos');
+        return response.json();
     }
 
 }
