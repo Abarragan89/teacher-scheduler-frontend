@@ -83,6 +83,9 @@ export const clientTodo = {
                 dueDate: todoItem.dueDate,
                 todoListId: todoItem.todoListId,
                 isRecurring: todoItem.isRecurring,
+                patternId: todoItem.patternId ?? null,
+                // updated virtuals lose the prefix, so we need to also check for patternId
+                isVirtual: todoItem.id.startsWith("virtual_") || todoItem.patternId != null,
                 recurrencePattern: todoItem.recurrencePattern
             }),
         });

@@ -129,11 +129,11 @@ export const toggleTodoCompletion = async (
                         )
                     })
 
-                    // Delete from backend
+                    // Update backend
                     try {
-                        await clientTodo.deleteTodo(todoId)
+                        await clientTodo.updateTodo({ ...todo, completed: true, todoListId: listId })
                     } catch (error) {
-                        console.error('Failed to delete todo:', error)
+                        console.error('Failed to update todo:', error)
                     }
 
                     pendingDeletions.delete(todoId)

@@ -90,6 +90,7 @@ export default function AddTodoForm({
                     recurrencePattern: formData.recurrencePattern
 
                 }
+                console.log('Updating existing todo with data:', updatedTodo)
 
                 // Update existing todo
                 newTodo = await clientTodo.updateTodo(updatedTodo)
