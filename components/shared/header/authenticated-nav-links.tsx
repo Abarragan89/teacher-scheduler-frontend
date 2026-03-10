@@ -25,39 +25,11 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 
 export default function AuthenticatedNavLinks({ email }: { email: string }) {
 
-    const { data: todoLists, isLoading } = useTodoLists()
     const [showAddTodoModal, setShowAddTodoModal] = useState<boolean>(false);
-
-    if (isLoading) {
-        return (
-            <NavigationMenu>
-                <NavigationMenuList className="gap-x-2">
-                    <NavigationMenuItem className='absolute top-10 left-[105px]'>
-                        <InstallPrompt />
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                        <Link href="/dashboard">
-                            <Button variant={"ghost"} className='hover:cursor-pointer'>
-                                <CalendarDays size={18} />
-                            </Button>
-                        </Link>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
-                        <div className="w-8 h-8 bg-muted animate-pulse rounded"></div>
-                    </NavigationMenuItem>
-                    <ModeToggle />
-                    <NavigationMenuItem>
-                        <UserActionMenu email={email} />
-                    </NavigationMenuItem>
-                </NavigationMenuList>
-            </NavigationMenu>
-        )
-    }
 
     return (
         <>
-
-            <Sheet  open={showAddTodoModal} onOpenChange={setShowAddTodoModal}>
+            <Sheet open={showAddTodoModal} onOpenChange={setShowAddTodoModal}>
                 <SheetContent side="left" className='p-4'>
                     <SheetHeader>
                         <SheetTitle className='mb-3'>New Todo</SheetTitle>
@@ -91,9 +63,7 @@ export default function AuthenticatedNavLinks({ email }: { email: string }) {
                     </NavigationMenuItem>
 
                     <NavigationMenuItem>
-                        <TodoSheet
-                            todoLists={todoLists || []}
-                        />
+                        <TodoSheet />
                     </NavigationMenuItem>
 
                     <ModeToggle />
