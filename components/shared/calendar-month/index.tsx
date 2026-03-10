@@ -182,7 +182,7 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
                 {displayReminders.map((reminder: TodoItem) => (
                     <div
                         key={reminder.id}
-                        className={`text-[.65rem] sm:text-[.70rem] px-0.5 py-0.3 rounded text-left relative overflow-hidden whitespace-nowrap ${getPriorityColor(reminder.priority)}`}
+                        className={`text-[.65rem] sm:text-[.70rem] px-0.5 py-0.3 rounded text-left relative overflow-hidden whitespace-nowrap ${getPriorityColor(reminder.priority)} ${reminder.completed ? 'line-through opacity-50' : ''}`}
                         title={reminder.text} // Show full text on hover
                         style={{
                             maskImage: 'linear-gradient(to right, black 80%, transparent 100%)',

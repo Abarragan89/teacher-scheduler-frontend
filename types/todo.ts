@@ -10,7 +10,8 @@ export interface TodoItem {
     recurrencePattern: RecurrencePattern
     patternId?: string   // For identifying which recurring pattern this todo belongs to
     createdAt?: string   // For sorting by creation date
-    deleting?: boolean  // For smooth deletion animation
+    deleting?: boolean       // For smooth deletion animation
+    pendingRemoval?: boolean  // True during the undo window (2s) + animation, before final cache cleanup
     isNew?: boolean      // For new item slide-in animation
     slideDown?: boolean  // For existing items slide-down animation
 }

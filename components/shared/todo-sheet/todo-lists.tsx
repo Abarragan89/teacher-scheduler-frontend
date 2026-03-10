@@ -59,11 +59,12 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const sortFunction = useMemo(() => getSortFunction(sortBy as SortBy), [sortBy])
 
     // Memoize the sorted current list
+    // Hide todos that are completed and no longer in their undo window (pendingRemoval cleared)
     const sortedCurrentList = useMemo(() => {
         if (!currentList) return currentList
         return {
             ...currentList,
-            todos: sortFunction(currentList.todos)
+            todos: sortFunction(currentList.todos.filter(todo => !todo.completed || todo.pendingRemoval))
         }
     }, [currentList, sortFunction])
 

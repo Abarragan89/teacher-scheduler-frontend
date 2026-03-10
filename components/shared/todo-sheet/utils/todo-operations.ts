@@ -72,7 +72,7 @@ export const toggleTodoCompletion = async (
     if (!todo.completed) {
         playSoundComplete();
 
-        // Mark as complete IMMEDIATELY in cache
+        // Mark as complete and pendingRemoval IMMEDIATELY in cache
         queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
             if (!oldData) return oldData
             return oldData.map(list =>
@@ -81,7 +81,7 @@ export const toggleTodoCompletion = async (
                         ...list,
                         todos: list.todos.map(t =>
                             t.id === todoId
-                                ? { ...t, completed: true, }
+                                ? { ...t, completed: true, pendingRemoval: true }
                                 : t
                         )
                     }
@@ -116,14 +116,18 @@ export const toggleTodoCompletion = async (
                 // Remove from UI after animation
                 playRemovedSound();
                 setTimeout(async () => {
-                    // Remove from cache after animation completes
+                    // Clear deleting + pendingRemoval; keep completed: true so calendar shows strike-through
                     queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
                         if (!oldData) return oldData
                         return oldData.map(list =>
                             list.id === listId
                                 ? {
                                     ...list,
-                                    todos: list.todos.filter(t => t.id !== todoId)
+                                    todos: list.todos.map(t =>
+                                        t.id === todoId
+                                            ? { ...t, deleting: false, pendingRemoval: false }
+                                            : t
+                                    )
                                 }
                                 : list
                         )
@@ -161,7 +165,7 @@ export const toggleTodoCompletion = async (
                         ...list,
                         todos: list.todos.map(t =>
                             t.id === todoId
-                                ? { ...t, completed: false, deleting: false }
+                                ? { ...t, completed: false, deleting: false, pendingRemoval: false }
                                 : t
                         )
                     }

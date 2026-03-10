@@ -36,15 +36,13 @@ export function useCalendarReminders(year: number, month: number) {
                 }))
         )
 
-        // Filter out completed todos (unless deleting for animation)
-        const activeTodos = allTodosWithDates.filter(todo =>
-            !todo.completed || todo.deleting
-        )
+        // Show all todos on the calendar; completed ones will render with strike-through
+        // const activeTodos = allTodosWithDates.filter(todo => !todo.deleting)
 
         // Group todos by date
         const remindersByDate: Record<string, CalendarReminder[]> = {}
 
-        activeTodos.forEach(todo => {
+        allTodosWithDates.forEach(todo => {
             const dateKey = new Date(String(todo.dueDate!)).toISOString().split('T')[0] // YYYY-MM-DD
 
             if (!remindersByDate[dateKey]) {
