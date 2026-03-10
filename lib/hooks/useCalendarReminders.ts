@@ -36,9 +36,6 @@ export function useCalendarReminders(year: number, month: number) {
                 }))
         )
 
-        // Show all todos on the calendar; completed ones will render with strike-through
-        // const activeTodos = allTodosWithDates.filter(todo => !todo.deleting)
-
         // Group todos by date
         const remindersByDate: Record<string, CalendarReminder[]> = {}
 

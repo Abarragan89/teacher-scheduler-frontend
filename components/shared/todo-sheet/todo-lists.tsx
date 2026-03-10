@@ -196,7 +196,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     if (list.id === currentList.id) {
                         return {
                             ...list,
-                            todos: [newTodo, ...list.todos] // Add to top
+                            todos: [newTodo[0], ...list.todos] // Add to top
                         }
                     }
                     return list
@@ -361,7 +361,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                     setNewTodoText('')
                                 }
                                 if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault()
+                                    // e.preventDefault()
                                     addTodoItem()
                                 }
                             }}
