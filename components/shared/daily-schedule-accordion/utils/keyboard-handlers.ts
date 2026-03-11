@@ -1,6 +1,7 @@
 import { KeyboardEvent } from 'react'
 import { clientOutlineItems } from '@/lib/api/services/tasks/client'
 import { AccordionState } from './types'
+import { MAX_INDENT_LEVEL } from './outline-operations'
 
 // Helper function to update backend positions only after actual deletion
 const updateBackendPositionsAfterDeletion = async (taskId: string, deletedItemId: string, originalItems: any[]) => {
@@ -197,10 +198,9 @@ export const handleOutlineKeyDown = async (e: KeyboardEvent<HTMLTextAreaElement>
 
     if (e.key === 'Tab') {
         e.preventDefault()
-        const maxIndent = 1
         const newIndentLevel = e.shiftKey
             ? Math.max(0, item.indentLevel - 1)
-            : Math.min(maxIndent, item.indentLevel + 1)
+            : Math.min(MAX_INDENT_LEVEL, item.indentLevel + 1)
 
         setTasks(prev =>
             prev.map(t =>

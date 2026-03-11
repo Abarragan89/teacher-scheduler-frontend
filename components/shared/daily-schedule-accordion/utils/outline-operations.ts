@@ -2,6 +2,8 @@ import { OutlineItem } from '@/types/outline-item'
 import { clientOutlineItems } from '@/lib/api/services/tasks/client'
 import { AccordionState } from './types'
 
+export const MAX_INDENT_LEVEL = 2
+
 export interface PlayOptions {
     id?: string;
     forceSoundEnabled?: boolean;
@@ -331,7 +333,7 @@ export const indentOutlineItem = async (taskId: string, itemId: string, state: A
     const task = tasks.find(t => t.id === taskId)
     const item = task?.outlineItems.find(i => i.id === itemId)
 
-    if (!item || item.indentLevel >= 1) return // Max indent level of 1
+    if (!item || item.indentLevel >= MAX_INDENT_LEVEL) return
 
     const newIndentLevel = item.indentLevel + 1
 

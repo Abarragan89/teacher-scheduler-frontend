@@ -2,11 +2,12 @@
 import { Task } from '@/types/tasks'
 import React, { useState } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { CheckCircle, ChevronsDownUp, ChevronsUpDown, Circle, Eye, Printer, Square, SquareCheckBig } from 'lucide-react'
+import { CheckCircle, ChevronsDownUp, ChevronsUpDown, Circle, Eye, Printer } from 'lucide-react'
 import { Schedule } from '@/types/day'
 import { clientTasks, clientOutlineItems } from '@/lib/api/services/tasks/client'
 import { Button } from '@/components/ui/button'
 import SchedulePrintView from '@/components/shared/daily-schedule-accordion/schedule-print-view'
+import OutlineItemIndicator from '@/components/shared/daily-schedule-accordion/outline-item-indicator'
 import { SingleTaskView } from '@/components/single-task-view'
 import { AccordionState } from '@/components/shared/daily-schedule-accordion/utils/types'
 import { formatTime } from '@/lib/utils'
@@ -191,25 +192,11 @@ export default function PublicViewAccordion({
                                     .map(item => (
                                         <div key={item.id} className="flex items-start gap-2 group"
                                             style={{ paddingLeft: `${item.indentLevel * 30}px` }}>
-                                            {/* Smaller checkboxes for indented fields */}
-                                            {item?.indentLevel > 0 ? (
-                                                <p
-                                                    onClick={() => toggleOutlineItemCompletion(task.id, item.id)}
-                                                    className={`min-w-[15px] min-h-[15px] mt-[4px] rounded-full mr-1
-                                                    ${item.completed ? 'bg-ring border border-ring' : 'border border-muted-foreground'}
-                                                    `}
-                                                />
-                                            ) : (
-                                                <button
-                                                    onClick={() => toggleOutlineItemCompletion(task.id, item.id)}
-                                                >
-                                                    {item.completed ? (
-                                                        <SquareCheckBig className="w-5 h-5 text-ring" />
-                                                    ) : (
-                                                        <Square className="w-5 h-5 text-muted-foreground" />
-                                                    )}
-                                                </button>
-                                            )}
+                                            <OutlineItemIndicator
+                                                indentLevel={item.indentLevel}
+                                                completed={item.completed}
+                                                onToggle={() => toggleOutlineItemCompletion(task.id, item.id)}
+                                            />
                                             <span
                                                 className={`text-sm leading-relaxed ${item.completed
                                                     ? 'line-through text-muted-foreground'

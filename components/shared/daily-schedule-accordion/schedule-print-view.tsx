@@ -29,7 +29,7 @@ export default function SchedulePrintView({
     return (
         <div className="hidden print:block max-w-5xl mx-auto bg-white text-black print:max-w-none">
             {/* Print-specific styles */}
-           <style jsx>{`
+            <style jsx>{`
                 @media print {
                     body { -webkit-print-color-adjust: exact; }
                     .no-print { display: none !important; }
@@ -84,9 +84,12 @@ export default function SchedulePrintView({
                                                 className="flex items-start gap-1"
                                                 style={{ marginLeft: `${item.indentLevel * 24}px` }}
                                             >
-                                                {/* Checkbox */}
-                                                <div className="min-w-4 min-h-4 border border-gray-500 rounded-sm mt-1">
-                                                </div>
+                                                {/* Checkbox or bullet */}
+                                                {item.indentLevel >= 2 ? (
+                                                    <span className="min-w-4 mt-[2px] text-gray-500 text-base leading-none">•</span>
+                                                ) : (
+                                                    <div className="min-w-4 min-h-4 border border-gray-500 rounded-sm mt-1" />
+                                                )}
 
                                                 {/* Content */}
                                                 <p className={`text-md ml-1`}>

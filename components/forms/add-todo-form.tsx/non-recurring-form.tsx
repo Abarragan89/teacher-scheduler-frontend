@@ -227,16 +227,19 @@ export default function NonRecurringForm({
                         uiState.isCreating ? 'Adding...' : '+ Add Todo'
                     }
                 </Button>
-                <Button
-                    type="button"
-                    variant={"destructive"}
-                    className="px-6 shadow-none"
-                    onClick={handleDelete}
-                >
-                    {todoId &&
-                        uiState.isCreating ? 'Deleting...' : 'Delete'
-                    }
-                </Button>
+
+                {todoId && (
+                    <Button
+                        type="button"
+                        variant={"destructive"}
+                        className="px-6 shadow-none"
+                        onClick={handleDelete}
+                    >
+                        {todoId &&
+                            uiState.isCreating ? 'Deleting...' : 'Delete'
+                        }
+                    </Button>
+                )}
             </div>
         </div>
     )
