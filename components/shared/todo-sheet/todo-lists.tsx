@@ -216,18 +216,6 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
         }
     }
 
-    const findListIdForTodo = (todoId: string) => {
-        const todoLists = queryClient.getQueryData(['todos']) as any[]
-        if (!todoLists) return null
-
-        for (const list of todoLists) {
-            if (list.todos.some((todo: any) => todo.id === todoId)) {
-                return list.id
-            }
-        }
-        return null
-    }
-
     return (
         <div className="space-y-4 mt-4">
             <div className="w-full">

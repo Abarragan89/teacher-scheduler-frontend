@@ -50,6 +50,7 @@ export function toTodoFormData({
     dueDate: currentTodo ? dueDate : undefined, // Only keep dueDate when editing
     time: time, // Reset time to default or timeSlot
     priority: currentTodo?.priority ?? 1, // Reset priority to default
+    editScope: currentTodo?.editScope ?? 'single', // Default to 'single' for new todos, or keep existing scope when editing
     selectedListId:
       listId ??
       sourceTodo?.todoListId ??

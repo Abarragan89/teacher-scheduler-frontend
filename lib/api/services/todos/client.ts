@@ -73,6 +73,8 @@ export const clientTodo = {
     },
 
     async updateTodo(todoItem: TodoItem) {
+        console.log('Updating todo item with ID:', todoItem);
+
         const response = await clientFetch('/todo/update-list-item', {
             method: 'PUT',
             body: JSON.stringify({
@@ -86,7 +88,8 @@ export const clientTodo = {
                 patternId: todoItem.patternId ?? null,
                 // updated virtuals lose the prefix, so we need to also check for patternId
                 isVirtual: todoItem.id.startsWith("virtual_") || todoItem.patternId != null,
-                recurrencePattern: todoItem.recurrencePattern
+                recurrencePattern: todoItem.recurrencePattern,
+                editScope: todoItem.editScope || 'single', // Default to 'single' if not provided
             }),
         });
         if (!response.ok) throw new Error('Failed to update todo item');

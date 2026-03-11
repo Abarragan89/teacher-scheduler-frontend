@@ -14,6 +14,7 @@ export interface TodoItem {
     pendingRemoval?: boolean  // True during the undo window (2s) + animation, before final cache cleanup
     isNew?: boolean      // For new item slide-in animation
     slideDown?: boolean  // For existing items slide-down animation
+    editScope?: 'single' | 'future' // For recurring todos, indicates if edit applies to single occurrence or all future occurrences
 }
 
 export interface TodoList {

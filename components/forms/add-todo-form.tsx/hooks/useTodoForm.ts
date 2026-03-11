@@ -11,6 +11,7 @@ export interface TodoFormData {
     priority: number
     selectedListId: string
     isRecurring: boolean
+    editScope: 'single' | 'future'
     recurrencePattern: RecurrencePattern
 }
 

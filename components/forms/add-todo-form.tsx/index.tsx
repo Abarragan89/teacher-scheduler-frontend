@@ -75,6 +75,7 @@ export default function AddTodoForm({
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
+
         e.preventDefault()
         if (!formData.text.trim()) return
         setUIField?.('isCreating', true)
@@ -83,7 +84,7 @@ export default function AddTodoForm({
         let newTodo: TodoItem
         try {
             const dueDateISO = combineDateAndTime(formData.dueDate, formData.time)
-
+            console.log('daweaf', formData)
             // IF editing existing todo
             if (currentTodo) {
                 const updatedTodo: TodoItem = {
@@ -92,6 +93,7 @@ export default function AddTodoForm({
                     dueDate: dueDateISO || null,
                     priority: formData.priority,
                     todoListId: formData.selectedListId,
+                    editScope: formData.editScope,
                     isRecurring: formData.isRecurring,
                     recurrencePattern: formData.recurrencePattern
                 }

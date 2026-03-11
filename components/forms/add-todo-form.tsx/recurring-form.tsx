@@ -464,8 +464,8 @@ export default function RecurringForm({
                                 id="edit-single"
                                 name="edit-scope"
                                 value="single"
-                                checked={editScope === 'single'}
-                                onChange={() => setUIField('editScope', 'single')}
+                                checked={formData.editScope === 'single'}
+                                onChange={() => setField('editScope', 'single')}
                                 className="mt-1"
                             />
                             <div className="space-y-1">
@@ -483,8 +483,8 @@ export default function RecurringForm({
                                 id="edit-future"
                                 name="edit-scope"
                                 value="future"
-                                checked={editScope === 'future'}
-                                onChange={() => setUIField('editScope', 'future')}
+                                checked={formData.editScope === 'future'}
+                                onChange={() => setField('editScope', 'future')}
                                 className="mt-1"
                             />
                             <div className="space-y-1">
