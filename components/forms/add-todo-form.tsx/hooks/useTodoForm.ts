@@ -9,7 +9,7 @@ export interface TodoFormData {
     dueDate: Date | undefined
     time: string
     priority: number
-    selectedListId: string,
+    selectedListId: string
     isRecurring: boolean
     recurrencePattern: RecurrencePattern
 }
@@ -19,47 +19,29 @@ export interface TodoFormUIState {
     isPriorityPopoverOpen: boolean
     isModalOpen: boolean
     isCreating: boolean
-    editScope: 'single' | 'future' // For editing recurring todos
-}
-
-export interface TodoFormActions {
-    updateText: (text: string) => void
-    updateDueDate: (date: Date | undefined) => void
-    updateTime: (time: string) => void
-    updatePriority: (priority: number) => void
-    updateSelectedListId: (listId: string) => void
-    updateRecurrencePattern: (pattern: RecurrencePattern) => void
-    updateIsRecurring: (isRecurring: boolean) => void
-    updateEditScope: (scope: 'single' | 'future') => void
-    toggleDatePopover: (open?: boolean) => void
-    togglePriorityPopover: (open?: boolean) => void,
-    toggleModal: (open?: boolean) => void
-    setCreating: (creating: boolean) => void
-    resetForm: (newTodo: TodoItem) => void
+    editScope: 'single' | 'future'
 }
 
 interface UseTodoFormProps {
     listId?: string
     todoId?: string
     timeSlot?: string
+    todo?: TodoItem  // accept todo directly to support virtuals
 }
 
-export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {}) {
+export function useTodoForm({ listId, todoId, timeSlot, todo }: UseTodoFormProps = {}) {
     const queryClient = useQueryClient()
-    // Get all todo lists from React Query cache
     const todoLists = (queryClient.getQueryData(['todos']) as TodoList[]) || []
 
-
-    // Find current todo if editing
-    const currentTodo: TodoItem | undefined = todoId
-        ? todoLists.flatMap(list => list.todos).find(todo => todo.id === todoId)
-        : undefined
+    // Use passed todo directly, or look up by ID in cache for regular todos
+    const currentTodo: TodoItem | undefined = todo ?? (
+        todoId ? todoLists.flatMap(list => list.todos).find(t => t.id === todoId) : undefined
+    )
 
     const [formData, setFormData] = useState<TodoFormData>(() =>
         toTodoFormData({ currentTodo, listId, timeSlot, todoLists })
     )
 
-    // UI state
     const [uiState, setUIState] = useState<TodoFormUIState>({
         isDatePopoverOpen: false,
         isPriorityPopoverOpen: false,
@@ -68,70 +50,40 @@ export function useTodoForm({ listId, todoId, timeSlot }: UseTodoFormProps = {})
         editScope: 'single'
     })
 
-    // Actions
-    const actions: TodoFormActions = {
-        updateText: (text: string) => setFormData(prev => ({ ...prev, text })),
+    const setField = (field: keyof TodoFormData, value: any) =>
+        setFormData(prev => ({ ...prev, [field]: value }))
 
-        // setting the date and possibly the time if it is not already set
-        updateDueDate: (dueDate: Date | undefined) => setFormData(prev => {
-            if (formData.time === "") {
-                return { ...prev, dueDate, time: '07:00' }
-            } else {
-                return { ...prev, dueDate }
-            }
-        }),
+    const setUIField = (field: keyof TodoFormUIState, value: any) =>
+        setUIState(prev => ({ ...prev, [field]: value }))
 
-        updateTime: (time: string) => setFormData(prev => ({ ...prev, time })),
-        updatePriority: (priority: number) => setFormData(prev => ({ ...prev, priority })),
-        updateSelectedListId: (selectedListId: string) => setFormData(prev => ({ ...prev, selectedListId })),
-        updateRecurrencePattern: (recurrencePattern: RecurrencePattern) => setFormData(prev => ({ ...prev, recurrencePattern })),
-        updateIsRecurring: (isRecurring: boolean) => setFormData(prev => ({ ...prev, isRecurring })),
-        updateEditScope: (editScope: 'single' | 'future') => setUIState(prev => ({ ...prev, editScope })),
-
-        toggleDatePopover: (open?: boolean) => setUIState(prev => ({
-            ...prev,
-            isDatePopoverOpen: open !== undefined ? open : !prev.isDatePopoverOpen
-        })),
-        togglePriorityPopover: (open?: boolean) => setUIState(prev => ({
-            ...prev,
-            isPriorityPopoverOpen: open !== undefined ? open : !prev.isPriorityPopoverOpen
-        })),
-        toggleModal: (open?: boolean) => setUIState(prev => ({
-            ...prev,
-            isModalOpen: open !== undefined ? open : !prev.isModalOpen
-        })),
-        setCreating: (isCreating: boolean) => setUIState(prev => ({ ...prev, isCreating })),
-
-        resetForm: (formResetPrevState: TodoItem) => {
-            setFormData(toTodoFormData({ todoLists, formResetPrevState }))
-            setUIState({
-                isDatePopoverOpen: false,
-                isPriorityPopoverOpen: false,
-                isModalOpen: false,
-                isCreating: false,
-                editScope: 'single'
-            })
-        }
+    const resetForm = (newTodo?: TodoItem) => {
+        setFormData(toTodoFormData({ todoLists, formResetPrevState: newTodo }))
+        setUIState({
+            isDatePopoverOpen: false,
+            isPriorityPopoverOpen: false,
+            isModalOpen: false,
+            isCreating: false,
+            editScope: 'single'
+        })
     }
 
-    // Helper functions
-    const formatDisplayDate = (date: Date): string => {
-        return date.toLocaleDateString('en-US', {
+    const formatDisplayDate = (date: Date): string =>
+        date.toLocaleDateString('en-US', {
             weekday: 'short',
             year: 'numeric',
             month: 'short',
             day: 'numeric'
         })
-    }
 
-    const isFormValid = (): boolean => {
-        return !!(formData.text.trim() && formData.selectedListId && !uiState.isCreating)
-    }
+    const isFormValid = (): boolean =>
+        !!(formData.text.trim() && formData.selectedListId && !uiState.isCreating)
 
     return {
         formData,
         uiState,
-        actions,
+        resetForm,
+        setUIField,
+        setField,
         todoLists,
         currentTodo,
         formatDisplayDate,

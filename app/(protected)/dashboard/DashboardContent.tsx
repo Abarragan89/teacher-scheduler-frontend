@@ -60,12 +60,6 @@ export default function DashboardContent() {
         return null
     }
 
-    // const setModalData = (todo: DashboardTodoItem) => {
-    //     const listId = findListIdForTodo(todo.id) || '';
-    //     setTodo(todo);
-    //     setListId(listId);
-    //     setIsEditing(true);
-    // }
 
     return (
         <div className="wrapper grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-28">

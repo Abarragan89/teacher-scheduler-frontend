@@ -64,13 +64,15 @@ export const deleteTodoList = async (listId: string, state: TodoState, queryClie
 }
 
 export const setDefaultTodoList = async (listId: string, state: TodoState, queryClient: QueryClient) => {
-    const { todoLists, setCurrentListIndex } = state
+    const { setCurrentListIndex } = state
 
     // Call API to set default list
     await clientTodoLists.setDefaultList(listId)
 
-    // Update local state to reflect the change
-    const updatedLists = todoLists.map(list => ({
+    // Read latest cache (not stale state snapshot)
+    const latestLists = queryClient.getQueryData<TodoList[]>(['todos']) ?? []
+
+    const updatedLists = latestLists.map(list => ({
         ...list,
         isDefault: list.id === listId
     }))
@@ -78,13 +80,13 @@ export const setDefaultTodoList = async (listId: string, state: TodoState, query
     const sortedLists = updatedLists.sort((a, b) => {
         if (a.isDefault && !b.isDefault) return -1
         if (!a.isDefault && b.isDefault) return 1
-        return 0  // Preserve existing order if both have same isDefault value
+        return 0
     })
 
     // Update React Query cache
     queryClient.setQueryData(['todos'], sortedLists)
 
-    // Update current list index to point to the default list (which is now at index 0)
+    // Default list is now at index 0
     setCurrentListIndex(0)
 }
 

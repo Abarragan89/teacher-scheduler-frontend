@@ -40,8 +40,10 @@ export function useCalendarReminders(year: number, month: number) {
         const remindersByDate: Record<string, CalendarReminder[]> = {}
 
         allTodosWithDates.forEach(todo => {
-            const dateKey = new Date(String(todo.dueDate!)).toISOString().split('T')[0] // YYYY-MM-DD
-
+            // const d = new Date(String(todo.dueDate!))
+            // const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+            const dateKey = todo.dueDate!.toString().split('T')[0]
+            
             if (!remindersByDate[dateKey]) {
                 remindersByDate[dateKey] = []
             }

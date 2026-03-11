@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useQueryClient } from "@tanstack/react-query"
-import { TodoItem, TodoList } from "@/types/todo"
+import { TodoList } from "@/types/todo"
 import { Button } from "@/components/ui/button"
 import { BareInput } from '@/components/ui/bare-bones-input'
 import { Input } from '@/components/ui/input'
@@ -28,7 +28,16 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const queryClient = useQueryClient()
     const { viewStartDate, viewEndDate } = useViewDateRange()
 
-    const [currentListIndex, setCurrentListIndex] = useState(0);
+    const sortedTodoLists = useMemo(() => {
+        return [...todoLists].sort((a, b) => {
+            if (a.isDefault && !b.isDefault) return -1
+            if (!a.isDefault && b.isDefault) return 1
+            return 0
+        })
+    }, [todoLists])
+
+    const defaultIndex = sortedTodoLists.findIndex(list => list.isDefault)
+    const [currentListIndex, setCurrentListIndex] = useState(defaultIndex >= 0 ? defaultIndex : 0);
     const [focusedText, setFocusedText] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newListName, setNewListName] = useState('');
@@ -37,9 +46,6 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const [showAddTodoForm, setShowAddTodoForm] = useState<boolean>(false);
     const [newTodoText, setNewTodoText] = useState<string>('');
     const [isAddingTodo, setIsAddingTodo] = useState<boolean>(false);
-    const [showEditTodoModal, setShowEditTodoModal] = useState(false);
-    const [currentTodo, setCurrentTodo] = useState<TodoItem | null>(null);
-    const [listId, setListId] = useState<string>('');
 
     // Ref for managing textarea auto-resize
     const textareaRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
@@ -52,7 +58,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
         }
     }, [todoLists.length, currentListIndex])
 
-    const currentList = todoLists[currentListIndex]
+    const currentList = sortedTodoLists[currentListIndex]
 
     // Use the memoized sort function from utils
     const sortFunction = useMemo(() => getSortFunction(sortBy as SortBy), [sortBy])
@@ -70,16 +76,10 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
 
     // Create state object for todo operations
     const state: TodoState = {
-        todoLists,
+        todoLists: sortedTodoLists,
         focusedText,
         setFocusedText,
         setCurrentListIndex
-    }
-
-    const showEditModalHandler = (todo: TodoItem) => {
-        setCurrentTodo(todo);
-        setListId(findListIdForTodo(todo.id) || '');
-        setShowEditTodoModal(true)
     }
 
     const handleListSelect = (index: number) => {
@@ -101,7 +101,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
             })
 
             // Select the new list
-            setCurrentListIndex(todoLists.length)
+            setCurrentListIndex(sortedTodoLists.length)
 
             // Close modal and reset form
             setIsModalOpen(false)
@@ -242,11 +242,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                     }}
                 >
                     <CarouselContent>
-                        {todoLists.sort((a: TodoList, b: TodoList) => {
-                            if (a.isDefault && !b.isDefault) return -1
-                            if (!a.isDefault && b.isDefault) return 1
-                            return 0  // Preserve existing order if both have same isDefault value
-                        }).map((list, index) => (
+                        {sortedTodoLists.map((list, index) => (
                             <CarouselItem
                                 key={index}
                                 className="basis-auto"
@@ -397,7 +393,6 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                                 todo={todo}
                                 context='todosheet'
                                 listId={currentList.id}
-                                onEdit={() => showEditModalHandler(todo)}
                                 onTextareaRef={(todoId, el) => {
                                     textareaRefs.current[todoId] = el
                                 }}

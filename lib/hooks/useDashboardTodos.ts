@@ -22,7 +22,7 @@ export function useDashboardTodos() {
 
         // Top 8 by due date (earliest first)
         const upcomingTodos = allTodos
-            .filter((todo) => todo.dueDate) // Only todos with due dates
+            .filter((todo) => todo.dueDate && (!todo.completed || todo.pendingRemoval))
             .sort((a, b) => {
                 const dateA = new Date(String(a.dueDate!)).getTime()
                 const dateB = new Date(String(b.dueDate!)).getTime()
@@ -32,7 +32,7 @@ export function useDashboardTodos() {
 
         // Top 8 by priority (only priority > 1: Low=2, Medium=3, High=4)
         const priorityTodos = allTodos
-            .filter((todo) => todo.priority > 1) // Only show todos with priority higher than 1
+            .filter((todo) => todo.priority > 1 && (!todo.completed || todo.pendingRemoval))
             .sort((a, b) => {
                 // Sort by priority (4=High, 3=Medium, 2=Low)
                 if (a.priority !== b.priority) {

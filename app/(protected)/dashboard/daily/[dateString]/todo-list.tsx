@@ -16,10 +16,6 @@ export default function TodoList({ dateString }: TodoListProps) {
     const [holiday, setHoliday] = useState<{ date: string, name: string, emoji?: string } | null>(null)
 
 
-    // Keep only the modal state for editing
-    const [showEditTodoModal, setShowEditTodoModal] = useState(false);
-    const [currentTodo, setCurrentTodo] = useState<DailyTodoItem | null>(null);
-
     // Fetch holiday for this specific date
     useEffect(() => {
         async function fetchHolidayForDate() {
@@ -39,25 +35,6 @@ export default function TodoList({ dateString }: TodoListProps) {
 
         fetchHolidayForDate()
     }, [dateString])
-
-    function showEditModalHandler(todo: DailyTodoItem) {
-        setCurrentTodo(todo);
-        setShowEditTodoModal(true);
-    }
-
-    function convertTo24Hour(time12h: string) {
-        const [time, modifier] = time12h.split(' ');
-
-        let [hours, minutes] = time.split(':').map(Number);
-
-        if (modifier === 'PM' && hours !== 12) {
-            hours += 12;
-        }
-        if (modifier === 'AM' && hours === 12) {
-            hours = 0;
-        }
-        return `${hours.toString().padStart(2, '0')}:00`;
-    }
 
     return (
         <>
@@ -81,7 +58,7 @@ export default function TodoList({ dateString }: TodoListProps) {
                         <p
                             className='hover:cursor-pointer hover:text-ring text-md font-bold w-[65px] border-r pl-3 pt-1'>{time.split(" ")[0]} <span className='text-xs'>{time.split(" ")[1]}</span></p>
                         <div className="space-y-0 transition-all duration-300 ease-in-out w-full">
-                            {todos.filter((todo) => {
+                            {todos.filter((todo: DailyTodoItem) => {
                                 // Filter todos for this time block
                                 if (!todo.dueDate) return false
 
@@ -108,7 +85,7 @@ export default function TodoList({ dateString }: TodoListProps) {
                                 }
 
                                 return todoHour12 === parseInt(blockHour) && todoPeriod === blockPeriod
-                            }).map((todo) => (
+                            }).map((todo: DailyTodoItem) => (
                                 <div
                                     key={todo.id}
                                     className="pl-3 gap-2 transition-all duration-300 ease-in-out transform-gpu overflow-hidden"
@@ -118,7 +95,6 @@ export default function TodoList({ dateString }: TodoListProps) {
                                         listId={todo.listId}
                                         context='daily'
                                         className="border-none pb-2"
-                                        onEdit={() => showEditModalHandler(todo)}
                                     />
                                 </div>
                             ))}

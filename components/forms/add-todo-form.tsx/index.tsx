@@ -10,6 +10,7 @@ import { useTodoForm } from './hooks/useTodoForm'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import RecurringForm from './recurring-form'
 import { useViewDateRange } from '@/lib/hooks/useViewDateRange'
+import { moveUpdatedTodoInAllCaches, injectTodoIntoFlatCaches } from '@/lib/utils/todo-cache'
 
 interface AddTodoFormProps {
     listId?: string // Make optional since we'll have dropdown
@@ -18,6 +19,7 @@ interface AddTodoFormProps {
     onCancel?: () => void   // Callback for cancel action
     timeSlot?: string      // Optional time slot for pre-filling time
     isRecurring?: boolean  // Indicates if the todo is recurring
+    todo?: TodoItem // Optional todo item for editing (if todoId is provided)
 }
 
 export default function AddTodoForm({
@@ -25,18 +27,21 @@ export default function AddTodoForm({
     todoId,
     onComplete,
     onCancel,
-    timeSlot
+    timeSlot,
+    todo,
 }: AddTodoFormProps) {
 
     const {
         formData,
         uiState,
-        actions,
+        setField,
+        setUIField,
+        resetForm,
         todoLists,
         currentTodo,
         formatDisplayDate,
         isFormValid,
-    } = useTodoForm({ listId, todoId, timeSlot })
+    } = useTodoForm({ listId, todoId, timeSlot, todo })
 
     const inputRef = useRef<HTMLInputElement>(null)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -72,7 +77,8 @@ export default function AddTodoForm({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!formData.text.trim()) return
-        actions.setCreating(true)
+        setUIField?.('isCreating', true)
+
 
         let newTodo: TodoItem
         try {
@@ -88,34 +94,11 @@ export default function AddTodoForm({
                     todoListId: formData.selectedListId,
                     isRecurring: formData.isRecurring,
                     recurrencePattern: formData.recurrencePattern
-
                 }
-                console.log('Updating existing todo with data:', updatedTodo)
 
                 // Update existing todo
                 newTodo = await clientTodo.updateTodo(updatedTodo)
-                queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-                    if (!oldData) return oldData
-
-                    return oldData.map(list => {
-                        // Remove the todo from ALL lists first (prevents duplicates)
-                        const todosWithoutCurrent = list.todos.filter(todo => todo.id !== newTodo.id)
-
-                        // Only add the updated todo to the target list
-                        if (list.id === formData.selectedListId) {
-                            return {
-                                ...list,
-                                todos: [...todosWithoutCurrent, newTodo]
-                            }
-                        }
-
-                        // For all other lists, just return without the old todo
-                        return {
-                            ...list,
-                            todos: todosWithoutCurrent
-                        }
-                    })
-                })
+                moveUpdatedTodoInAllCaches(queryClient, formData.selectedListId, newTodo)
             } else {
 
                 // If recurring, may return array of todos
@@ -169,9 +152,19 @@ export default function AddTodoForm({
                         return list
                     })
                 })
+
+                // Sync flat caches
+                if (isArrayOfTodos) {
+                    // Multiple dates affected — invalidate both flat caches
+                    queryClient.invalidateQueries({ queryKey: ['dailyTodos'] })
+                    queryClient.invalidateQueries({ queryKey: ['recurringTodos'] })
+                } else {
+                    // Single todo — inject directly into matching flat cache entries
+                    injectTodoIntoFlatCaches(queryClient, formData.selectedListId, newTodo)
+                }
             }
             // Reset form
-            actions.resetForm(newTodo)
+            resetForm(newTodo)
             // Call completion callback
             onComplete?.()
         } catch (error) {
@@ -180,7 +173,7 @@ export default function AddTodoForm({
             setTimeout(() => {
                 inputRef.current?.focus()
             }, 0)
-            actions.setCreating(false)
+            setUIField('isCreating', false)
         }
     }
 
@@ -205,7 +198,7 @@ export default function AddTodoForm({
                     <Tabs value={initialTabValue} className="p-1">
                         <TabsList className='mb-4'>
                             <TabsTrigger
-                                onClick={() => !isEditing && actions.updateIsRecurring(false)}
+                                onClick={() => !isEditing && setField('isRecurring', false)}
                                 value="one-time"
                                 disabled={isEditing}
                                 className={isEditing ? "opacity-50 cursor-not-allowed" : ""}
@@ -213,7 +206,7 @@ export default function AddTodoForm({
                                 One-Time
                             </TabsTrigger>
                             <TabsTrigger
-                                onClick={() => !isEditing && actions.updateIsRecurring(true)}
+                                onClick={() => !isEditing && setField('isRecurring', true)}
                                 value="recurring"
                                 disabled={isEditing}
                                 className={isEditing ? "opacity-50 cursor-not-allowed" : ""}
@@ -231,7 +224,7 @@ export default function AddTodoForm({
                                 onChange={(e) => {
                                     const textarea = e.target as HTMLTextAreaElement
                                     resizeTextarea(textarea)
-                                    actions.updateText(e.target.value)
+                                    setField('text', e.target.value)
                                 }}
                                 rows={1}
                                 style={{
@@ -247,7 +240,10 @@ export default function AddTodoForm({
                             <NonRecurringForm
                                 formData={formData}
                                 uiState={uiState}
-                                actions={actions}
+                                setField={setField}
+                                todoListId={listId}
+                                setUIField={setUIField}
+                                resetForm={resetForm}
                                 todoLists={todoLists}
                                 todoId={todoId}
                                 onCancel={onCancel}
@@ -259,7 +255,8 @@ export default function AddTodoForm({
                             <RecurringForm
                                 formData={formData}
                                 uiState={uiState}
-                                actions={actions}
+                                setField={setField}
+                                setUIField={setUIField}
                                 todoLists={todoLists}
                                 todoId={todoId}
                                 onCancel={onCancel}
@@ -270,7 +267,7 @@ export default function AddTodoForm({
             </div>
             <AddTodoListForm
                 isOpen={uiState.isModalOpen}
-                onClose={() => actions.toggleModal(false)}
+                onClose={() => setUIField('isModalOpen', false)}
                 todoListsLength={todoLists.length}
             />
         </div>

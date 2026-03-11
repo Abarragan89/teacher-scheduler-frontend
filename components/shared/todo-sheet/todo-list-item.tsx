@@ -28,7 +28,6 @@ interface FocusedEditingTodoItemProps {
     listId: string
     context?: TodoContext
     onTextareaRef?: (todoId: string, el: HTMLTextAreaElement | null) => void
-    onEdit?: () => void
     className?: string
 }
 
@@ -84,10 +83,11 @@ const CategoryDisplay = ({ category }: { category?: string }) => {
 }
 
 // Due date display component for non-focused state
-const DueDateDisplay = ({ dueDate, context }: { dueDate?: any, context?: TodoContext }) => {
+const DueDateDisplay = ({ dueDate, context }: { dueDate?: string, context?: TodoContext }) => {
+
     if (!dueDate) return null
 
-    const formatRelativeDate = (date: any) => {
+    const formatRelativeDate = (date: string) => {
         const todoDate = new Date(date.toString())
 
         // For daily context, only show time since date is obvious
@@ -183,7 +183,6 @@ export default function FocusedEditingTodoItem({
     todo,
     listId,
     context = 'dashboard',
-    onEdit,
     className = ""
 }: FocusedEditingTodoItemProps) {
 
@@ -208,6 +207,7 @@ export default function FocusedEditingTodoItem({
                         <AddTodoForm
                             listId={todo?.listId}
                             todoId={todo?.id}
+                            todo={todo}
                             isRecurring={todo?.isRecurring}
                             onComplete={() => setShowEditTodoModal(false)}
                         />
@@ -264,7 +264,6 @@ export default function FocusedEditingTodoItem({
                     className={`hover:text-ring flex-1 min-w-0 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-95 opacity-0' : 'transform scale-100 opacity-100'}`}>
                     <div
                         className="cursor-pointer"
-                        onClick={() => !todo.deleting && onEdit?.()}
                     >
                         <p className={`text-[15px] font-medium leading-normal rounded px-2 py-[2px] transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
                             }`}>
@@ -277,7 +276,7 @@ export default function FocusedEditingTodoItem({
                                 <CategoryDisplay category={todo.listName} />
                             )}
                             {displayConfig.showDueDate && (
-                                <DueDateDisplay dueDate={todo.dueDate} context={context} />
+                                <DueDateDisplay dueDate={todo?.dueDate as string} context={context} />
                             )}
                             {displayConfig.showPriority && (
                                 <PriorityDisplay priority={todo.priority} />

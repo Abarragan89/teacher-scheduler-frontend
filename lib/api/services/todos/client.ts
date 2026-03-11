@@ -105,6 +105,12 @@ export const clientTodo = {
         const response = await clientFetch('/recurrence/next-occurrences');
         if (!response.ok) throw new Error('Failed to fetch next occurrences of recurring todos');
         return response.json();
+    },
+
+    async getTodosForDate(date: string) {
+        const response = await clientFetch(`/recurrence/todos-for-date/${date}`);
+        if (!response.ok) throw new Error('Failed to fetch todos for date');
+        return response.json();
     }
 
 }

@@ -7,15 +7,21 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CalendarIcon, ChevronDown, Clock, Flag, Plus } from 'lucide-react'
 import { Label } from '../../ui/label'
-import { TodoFormData, TodoFormUIState, TodoFormActions } from './hooks/useTodoForm'
-import { TodoList } from '@/types/todo'
+import { TodoFormData, TodoFormUIState } from './hooks/useTodoForm'
+import { TodoItem, TodoList } from '@/types/todo'
+import { clientTodo } from '@/lib/api/services/todos/client'
+import { removeTodoFromAllCaches } from '@/lib/utils/todo-cache'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface NonRecurringFormProps {
     formData: TodoFormData
     uiState: TodoFormUIState
-    actions: TodoFormActions
+    setField: (field: keyof TodoFormData, value: any) => void
+    setUIField: (field: keyof TodoFormUIState, value: any) => void
+    resetForm: (newTodo?: TodoItem) => void
     todoLists: TodoList[]
     todoId?: string
+    todoListId?: string
     onCancel?: () => void
     formatDisplayDate: (date: Date) => string
     isFormValid: () => boolean
@@ -24,13 +30,26 @@ interface NonRecurringFormProps {
 export default function NonRecurringForm({
     formData,
     uiState,
-    actions,
+    setField,
+    setUIField,
     todoLists,
     todoId,
+    todoListId,
     onCancel,
     formatDisplayDate,
     isFormValid
 }: NonRecurringFormProps) {
+
+    const queryClient = useQueryClient();
+
+    function handleDelete() {
+        if (!todoId) return;
+        clientTodo.deleteTodo(todoId).catch(error => {
+            console.error('Failed to delete todo:', error)
+        })
+        // update cache
+        if (todoListId) removeTodoFromAllCaches(queryClient, todoListId, todoId,)
+    }
 
     return (
         <div className="space-y-4">
@@ -39,7 +58,7 @@ export default function NonRecurringForm({
                 {/* Due Date */}
                 <div className="w-full min-w-[180px] flex-2">
                     <Label className='pl-1 pb-1'>Due Date <span className='text-xs opacity-60'>(optional)</span></Label>
-                    <Popover open={uiState.isDatePopoverOpen} onOpenChange={actions.toggleDatePopover}>
+                    <Popover open={uiState.isDatePopoverOpen} onOpenChange={(open) => setUIField('isDatePopoverOpen', open)}>
                         <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
@@ -59,8 +78,9 @@ export default function NonRecurringForm({
                                         captionLayout='dropdown'
                                         selected={formData.dueDate}
                                         onSelect={(val) => {
-                                            actions.updateDueDate(val);
-                                            actions.toggleDatePopover(false)
+                                            setField('dueDate', val);
+                                            if (!formData.time) setField('time', '07:00');
+                                            setUIField('isDatePopoverOpen', false);
                                         }}
                                         disabled={(date) => {
                                             // Disable dates before today (but allow today)
@@ -88,7 +108,7 @@ export default function NonRecurringForm({
                             type="time"
                             id="time-picker"
                             value={formData.time || ''}
-                            onChange={(e) => actions.updateTime(e.target.value)}
+                            onChange={(e) => setField('time', e.target.value)}
                             className="bg-background text-sm appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                         />
                         <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -101,7 +121,7 @@ export default function NonRecurringForm({
                 {/* List Selection */}
                 <div className="w-full min-w-[140px] flex-2">
                     <Label className="pl-1 pb-1">List</Label>
-                    <Select value={formData.selectedListId} onValueChange={actions.updateSelectedListId} disabled={uiState.isCreating}>
+                    <Select value={formData.selectedListId} onValueChange={(value) => setField('selectedListId', value)} disabled={uiState.isCreating}>
                         <Button variant='outline' asChild>
                             <SelectTrigger className="w-full justify-between text-left">
                                 <SelectValue placeholder="Select a list..." />
@@ -115,7 +135,7 @@ export default function NonRecurringForm({
                             ))}
                             <button
                                 className="text-ring w-full rounded-md text-sm p-1 hover:bg-accent hover:cursor-pointer"
-                                onClick={() => actions.toggleModal(true)}
+                                onClick={() => setUIField('isModalOpen', true)}
                             >
                                 <div className="flex items-center gap-2">
                                     <Plus className="h-4 w-4" />
@@ -129,7 +149,7 @@ export default function NonRecurringForm({
                 {/* Priority */}
                 <div className="w-full min-w-[120px] flex-1 text-sm">
                     <Label className="pl-1 pb-1">Priority <span className='text-xs opacity-60'>(optional)</span></Label>
-                    <Popover open={uiState.isPriorityPopoverOpen} onOpenChange={actions.togglePriorityPopover}>
+                    <Popover open={uiState.isPriorityPopoverOpen} onOpenChange={(open) => setUIField('isPriorityPopoverOpen', open)}>
                         <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
@@ -163,8 +183,8 @@ export default function NonRecurringForm({
                                         variant="ghost"
                                         className={`w-full justify-start space-x-2 ${bgColor} ${color}`}
                                         onClick={() => {
-                                            actions.updatePriority(level)
-                                            actions.togglePriorityPopover(false)
+                                            setField('priority', level)
+                                            setUIField('isPriorityPopoverOpen', false)
                                         }}
                                     >
                                         <span className="flex items-center gap-2">
@@ -205,6 +225,16 @@ export default function NonRecurringForm({
                         uiState.isCreating ? 'Saving...' : 'Save'
                         :
                         uiState.isCreating ? 'Adding...' : '+ Add Todo'
+                    }
+                </Button>
+                <Button
+                    type="button"
+                    variant={"destructive"}
+                    className="px-6 shadow-none"
+                    onClick={handleDelete}
+                >
+                    {todoId &&
+                        uiState.isCreating ? 'Deleting...' : 'Delete'
                     }
                 </Button>
             </div>

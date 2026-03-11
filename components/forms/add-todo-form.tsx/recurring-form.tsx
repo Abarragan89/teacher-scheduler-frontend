@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CalendarIcon, Clock, Plus, Repeat } from 'lucide-react'
 import { TodoList } from '@/types/todo'
 import { Label } from '../../ui/label'
-import { TodoFormData, TodoFormUIState, TodoFormActions } from './hooks/useTodoForm'
+import { TodoFormData, TodoFormUIState } from './hooks/useTodoForm'
 import { TabsContent } from '@radix-ui/react-tabs'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -16,9 +16,10 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 interface RecurringFormProps {
     formData: TodoFormData
     uiState: TodoFormUIState
-    actions: TodoFormActions
     todoLists: TodoList[]
     todoId?: string
+    setUIField: (field: keyof TodoFormUIState, value: any) => void
+    setField: (field: keyof TodoFormData, value: any) => void
     onCancel?: () => void
 }
 
@@ -27,21 +28,16 @@ type RecurrenceType = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
 export default function RecurringForm({
     formData,
     uiState,
-    actions,
     todoLists,
     todoId,
+    setUIField,
+    setField,
     onCancel
 }: RecurringFormProps) {
 
     // Destructure properties from hook
     const { text, selectedListId, recurrencePattern } = formData
     const { isCreating, editScope } = uiState
-    const {
-        updateSelectedListId,
-        updateEditScope,
-        toggleModal
-    } = actions
-
 
     const [isYearlyDatePopoverOpen, setIsYearlyDatePopoverOpen] = useState<boolean>(false)
     const [isStartDatePopoverOpen, setIsStartDatePopoverOpen] = useState<boolean>(false);
@@ -66,7 +62,7 @@ export default function RecurringForm({
             ? selectedDays.filter(day => day !== newDay)
             : [...selectedDays, newDay];
 
-        actions.updateRecurrencePattern({
+        setField('recurrencePattern', {
             ...recurrencePattern,
             daysOfWeek: newSelectedDays,
         });
@@ -74,7 +70,7 @@ export default function RecurringForm({
 
     function addSelectedDatesMonthly(newDay: string) {
         const newDayAsNum = newDay === "last" ? -1 : parseInt(newDay)
-        actions.updateRecurrencePattern({
+        setField('recurrencePattern', {
             ...recurrencePattern,
             daysOfMonth: [...recurrencePattern?.daysOfMonth, newDayAsNum],
         });
@@ -82,7 +78,7 @@ export default function RecurringForm({
 
     function removeSelectedDatesMonthly(newDay: number) {
         const updatedArray: number[] = recurrencePattern.daysOfMonth?.filter(num => num !== newDay)
-        actions.updateRecurrencePattern({
+        setField('recurrencePattern', {
             ...recurrencePattern,
             daysOfMonth: updatedArray,
         });
@@ -91,13 +87,13 @@ export default function RecurringForm({
 
     function updatedSelectedDaysMonthlyNth(ordinal: number) {
         const updatedNthWeekday = { ...recurrencePattern, nthWeekdayOccurrence: { ...recurrencePattern.nthWeekdayOccurrence, ordinal } }
-        actions.updateRecurrencePattern(updatedNthWeekday);
+        setField('recurrencePattern', updatedNthWeekday);
 
     }
 
     function updatedSelectedDaysMonthlyWeekday(weekday: number) {
         const updatedNthWeekday = { ...recurrencePattern, nthWeekdayOccurrence: { ...recurrencePattern.nthWeekdayOccurrence, weekday } }
-        actions.updateRecurrencePattern(updatedNthWeekday);
+        setField('recurrencePattern', updatedNthWeekday);
     }
 
     return (
@@ -107,7 +103,7 @@ export default function RecurringForm({
                 <Label className="pl-1 pb-1">Recurrence Pattern</Label>
                 <Select
                     value={recurrencePattern?.type}
-                    onValueChange={(value: RecurrenceType) => actions.updateRecurrencePattern({ ...recurrencePattern, type: value })}
+                    onValueChange={(value: RecurrenceType) => setField('recurrencePattern', { ...recurrencePattern, type: value })}
                 >
                     <SelectTrigger className="w-full">
                         <div className="flex items-center gap-2">
@@ -149,8 +145,8 @@ export default function RecurringForm({
             {recurrencePattern?.type === 'MONTHLY' && (
                 <Tabs defaultValue={recurrencePattern?.monthPatternType || 'BY_DATE'} className="p-0 m-0">
                     <TabsList className="-mt-5">
-                        <TabsTrigger onClick={() => actions.updateRecurrencePattern({ ...recurrencePattern, monthPatternType: 'BY_DATE' })} value="BY_DATE">By Date</TabsTrigger>
-                        <TabsTrigger onClick={() => actions.updateRecurrencePattern({ ...recurrencePattern, monthPatternType: 'BY_DAY' })} value="BY_DAY">By Day</TabsTrigger>
+                        <TabsTrigger onClick={() => setField('recurrencePattern', { ...recurrencePattern, monthPatternType: 'BY_DATE' })} value="BY_DATE">By Date</TabsTrigger>
+                        <TabsTrigger onClick={() => setField('recurrencePattern', { ...recurrencePattern, monthPatternType: 'BY_DAY' })} value="BY_DAY">By Day</TabsTrigger>
                     </TabsList>
                     <TabsContent value="BY_DATE">
                         <div className="mt-5 space-y-4">
@@ -296,7 +292,7 @@ export default function RecurringForm({
                                         mode="single"
                                         selected={formData?.recurrencePattern?.yearlyDate}
                                         onSelect={(val) => {
-                                            actions.updateRecurrencePattern({ ...formData.recurrencePattern, yearlyDate: val });
+                                            setField('recurrencePattern', { ...formData.recurrencePattern, yearlyDate: val });
                                             setIsYearlyDatePopoverOpen(false)
                                         }}
                                         className="rounded-md bg-transparent w-full p-0"
@@ -307,11 +303,6 @@ export default function RecurringForm({
                             </div>
                         </PopoverContent>
                     </Popover>
-                    {/* {formData.recurrencePattern?.yearlyDate && (
-                        <div className="text-sm text-muted-foreground text-center mt-3 bg-muted/30 p-3 rounded-md">
-                            <strong>Preview:</strong> Every year on {formData.recurrencePattern.yearlyDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
-                        </div>
-                    )} */}
                 </div>
             )}
 
@@ -329,7 +320,7 @@ export default function RecurringForm({
                             id="recurring-time-picker"
                             required
                             value={recurrencePattern?.timeOfDay || '07:00'}
-                            onChange={(e) => actions.updateRecurrencePattern({ ...recurrencePattern, timeOfDay: e.target.value })}
+                            onChange={(e) => setField('recurrencePattern', { ...recurrencePattern, timeOfDay: e.target.value })}
                             className="bg-background text-sm appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                         />
                         <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -339,7 +330,7 @@ export default function RecurringForm({
                 {/* List Selection */}
                 <div className=" flex-1">
                     <Label className="pl-1 pb-1">List</Label>
-                    <Select value={selectedListId} onValueChange={updateSelectedListId} disabled={isCreating}>
+                    <Select value={selectedListId} onValueChange={(value) => setField('selectedListId', value)} disabled={isCreating}>
                         <Button variant='outline' asChild>
                             <SelectTrigger className="w-full justify-between text-left">
                                 <SelectValue placeholder="Select a list..." />
@@ -353,7 +344,7 @@ export default function RecurringForm({
                             ))}
                             <button
                                 className="text-ring w-full rounded-md text-sm p-1 hover:bg-accent hover:cursor-pointer"
-                                onClick={() => toggleModal(true)}
+                                onClick={() => setUIField('isModalOpen', true)}
                             >
                                 <div className="flex items-center gap-2">
                                     <Plus className="h-4 w-4" />
@@ -397,7 +388,8 @@ export default function RecurringForm({
                                                 updatedPattern.endDate = val;
                                             }
 
-                                            actions.updateRecurrencePattern(updatedPattern);
+
+                                            setField('recurrencePattern', updatedPattern);
                                             setIsStartDatePopoverOpen(false)
                                         }}
                                         className="rounded-md bg-transparent w-full p-0"
@@ -439,7 +431,7 @@ export default function RecurringForm({
                                         mode="single"
                                         selected={formData.recurrencePattern.endDate}
                                         onSelect={(val) => {
-                                            actions.updateRecurrencePattern({ ...recurrencePattern, endDate: val });
+                                            setField('recurrencePattern', { ...formData.recurrencePattern, endDate: val });
                                             setEndDatePopoverOpen(false)
                                         }}
                                         disabled={(date) => {
@@ -473,7 +465,7 @@ export default function RecurringForm({
                                 name="edit-scope"
                                 value="single"
                                 checked={editScope === 'single'}
-                                onChange={(e) => updateEditScope(e.target.value as 'single' | 'future')}
+                                onChange={() => setUIField('editScope', 'single')}
                                 className="mt-1"
                             />
                             <div className="space-y-1">
@@ -492,7 +484,7 @@ export default function RecurringForm({
                                 name="edit-scope"
                                 value="future"
                                 checked={editScope === 'future'}
-                                onChange={(e) => updateEditScope(e.target.value as 'single' | 'future')}
+                                onChange={() => setUIField('editScope', 'future')}
                                 className="mt-1"
                             />
                             <div className="space-y-1">

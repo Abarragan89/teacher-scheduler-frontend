@@ -1,48 +1,13 @@
-import { TodoList } from '@/types/todo'
-import { TodoState } from './todo-list-operations'
+import { TodoItem, TodoList } from '@/types/todo'
 import { clientTodo } from '@/lib/api/services/todos/client'
 import { QueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { defaultRecurrencePattern } from '@/components/forms/add-todo-form.tsx/utils/format-todo-form'
-
-// Update a todo item text on change (No backend update)
-export const updateTodoItem = (listId: string, todoId: string, text: string, queryClient: QueryClient) => {
-
-    queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-        if (!oldData) return oldData
-        return oldData.map(list => {
-            if (list.id === listId) {
-                const updatedTodos = list.todos.map(todo =>
-                    todo.id === todoId
-                        ? { ...todo, text }
-                        : todo
-                )
-
-                // If user is typing in the last item and it now has text, add a new empty item at the end
-                const todoIndex = updatedTodos.findIndex(todo => todo.id === todoId)
-                const isLastItem = todoIndex === updatedTodos.length - 1
-                const hasText = text.trim() !== ''
-                const wasLastItemEmpty = list.todos[todoIndex]?.text.trim() === ''
-
-                if (hasText && isLastItem && wasLastItemEmpty) {
-                    // User started typing in the last empty item, add a new empty item at the end
-                    updatedTodos.push({
-                        id: `temp-todo-${Date.now()}`,
-                        text: '',
-                        completed: false,
-                        isRecurring: false,
-                        recurrencePattern: defaultRecurrencePattern(),
-                        priority: 1,
-                        dueDate: null,
-                    })
-                }
-
-                return { ...list, todos: updatedTodos }
-            }
-            return list;
-        })
-    })
-}
+import {
+    updateTodoInAllCaches,
+    addTodoToAllCaches,
+    replaceTodoInAllCaches,
+    removeTodoFromAllCaches,
+} from '@/lib/utils/todo-cache'
 
 // Helper function to find a todo
 const findTodo = (listId: string, todoId: string, todoLists: TodoList[]) => {
@@ -62,32 +27,25 @@ export const toggleTodoCompletion = async (
     playRemovedSound: () => void,
     queryClient: QueryClient
 ) => {
-    // Get the current data from the cache directly
-    const currentData = queryClient.getQueryData(['todos']) as TodoList[]
-    if (!currentData) return
+    // Try ['todos'] first, fall back to any flat daily/recurring cache
+    const currentData = queryClient.getQueryData<TodoList[]>(['todos'])
+    let todo: TodoItem | undefined = currentData ? findTodo(listId, todoId, currentData) : undefined
 
-    const todo = findTodo(listId, todoId, currentData) // Use current cache data
+    if (!todo) {
+        const allDailyEntries = queryClient.getQueriesData<TodoItem[]>({ queryKey: ['dailyTodos'] })
+        for (const [, data] of allDailyEntries) {
+            const found = data?.find(t => t.id === todoId)
+            if (found) { todo = found; break }
+        }
+    }
+
     if (!todo) return
 
     if (!todo.completed) {
         playSoundComplete();
 
         // Mark as complete and pendingRemoval IMMEDIATELY in cache
-        queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-            if (!oldData) return oldData
-            return oldData.map(list =>
-                list.id === listId
-                    ? {
-                        ...list,
-                        todos: list.todos.map(t =>
-                            t.id === todoId
-                                ? { ...t, completed: true, pendingRemoval: true }
-                                : t
-                        )
-                    }
-                    : list
-            )
-        })
+        updateTodoInAllCaches(queryClient, todoId, t => ({ ...t, completed: true, pendingRemoval: true }))
 
         // Schedule deletion after delay
         const timeoutId = setTimeout(() => {
@@ -97,45 +55,18 @@ export const toggleTodoCompletion = async (
 
             if (latestTodo?.completed) {
                 // Mark as deleting
-                queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-                    if (!oldData) return oldData
-                    return oldData.map(list =>
-                        list.id === listId
-                            ? {
-                                ...list,
-                                todos: list.todos.map(t =>
-                                    t.id === todoId
-                                        ? { ...t, deleting: true }
-                                        : t
-                                )
-                            }
-                            : list
-                    )
-                })
+                updateTodoInAllCaches(queryClient, todoId, t => ({ ...t, deleting: true }))
 
                 // Remove from UI after animation
                 playRemovedSound();
                 setTimeout(async () => {
                     // Clear deleting + pendingRemoval; keep completed: true so calendar shows strike-through
-                    queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-                        if (!oldData) return oldData
-                        return oldData.map(list =>
-                            list.id === listId
-                                ? {
-                                    ...list,
-                                    todos: list.todos.map(t =>
-                                        t.id === todoId
-                                            ? { ...t, deleting: false, pendingRemoval: false }
-                                            : t
-                                    )
-                                }
-                                : list
-                        )
-                    })
+                    updateTodoInAllCaches(queryClient, todoId, t => ({ ...t, deleting: false, pendingRemoval: false }))
 
                     // Update backend
                     try {
-                        await clientTodo.updateTodo({ ...todo, completed: true, todoListId: listId })
+                        const resolvedListId = listId || todo.todoListId || ''
+                        await clientTodo.updateTodo({ ...todo, completed: true, todoListId: resolvedListId })
                     } catch (error) {
                         console.error('Failed to update todo:', error)
                     }
@@ -157,201 +88,13 @@ export const toggleTodoCompletion = async (
         }
 
         // Mark as incomplete IMMEDIATELY in cache
-        queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-            if (!oldData) return oldData
-            return oldData.map(list =>
-                list.id === listId
-                    ? {
-                        ...list,
-                        todos: list.todos.map(t =>
-                            t.id === todoId
-                                ? { ...t, completed: false, deleting: false, pendingRemoval: false }
-                                : t
-                        )
-                    }
-                    : list
-            )
-        })
+        updateTodoInAllCaches(queryClient, todoId, t => ({ ...t, completed: false, deleting: false, pendingRemoval: false }))
 
         // Backend API call (don't await)
-        clientTodo.updateTodo({ ...todo, completed: false, todoListId: listId }).catch(error => {
+        const resolvedListId = listId || todo.todoListId || ''
+        clientTodo.updateTodo({ ...todo, completed: false, todoListId: resolvedListId }).catch(error => {
             console.error('Failed to uncheck todo:', error)
         })
-    }
-}
-
-// Handle todo focus
-export const handleTodoFocus = (listId: string, todoId: string, state: TodoState, queryClient: QueryClient) => {
-    const { setFocusedText } = state
-    // Get fresh data from cache
-    const todoLists = queryClient.getQueryData(['todos']) as TodoList[]
-    if (!todoLists) return
-
-    const list = todoLists.find(l => l.id === listId)
-    const todo = list?.todos.find(t => t.id === todoId)
-    if (todo && setFocusedText) {
-        setFocusedText(todo.text)
-    }
-}
-
-// Handle todo blur (Frontend and Backend Update)
-export const handleTodoBlur = async (
-    listId: string,
-    todoId: string,
-    text: string,
-    state: TodoState,
-    queryClient: QueryClient
-) => {
-    // Get fresh data from cache instead of stale state
-    const todoLists = queryClient.getQueryData(['todos']) as TodoList[]
-    if (!todoLists) return
-
-    const { focusedText } = state
-    const list = todoLists.find(l => l.id === listId)
-    if (!list) return
-    const todo = list.todos.find(t => t.id === todoId)
-    if (!todo) return
-
-    // Check if text actually changed
-    const hasTextChanged = text.trim() !== focusedText?.trim()
-    const isTemporary = todoId.startsWith('temp-')
-
-    // If text is empty, remove the item unless it's the last one in the list
-    if (text.trim() === '') {
-        const currentIndex = list.todos.findIndex(todo => todo.id === todoId)
-        const isLastItem = currentIndex === list.todos.length - 1
-
-        // Only remove if it's not the last item
-        if (!isLastItem) {
-
-            // Remove from UI
-            queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-                if (!oldData) return oldData
-                return oldData.map(l => {
-                    if (l.id === listId) {
-                        const newTodos = l.todos
-                            .filter(todo => todo.id !== todoId)
-                            .map((todo, index) => ({ ...todo, position: index }))
-                        return { ...l, todos: newTodos }
-                    }
-                    return l
-                })
-            })
-            if (!isTemporary) {
-                // Delete from backend
-                await clientTodo.deleteTodo(todoId)
-            }
-        }
-        return
-    }
-
-    if (hasTextChanged) {
-        // Update existing todo in backend
-        try {
-            const updatedTodo = { ...todo, text: text.trim() }
-            await clientTodo.updateTodo({ ...updatedTodo, todoListId: listId })
-
-            // Update cache with fresh data, keeping existing properties
-            queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-                if (!oldData) return oldData
-                return oldData.map(l => {
-                    if (l.id === listId) {
-                        const updatedTodos = l.todos.map((t, index) => {
-                            if (t.id === todoId) {
-                                return {
-                                    ...t, // Keep existing properties like completed status
-                                    text: text.trim(),
-                                    position: index
-                                }
-                            }
-                            return { ...t, position: index }
-                        })
-
-                        return { ...l, todos: updatedTodos }
-                    }
-                    return l
-                })
-            })
-        } catch (error) {
-            console.error('Error updating todo:', error)
-        }
-    }
-}
-
-// Handle Due Date Update (backend update and frontend update)
-export const handleDueDateUpdate = async (
-    todoId: string,
-    dueDate: string | null,
-    queryClient: QueryClient,
-    listId: string
-) => {
-    // Get fresh data from cache instead of stale state
-    const todoLists = queryClient.getQueryData(['todos']) as TodoList[]
-    if (!todoLists) return
-
-    const currentList = todoLists.find(list => list.id === listId)
-    if (!currentList) return
-
-    const currentTodo = currentList.todos.find(t => t.id === todoId)
-    if (!currentTodo) return
-
-
-    // Update the due date/time in the UI
-    queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-        if (!oldData) return oldData
-        return oldData.map(list => ({
-            ...list,
-            todos: list.todos.map(todo =>
-                todo.id === todoId
-                    ? { ...todo, dueDate }
-                    : todo
-            )
-        }))
-    })
-
-    try {
-        const updatedTodo = { ...currentTodo, dueDate, todoListId: listId }
-        await clientTodo.updateTodo(updatedTodo)
-    } catch (error) {
-        console.error('Failed to update due date:', error)
-    }
-}
-
-// Handle Priority Update (backend update and frontend update)
-export const handlePriorityUpdate = async (
-    todoId: string,
-    priority: number,
-    queryClient: QueryClient,
-    listId: string
-) => {
-    // Get fresh data from cache instead of stale state
-    const todoLists = queryClient.getQueryData(['todos']) as TodoList[]
-    if (!todoLists) return
-
-    const currentList = todoLists.find(list => list.id === listId)
-    if (!currentList) return
-
-    const currentTodo = currentList.todos.find(t => t.id === todoId)
-    if (!currentTodo) return
-
-    // Update the priority in the UI (NO SORTING)
-    queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-        if (!oldData) return oldData
-        return oldData.map(list => ({
-            ...list,
-            todos: list.todos.map(todo =>
-                todo.id === todoId
-                    ? { ...todo, priority }
-                    : todo
-            )
-        }))
-    })
-
-    try {
-        const updatedTodo = { ...currentTodo, priority, todoListId: listId }
-        await clientTodo.updateTodo(updatedTodo)
-    } catch (error) {
-        console.error('Failed to update priority:', error)
     }
 }
 
@@ -384,18 +127,7 @@ export const addTodoItem = async (
     }
 
     // Immediately add to beginning of list (newest first)
-    queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-        if (!oldData) return oldData
-        return oldData.map(list => {
-            if (list.id === listId) {
-                return {
-                    ...list,
-                    todos: [tempTodo, ...list.todos] // Add to beginning
-                }
-            }
-            return list
-        })
-    })
+    addTodoToAllCaches(queryClient, listId, tempTodo as TodoItem)
 
     try {
         setNewTodoText(" ")
@@ -418,35 +150,11 @@ export const addTodoItem = async (
         }, 100)
 
         // Replace temp todo with real todo from backend
-        queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-            if (!oldData) return oldData
-            return oldData.map(list => {
-                if (list.id === listId) {
-                    return {
-                        ...list,
-                        todos: list.todos.map(todo =>
-                            todo.id === tempId ? newTodo : todo
-                        )
-                    }
-                }
-                return list
-            })
-        })
+        replaceTodoInAllCaches(queryClient, listId, tempId, newTodo)
     } catch (error) {
         console.error('Failed to add todo:', error)
 
         // Remove temp todo on error
-        queryClient.setQueryData(['todos'], (oldData: TodoList[]) => {
-            if (!oldData) return oldData
-            return oldData.map(list => {
-                if (list.id === listId) {
-                    return {
-                        ...list,
-                        todos: list.todos.filter(todo => todo.id !== tempId)
-                    }
-                }
-                return list
-            })
-        })
+        removeTodoFromAllCaches(queryClient, listId, tempId)
     }
 }
