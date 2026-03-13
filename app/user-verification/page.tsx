@@ -1,7 +1,9 @@
 "use client";
 import React, { useEffect, useState, Suspense } from 'react'
-import { redirect, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import SigninBtn from '@/components/signin-btn';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 function UserVerificationInner() {
 
@@ -10,7 +12,11 @@ function UserVerificationInner() {
 
     const [error, setError] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [isIOS, setIsIOS] = useState<boolean>(false)
 
+    useEffect(() => {
+        setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent))
+    }, [])
 
     useEffect(() => {
         if (!token) return
@@ -33,9 +39,6 @@ function UserVerificationInner() {
                 }
 
                 setIsLoading(false)
-                setTimeout(() => {
-                    redirect('/dashboard')
-                }, 1000)
             } catch (error) {
                 console.error('error validating ', error)
                 setError("Validation Token is Expired")
@@ -56,19 +59,26 @@ function UserVerificationInner() {
             {!isLoading && !error && (
                 <div className='text-center'>
                     <h3 className='h3-bold text-ring'>Verification Successful!</h3>
-                    <p className='mt-3 text-xl'>Redirecting to Dashboard...</p>
+                    <p className='mt-3 text-xl'>You&apos;re signed in.</p>
+                    <Button asChild className='mt-6 px-8' size='lg'>
+                        <Link href='/dashboard'>Open App</Link>
+                    </Button>
+                    {isIOS && (
+                        <p className='mt-4 text-sm text-muted-foreground max-w-xs mx-auto'>
+                            Already have the app installed? Return to it from your home screen — you&apos;re already signed in.
+                        </p>
+                    )}
                 </div>
             )}
 
             {error && (
                 <div className="text-center">
-                    <h3 className='h3-bold text-destructive'>Verification Unsuccessfull </h3>
+                    <h3 className='h3-bold text-destructive'>Verification Unsuccessful</h3>
                     <p className='my-3'>Magic Link expired. Please sign in again.</p>
                     <SigninBtn />
                 </div>
             )}
         </main>
-
     )
 }
 

@@ -6,6 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
         short_name: 'TFF',
         description: 'Teacher Scheduler',
         start_url: '/',
+        scope: '/',
         display: 'standalone',
         background_color: '#A197F8',
         theme_color: '#0F0F19',
