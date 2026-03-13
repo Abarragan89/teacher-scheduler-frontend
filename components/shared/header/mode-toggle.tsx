@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button';
 import { SunMedium, MoonIcon } from 'lucide-react';
@@ -22,21 +22,6 @@ export default function ModeToggle() {
                 return <MoonIcon />
 
         }
-    }
-
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => setMounted(true), []);
-
-    if (!mounted) {
-        // Avoids SSR/CSR mismatch by rendering a placeholder
-        return (
-            <NavigationMenuItem>
-                <Button variant="outline" disabled>
-                    <MoonIcon />
-                </Button>
-            </NavigationMenuItem>
-        );
     }
 
     return (

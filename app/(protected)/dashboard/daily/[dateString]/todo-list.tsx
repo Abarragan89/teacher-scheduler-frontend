@@ -4,6 +4,9 @@ import { DailyTodoItem } from '@/lib/hooks/useDailyTodos'
 import { useState, useEffect } from 'react'
 import TodoListItem from '@/components/todo-list-item'
 import { clientDays } from '@/lib/api/services/days/client'
+import AddTodoForm from '@/components/forms/add-todo-form.tsx'
+import { SheetContent, SheetHeader, SheetTitle, Sheet } from '@/components/ui/sheet'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 interface TodoListProps {
     dateString: string
@@ -14,7 +17,8 @@ export default function TodoList({ dateString }: TodoListProps) {
 
     const { todos } = useDailyTodos(dateString)
     const [holiday, setHoliday] = useState<{ date: string, name: string, emoji?: string } | null>(null)
-
+    const [openAddTodoModal, setOpenAddTodoModal] = useState<boolean>(false);
+    const [currentTimeSlot, setCurrentTimeSlot] = useState<string>('')
 
     // Fetch holiday for this specific date
     useEffect(() => {
@@ -36,8 +40,27 @@ export default function TodoList({ dateString }: TodoListProps) {
         fetchHolidayForDate()
     }, [dateString])
 
+
+    function handleAddTodo(timeSlot: string) {
+        setCurrentTimeSlot(timeSlot)
+        setOpenAddTodoModal(true)
+    }
+
     return (
         <>
+
+            <Sheet open={openAddTodoModal} onOpenChange={setOpenAddTodoModal}>
+                <SheetContent side="left" className='p-4'>
+                    <SheetHeader>
+                        <SheetTitle className='mb-3'>Add Todo</SheetTitle>
+                    </SheetHeader>
+                    <ScrollArea className='h-[85vh]'>
+                        <AddTodoForm
+                            defaultDueDate={new Date(`${dateString}T${currentTimeSlot.split(" ")[0].padStart(2, '0')}:00:00`)}
+                        />
+                    </ScrollArea>
+                </SheetContent>
+            </Sheet>
             {/* Holiday Banner */}
             {holiday && (
                 <div className="mb-6  ml-2 bg-gradient-to-r rounded-lg">
@@ -56,7 +79,10 @@ export default function TodoList({ dateString }: TodoListProps) {
                 {timeBlocks.map((time) => (
                     <div key={time} className='flex w-full border-b min-h-[60px]'>
                         <p
-                            className='hover:cursor-pointer hover:text-ring text-md font-bold w-[65px] border-r pl-3 pt-1'>{time.split(" ")[0]} <span className='text-xs'>{time.split(" ")[1]}</span></p>
+                            onClick={() => handleAddTodo(time)}
+                            className='hover:cursor-pointer hover:text-ring text-md font-bold w-[65px] border-r pl-3 pt-1'>{time.split(" ")[0]}
+                            <span className='text-xs'>{time.split(" ")[1]}</span>
+                        </p>
                         <div className="space-y-0 transition-all duration-300 ease-in-out w-full">
                             {todos.filter((todo: DailyTodoItem) => {
                                 // Filter todos for this time block

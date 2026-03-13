@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { subscribeUser, unsubscribeUser, sendNotificationToAllUsers } from '@/app/actions'
+import { subscribeUser, unsubscribeUser } from '@/app/actions'
 import { Button } from './ui/button'
 import { toast } from 'sonner'
 
@@ -40,29 +40,6 @@ export default function PushNotificationManager() {
             document.referrer.includes('android-app://')
         setIsStandalone(standalone)
     }
-
-    useEffect(() => {
-        if ('serviceWorker' in navigator && 'PushManager' in window) {
-            setIsSupported(true)
-            registerServiceWorker()
-            checkStandalone();
-        }
-    }, [])
-
-
-
-    // ✅ Expose renewal function globally for other components to trigger
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            (window as any).renewPushSubscription = renewSubscriptionSeamlessly
-        }
-
-        return () => {
-            if (typeof window !== 'undefined') {
-                delete (window as any).renewPushSubscription
-            }
-        }
-    }, [])
 
     async function registerServiceWorker() {
         const registration = await navigator.serviceWorker.register('/sw.js', {
@@ -161,21 +138,33 @@ export default function PushNotificationManager() {
         }
     }
 
-    // async function sendTestNotification() {
-    //     if (message.trim()) {
-    //         const result = await sendNotificationToAllUsers(message)
-    //         if (result.success) {
-    //             setMessage('')
+    useEffect(() => {
+        async function init() {
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                await registerServiceWorker()
+                checkStandalone()
+                setIsSupported(true)
+            }
+        }
+        init()
+    }, [])
 
-    //             // ✅ If subscriptions were cleaned up, trigger renewal
-    //             if (result.needsRenewal && subscription) {
-    //                 await renewSubscriptionSeamlessly()
-    //             }
-    //         } else {
-    //             console.error('❌ Failed to send test notification:', result.error)
-    //         }
-    //     }
-    // }
+
+
+    // ✅ Expose renewal function globally for other components to trigger
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            (window as any).renewPushSubscription = renewSubscriptionSeamlessly
+        }
+
+        return () => {
+            if (typeof window !== 'undefined') {
+                delete (window as any).renewPushSubscription
+            }
+        }
+    }, [])
+
+
 
     if (!isSupported) {
         return null // Hide if not supported

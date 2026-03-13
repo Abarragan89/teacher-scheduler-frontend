@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import RecurringForm from './recurring-form'
 import { useViewDateRange } from '@/lib/hooks/useViewDateRange'
 import { moveUpdatedTodoInAllCaches, injectTodoIntoFlatCaches, removeTodoFromAllCaches } from '@/lib/utils/todo-cache'
+import { toast } from 'sonner'
 
 interface AddTodoFormProps {
     listId?: string // Make optional since we'll have dropdown
@@ -20,6 +21,7 @@ interface AddTodoFormProps {
     timeSlot?: string      // Optional time slot for pre-filling time
     isRecurring?: boolean  // Indicates if the todo is recurring
     todo?: TodoItem // Optional todo item for editing (if todoId is provided)
+    defaultDueDate?: Date  // Optional date to pre-fill when creating a new todo
 }
 
 export default function AddTodoForm({
@@ -28,6 +30,7 @@ export default function AddTodoForm({
     onComplete,
     timeSlot,
     todo,
+    defaultDueDate,
 }: AddTodoFormProps) {
 
     const {
@@ -40,7 +43,7 @@ export default function AddTodoForm({
         currentTodo,
         formatDisplayDate,
         isFormValid,
-    } = useTodoForm({ listId, todoId, timeSlot, todo })
+    } = useTodoForm({ listId, todoId, timeSlot, todo, defaultDueDate })
 
     const inputRef = useRef<HTMLInputElement>(null)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -170,10 +173,12 @@ export default function AddTodoForm({
             }
             // Reset form
             resetForm(newTodo)
+            toast.success(currentTodo ? 'Todo updated' : formData.isRecurring ? 'Recurring todo created' : 'Todo created')
             // Call completion callback
             onComplete?.()
         } catch (error) {
             console.error('Failed to create todo:', error)
+            toast.error('Something went wrong. Please try again.')
         } finally {
             setTimeout(() => {
                 inputRef.current?.focus()
@@ -189,7 +194,7 @@ export default function AddTodoForm({
             textareaRef.current.setSelectionRange(length, length)
             textareaRef.current.focus()
         }
-    }, []) // Run only on mount
+    }, [formData?.text]) // Run only on mount
 
     // Check if we're editing a recurring todo
     const isEditing = currentTodo !== undefined
@@ -246,7 +251,7 @@ export default function AddTodoForm({
                                 formData={formData}
                                 uiState={uiState}
                                 setField={setField}
-                                todoListId={listId}
+                                todoListId={listId ?? currentTodo?.todoListId}
                                 setUIField={setUIField}
                                 resetForm={resetForm}
                                 todoLists={todoLists}
@@ -261,7 +266,7 @@ export default function AddTodoForm({
                                 uiState={uiState}
                                 setField={setField}
                                 setUIField={setUIField}
-                                todoListId={listId} 
+                                todoListId={listId}
                                 todoLists={todoLists}
                                 todoId={todoId}
                                 dueDate={todo?.dueDate}

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { CalendarIcon, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Calendar as CalendarComponent } from '@/components/ui/calendar'
@@ -32,14 +32,6 @@ export default function DateTimePicker({
         }
         return '7:00 AM'
     })
-
-    // Update temp date and time when prop changes
-    useEffect(() => {
-        setTempDate(value || null)
-        if (value) {
-            setTime(value.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }))
-        }
-    }, [value])
 
     // Helper function to convert 12-hour time to 24-hour time
     const convertTo24Hour = (time12h: string): string => {
@@ -112,7 +104,15 @@ export default function DateTimePicker({
     return (
         <div className={className}>
             {label && <label className="text-xs text-muted-foreground">{label}</label>}
-            <Popover open={isOpen} onOpenChange={setIsOpen}>
+            <Popover open={isOpen} onOpenChange={(open) => {
+                if (open) {
+                    setTempDate(value || null)
+                    if (value) {
+                        setTime(value.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }))
+                    }
+                }
+                setIsOpen(open)
+            }}>
                 <PopoverTrigger asChild>
                     <Button
                         variant="outline"

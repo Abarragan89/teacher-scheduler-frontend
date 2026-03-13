@@ -36,19 +36,6 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
         endDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split('T')[0]
     })
 
-    async function fetchHolidays() {
-        try {
-            const holidayData = await clientDays.getHoliaysForMonth(
-                currentDate.getFullYear(),
-                currentDate.getMonth() + 1
-            )
-            setHolidays(holidayData || [])
-        } catch (error) {
-            console.error('Failed to fetch holidays:', error)
-            setHolidays([])
-        }
-    }
-
     // Helper function to get holiday for a specific date
     const getHolidayForDate = (date: Date): { date: string, name: string, emoji?: string } | null => {
         const dateString = date.toISOString().split('T')[0]
@@ -56,6 +43,18 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
     }
 
     useEffect(() => {
+        async function fetchHolidays() {
+            try {
+                const holidayData = await clientDays.getHoliaysForMonth(
+                    currentDate.getFullYear(),
+                    currentDate.getMonth() + 1
+                )
+                setHolidays(holidayData || [])
+            } catch (error) {
+                console.error('Failed to fetch holidays:', error)
+                setHolidays([])
+            }
+        }
         fetchHolidays()
     }, [currentDate])
 

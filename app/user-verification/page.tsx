@@ -1,9 +1,9 @@
 "use client";
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, Suspense } from 'react'
 import { redirect, useSearchParams } from 'next/navigation';
 import SigninBtn from '@/components/signin-btn';
 
-export default function UserVerification() {
+function UserVerificationInner() {
 
     const searchParams = useSearchParams();
     const token = searchParams.get('token')
@@ -12,39 +12,39 @@ export default function UserVerification() {
     const [isLoading, setIsLoading] = useState<boolean>(true)
 
 
-    async function verifyToken(): Promise<void> {
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/magic-link-verify`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ token }),
-                credentials: "include"
-            })
+    useEffect(() => {
+        if (!token) return
 
-            if (!response.ok) {
+        async function verifyToken(): Promise<void> {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/magic-link-verify`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ token }),
+                    credentials: "include"
+                })
+
+                if (!response.ok) {
+                    setError("Validation Token is Expired")
+                    setIsLoading(false)
+                    return
+                }
+
+                setIsLoading(false)
+                setTimeout(() => {
+                    redirect('/dashboard')
+                }, 1000)
+            } catch (error) {
+                console.error('error validating ', error)
                 setError("Validation Token is Expired")
+                setIsLoading(false)
             }
-
-            setIsLoading(false)
-        } catch (error) {
-            console.error('erro validating ', error)
-            setError("Validation Token is Expired")
         }
-    }
 
-    useEffect(() => {
-        if (token) verifyToken();
+        verifyToken()
     }, [token])
-
-    useEffect(() => {
-        if (!isLoading) {
-            setTimeout(() => {
-                redirect('/dashboard')
-            }, 1000);
-        }
-    }, [isLoading])
 
     return (
         <main className='wrapper'>
@@ -69,5 +69,13 @@ export default function UserVerification() {
             )}
         </main>
 
+    )
+}
+
+export default function UserVerification() {
+    return (
+        <Suspense>
+            <UserVerificationInner />
+        </Suspense>
     )
 }

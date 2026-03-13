@@ -8,8 +8,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
-import InstallPrompt from '@/components/install-prompt'
-
 
 export default function UserActionMenu({ email }: { email: string }) {
 
@@ -38,7 +36,6 @@ export default function UserActionMenu({ email }: { email: string }) {
             </PopoverTrigger>
             <PopoverContent className='w-[200px] flex flex-col items-center gap-y-3'>
                 <p className='text-sm text-center'>{email.split('@')[0]}</p>
-                {/* <InstallPrompt /> */}
                 <Button onClick={logoutUser} variant={'outline'}>
                     Logout
                 </Button>

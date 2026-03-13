@@ -35,7 +35,7 @@ export default async function Home() {
                 <span className="text-primary">beautifully organized.</span>
               </h1>
               <p className="text-muted-foreground text-lg sm:text-xl max-w-lg">
-                Plan your day, share your schedule, and stay on top of everything — whether you're a teacher, parent, or anyone managing a busy day.
+                Plan your day, share your schedule, and stay on top of everything — whether you&apos;re a teacher, parent, or anyone managing a busy day.
               </p>
               <div className="flex gap-4 flex-wrap">
                 <SigninBtn isGetStarted={true} />
@@ -60,7 +60,7 @@ export default async function Home() {
 
         {/* Features Section */}
         <section className="px-6 py-20 max-w-5xl mx-auto">
-          <h2 className="text-3xl font-semibold text-center mb-12">Everything you need, nothing you don't.</h2>
+          <h2 className="text-3xl font-semibold text-center mb-12">Everything you need, nothing you don&apos;t.</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
             <div className="rounded-xl border border-border bg-card p-6 flex gap-4">
@@ -94,7 +94,7 @@ export default async function Home() {
               <div>
                 <h3 className="font-semibold text-lg mb-1">Share a Live Link</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Copy a shareable link to any day's schedule. Anyone with the link can view it — no account needed. Great for sharing with students, parents, or colleagues.
+                  Copy a shareable link to any day&apos;s schedule. Anyone with the link can view it — no account needed. Great for sharing with students, parents, or colleagues.
                 </p>
               </div>
             </div>
@@ -117,7 +117,7 @@ export default async function Home() {
         {/* Bottom CTA */}
         <section className="px-6 py-20 text-center">
           <h2 className="text-3xl font-semibold mb-4">Ready to get organized?</h2>
-          <p className="text-muted-foreground mb-8 text-lg">It's free to get started.</p>
+          <p className="text-muted-foreground mb-8 text-lg">It&apos;s free to get started.</p>
           <Button asChild size="lg" className="text-base px-10">
             <Link href="/sign-in">Create an Account</Link>
           </Button>

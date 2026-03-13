@@ -15,6 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { clientTodo } from '@/lib/api/services/todos/client'
 import { removeTodoFromAllCaches } from '@/lib/utils/todo-cache'
 import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 interface RecurringFormProps {
     formData: TodoFormData
@@ -111,9 +112,11 @@ export default function RecurringForm({
         if (!patternId || !dueDate) return
         removeTodoFromAllCaches(queryClient, todoListId!, todoId!)
         if (formData.editScope === 'future') {
-            clientTodo.deleteAllRecurrences(patternId)
+            clientTodo.deleteAllRecurrences(patternId).catch(() => toast.error('Failed to delete recurring todos'))
+            toast.success('All future occurrences deleted')
         } else if (formData.editScope === 'single') {
-            clientTodo.deleteSingleRecurrence(todoId!, patternId, dueDate!)
+            clientTodo.deleteSingleRecurrence(todoId!, patternId, dueDate!).catch(() => toast.error('Failed to delete todo'))
+            toast.success('Todo deleted')
         }
     }
 
@@ -129,8 +132,8 @@ export default function RecurringForm({
                             type="button"
                             onClick={() => setField('editScope', 'single')}
                             className={`flex-1 text-sm py-2 px-3 transition-colors ${formData.editScope === 'single'
-                                    ? 'bg-primary text-primary-foreground font-medium'
-                                    : 'bg-background text-muted-foreground hover:bg-muted'
+                                ? 'bg-primary text-primary-foreground font-medium'
+                                : 'bg-background text-muted-foreground hover:bg-muted'
                                 }`}
                         >
                             This occurrence
@@ -140,8 +143,8 @@ export default function RecurringForm({
                             type="button"
                             onClick={() => setField('editScope', 'future')}
                             className={`flex-1 text-sm py-2 px-3 transition-colors ${formData.editScope === 'future'
-                                    ? 'bg-primary text-primary-foreground font-medium'
-                                    : 'bg-background text-muted-foreground hover:bg-muted'
+                                ? 'bg-primary text-primary-foreground font-medium'
+                                : 'bg-background text-muted-foreground hover:bg-muted'
                                 }`}
                         >
                             This &amp; all future

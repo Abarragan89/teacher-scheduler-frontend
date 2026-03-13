@@ -12,6 +12,7 @@ import { TodoItem, TodoList } from '@/types/todo'
 import { clientTodo } from '@/lib/api/services/todos/client'
 import { removeTodoFromAllCaches } from '@/lib/utils/todo-cache'
 import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 interface NonRecurringFormProps {
     formData: TodoFormData
@@ -46,9 +47,11 @@ export default function NonRecurringForm({
         if (!todoId) return;
         clientTodo.deleteTodo(todoId).catch(error => {
             console.error('Failed to delete todo:', error)
+            toast.error('Failed to delete todo')
         })
         // update cache
-        if (todoListId) removeTodoFromAllCaches(queryClient, todoListId, todoId,)
+        if (todoListId) removeTodoFromAllCaches(queryClient, todoListId, todoId)
+        toast.success('Todo deleted')
     }
 
     return (

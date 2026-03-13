@@ -141,7 +141,7 @@ export default function EditTaskPopover({
                 {currentView === 'deleting' && (
                     <PopoverContent className='w-[200px]'>
                         <div className="space-y-5 p-3">
-                            <p className='line-clamp-1 text-sm text-center italic'>"{!task.title ? "Empty Task" : task.title}"</p>
+                            <p className='line-clamp-1 text-sm text-center italic'>&quot;{!task.title ? "Empty Task" : task.title}&quot;</p>
 
                             <div className="flex justify-center gap-2">
                                 <Button

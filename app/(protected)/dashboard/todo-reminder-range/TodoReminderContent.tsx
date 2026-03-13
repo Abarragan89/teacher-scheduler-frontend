@@ -6,7 +6,6 @@ import { Calendar, Clock, Flag } from 'lucide-react'
 import { TodoItem as BaseTodoItem } from '@/types/todo'
 import Link from 'next/link'
 import TodoListItem from '@/components/todo-list-item'
-import { useQueryClient } from '@tanstack/react-query'
 
 interface ReminderTodoItem extends BaseTodoItem {
     listName?: string
@@ -18,19 +17,6 @@ interface TodoReminderContentProps {
 
 export default function TodoReminderContent({ view }: TodoReminderContentProps) {
     const { todayTodos, weekTodos, monthTodos, isLoading } = useReminderTodos()
-    const queryClient = useQueryClient();
-
-    const findListIdForTodo = (todoId: string) => {
-        const todoLists = queryClient.getQueryData(['todos']) as any[]
-        if (!todoLists) return null
-
-        for (const list of todoLists) {
-            if (list.todos.some((todo: any) => todo.id === todoId)) {
-                return list.id
-            }
-        }
-        return null
-    }
 
     if (isLoading) {
         return (

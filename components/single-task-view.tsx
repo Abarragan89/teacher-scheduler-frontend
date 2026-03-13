@@ -15,11 +15,11 @@ interface FullScreenTaskViewProps {
 }
 
 export function SingleTaskView({ task, isOpen, onClose, state }: FullScreenTaskViewProps) {
-    if (!isOpen) return null
-
     const [playCompleteSound] = useSound('/sounds/todoWaterClick.wav', {
         volume: 0.4
     });
+
+    if (!isOpen) return null
 
     return (
         <div className="fixed inset-0 z-50 bg-background">

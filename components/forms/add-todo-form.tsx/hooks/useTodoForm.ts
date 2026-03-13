@@ -28,9 +28,10 @@ interface UseTodoFormProps {
     todoId?: string
     timeSlot?: string
     todo?: TodoItem  // accept todo directly to support virtuals
+    defaultDueDate?: Date
 }
 
-export function useTodoForm({ listId, todoId, timeSlot, todo }: UseTodoFormProps = {}) {
+export function useTodoForm({ listId, todoId, timeSlot, todo, defaultDueDate }: UseTodoFormProps = {}) {
     const queryClient = useQueryClient()
     const todoLists = (queryClient.getQueryData(['todos']) as TodoList[]) || []
 
@@ -40,7 +41,7 @@ export function useTodoForm({ listId, todoId, timeSlot, todo }: UseTodoFormProps
     )
 
     const [formData, setFormData] = useState<TodoFormData>(() =>
-        toTodoFormData({ currentTodo, listId, timeSlot, todoLists })
+        toTodoFormData({ currentTodo, listId, timeSlot, todoLists, defaultDueDate })
     )
 
     const [uiState, setUIState] = useState<TodoFormUIState>({

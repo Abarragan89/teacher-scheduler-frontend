@@ -1,4 +1,3 @@
-import { OutlineItem } from './outline-item';
 import { Task } from './tasks';
 export interface DayData {
     dayDate: string;

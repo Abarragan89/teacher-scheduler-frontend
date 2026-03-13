@@ -63,7 +63,7 @@ export const handleTaskDelete = async (taskId: string, setTasks: React.Dispatch<
 }
 
 export const handleCreateNewTask = async (state: AccordionState) => {
-    const { tasks, setTasks, setOpenAccordions, focusedText, scheduleId, setIsCreatingTask } = state
+    const { tasks, setTasks, setOpenAccordions, scheduleId, setIsCreatingTask } = state
 
     try {
         // Set loading state
