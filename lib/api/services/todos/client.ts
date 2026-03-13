@@ -73,7 +73,6 @@ export const clientTodo = {
     },
 
     async updateTodo(todoItem: TodoItem) {
-        console.log('Updating todo item with ID:', todoItem);
 
         const response = await clientFetch('/todo/update-list-item', {
             method: 'PUT',
@@ -114,6 +113,23 @@ export const clientTodo = {
         const response = await clientFetch(`/recurrence/todos-for-date/${date}`);
         if (!response.ok) throw new Error('Failed to fetch todos for date');
         return response.json();
-    }
+    },
 
+    async deleteAllRecurrences(patternId: string) {
+        const response = await clientFetch(`/recurrence/delete-recurrence/${patternId}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) throw new Error('Failed to delete all recurrences');
+        return true;
+    },
+
+    async deleteSingleRecurrence(todoId: string, patternId: string, dueDate: string) {
+        const response = await clientFetch(`/recurrence/delete-single-occurrence`, {
+            method: 'DELETE',
+            body: JSON.stringify({ todoId, patternId, dueDate }),
+        });
+        if (!response.ok) throw new Error('Failed to delete single recurrence');
+        return true;
+
+    }
 }

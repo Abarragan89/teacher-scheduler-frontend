@@ -8,18 +8,12 @@ import { CalendarDays, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { TodoSheet } from '../todo-sheet'
 import InstallPrompt from '@/components/install-prompt'
-import { useTodoLists } from '@/lib/hooks/useTodoLists'
-import { ResponsiveDialog } from '@/components/responsive-dialog'
 import AddTodoForm from '@/components/forms/add-todo-form.tsx'
 import {
     Sheet,
-    SheetClose,
     SheetContent,
-    SheetDescription,
-    SheetFooter,
     SheetHeader,
     SheetTitle,
-    SheetTrigger,
 } from "@/components/ui/sheet"
 import { ScrollArea } from '@/components/ui/scroll-area'
 

@@ -46,8 +46,6 @@ export default function SortableOutlineItem({
         opacity: isDragging ? 0 : 1
     }
 
-    console.log('item ', item)
-
     return (
         <div
             ref={setNodeRef}

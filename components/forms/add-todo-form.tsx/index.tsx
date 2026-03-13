@@ -10,7 +10,7 @@ import { useTodoForm } from './hooks/useTodoForm'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import RecurringForm from './recurring-form'
 import { useViewDateRange } from '@/lib/hooks/useViewDateRange'
-import { moveUpdatedTodoInAllCaches, injectTodoIntoFlatCaches } from '@/lib/utils/todo-cache'
+import { moveUpdatedTodoInAllCaches, injectTodoIntoFlatCaches, removeTodoFromAllCaches } from '@/lib/utils/todo-cache'
 
 interface AddTodoFormProps {
     listId?: string // Make optional since we'll have dropdown
@@ -26,7 +26,6 @@ export default function AddTodoForm({
     listId,
     todoId,
     onComplete,
-    onCancel,
     timeSlot,
     todo,
 }: AddTodoFormProps) {
@@ -84,7 +83,6 @@ export default function AddTodoForm({
         let newTodo: TodoItem
         try {
             const dueDateISO = combineDateAndTime(formData.dueDate, formData.time)
-            console.log('daweaf', formData)
             // IF editing existing todo
             if (currentTodo) {
                 const updatedTodo: TodoItem = {
@@ -101,6 +99,11 @@ export default function AddTodoForm({
                 // Update existing todo
                 newTodo = await clientTodo.updateTodo(updatedTodo)
                 moveUpdatedTodoInAllCaches(queryClient, formData.selectedListId, newTodo)
+                // Virtual todos have a different id than newTodo.id, so moveUpdatedTodoInAllCaches
+                // can't find and remove them — strip the virtual entry explicitly
+                if (currentTodo.id.startsWith('virtual_')) {
+                    removeTodoFromAllCaches(queryClient, formData.selectedListId, currentTodo.id)
+                }
             } else {
 
                 // If recurring, may return array of todos
@@ -248,7 +251,6 @@ export default function AddTodoForm({
                                 resetForm={resetForm}
                                 todoLists={todoLists}
                                 todoId={todoId}
-                                onCancel={onCancel}
                                 formatDisplayDate={formatDisplayDate}
                                 isFormValid={isFormValid}
                             />
@@ -259,9 +261,11 @@ export default function AddTodoForm({
                                 uiState={uiState}
                                 setField={setField}
                                 setUIField={setUIField}
+                                todoListId={listId} 
                                 todoLists={todoLists}
                                 todoId={todoId}
-                                onCancel={onCancel}
+                                dueDate={todo?.dueDate}
+                                patternId={todo?.patternId}
                             />
                         </TabsContent>
                     </Tabs>

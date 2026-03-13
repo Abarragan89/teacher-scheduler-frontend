@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import useSound from 'use-sound'
 import { CheckCircle, Circle, Calendar, Clock, Flag } from 'lucide-react'
 import { TodoItem } from '@/types/todo'
-import { toggleTodoCompletion } from './utils/todo-operations'
+import { toggleTodoCompletion } from './shared/todo-sheet/utils/todo-operations'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import AddTodoForm from '@/components/forms/add-todo-form.tsx'
@@ -188,7 +188,6 @@ export default function FocusedEditingTodoItem({
 
     // Get display configuration based on context
     const displayConfig = getDisplayConfig(context)
-
     const queryClient = useQueryClient()
 
     // Sound effects

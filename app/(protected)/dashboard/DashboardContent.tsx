@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Calendar, Flag } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
-import TodoListItem from '@/components/shared/todo-sheet/todo-list-item'
+import TodoListItem from '@/components/todo-list-item'
 import { TodoItem as BaseTodoItem } from '@/types/todo'
 
 interface DashboardTodoItem extends BaseTodoItem {

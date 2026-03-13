@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Calendar, Clock, Flag } from 'lucide-react'
 import { TodoItem as BaseTodoItem } from '@/types/todo'
 import Link from 'next/link'
-import TodoListItem from '@/components/shared/todo-sheet/todo-list-item'
+import TodoListItem from '@/components/todo-list-item'
 import { useQueryClient } from '@tanstack/react-query'
 
 interface ReminderTodoItem extends BaseTodoItem {

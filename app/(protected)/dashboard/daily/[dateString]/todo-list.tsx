@@ -2,7 +2,7 @@
 import { useDailyTodos } from '@/lib/hooks/useDailyTodos'
 import { DailyTodoItem } from '@/lib/hooks/useDailyTodos'
 import { useState, useEffect } from 'react'
-import TodoListItem from '@/components/shared/todo-sheet/todo-list-item'
+import TodoListItem from '@/components/todo-list-item'
 import { clientDays } from '@/lib/api/services/days/client'
 
 interface TodoListProps {

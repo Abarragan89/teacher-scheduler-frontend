@@ -12,6 +12,9 @@ import { TodoFormData, TodoFormUIState } from './hooks/useTodoForm'
 import { TabsContent } from '@radix-ui/react-tabs'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { clientTodo } from '@/lib/api/services/todos/client'
+import { removeTodoFromAllCaches } from '@/lib/utils/todo-cache'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface RecurringFormProps {
     formData: TodoFormData
@@ -20,7 +23,9 @@ interface RecurringFormProps {
     todoId?: string
     setUIField: (field: keyof TodoFormUIState, value: any) => void
     setField: (field: keyof TodoFormData, value: any) => void
-    onCancel?: () => void
+    patternId?: string,
+    dueDate?: string | null,
+    todoListId?: string
 }
 
 type RecurrenceType = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
@@ -32,9 +37,12 @@ export default function RecurringForm({
     todoId,
     setUIField,
     setField,
-    onCancel
+    patternId,
+    dueDate,
+    todoListId
 }: RecurringFormProps) {
 
+    const queryClient = useQueryClient()
     // Destructure properties from hook
     const { text, selectedListId, recurrencePattern } = formData
     const { isCreating, editScope } = uiState
@@ -95,6 +103,17 @@ export default function RecurringForm({
         const updatedNthWeekday = { ...recurrencePattern, nthWeekdayOccurrence: { ...recurrencePattern.nthWeekdayOccurrence, weekday } }
         setField('recurrencePattern', updatedNthWeekday);
     }
+
+    function handleDeleteRecurring(patternId: string) {
+        if (!patternId || !dueDate) return
+        removeTodoFromAllCaches(queryClient, todoListId!, todoId!)
+        if (formData.editScope === 'future') {
+            clientTodo.deleteAllRecurrences(patternId)
+        } else if (formData.editScope === 'single') {
+            clientTodo.deleteSingleRecurrence(todoId!, patternId, dueDate!)
+        }
+    }
+
 
     return (
         <>
@@ -502,17 +521,6 @@ export default function RecurringForm({
 
             {/* Submit Button */}
             <div className={`flex justify-start gap-5 mt-7`}>
-                {onCancel && (
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={onCancel}
-                        disabled={isCreating}
-                        className='shadow-none'
-                    >
-                        Cancel
-                    </Button>
-                )}
                 <Button
                     type="submit"
                     disabled={!text.trim() || isCreating || !selectedListId ||
@@ -528,6 +536,15 @@ export default function RecurringForm({
                         isCreating ? 'Creating...' : '+ Create Recurring Todo'
                     )}
                 </Button>
+                {todoId && (
+                    <Button
+                        type="button"
+                        variant={"destructive"}
+                        onClick={() => handleDeleteRecurring(patternId!)}
+                    >
+                        Delete
+                    </Button>
+                )}
             </div>
         </>
     )
