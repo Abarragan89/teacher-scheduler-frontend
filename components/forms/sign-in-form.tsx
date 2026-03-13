@@ -79,7 +79,7 @@ export default function SigninForm() {
                 {showConfirmation ? (
                     <p className='text-center text-sm text-ring mb-2 -mt-5'>An email has been sent to your email. Check your spam folder</p>
                 ) : (
-                    <p className='text-center text-sm text-ring mb-2 -mt-5'>We'll send you an email to login.</p>
+                    <p className='text-center text-sm text-ring mb-2 -mt-5'>We&apos;ll send you an email to login.</p>
                 )}
                 {!showConfirmation && (
                     <Button type="submit" disabled={isSubmitting}>
