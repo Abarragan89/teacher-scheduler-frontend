@@ -109,8 +109,8 @@ export default function TodoReminderContent({ view }: TodoReminderContentProps) 
                 {weekTodos.length === 0 ? (
                     <EmptyState
                         icon={Clock}
-                        title="No todos due this week"
-                        description="Your week is looking clear!"
+                        title="No todos due in the next 10 days"
+                        description="Your schedule is looking clear!"
                     />
                 ) : (
                     <div className="space-y-0">

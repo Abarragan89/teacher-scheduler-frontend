@@ -25,7 +25,7 @@ export function useReminderTodos() {
         const now = new Date()
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
         const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000)
-        const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
+        const next10Days = new Date(today.getTime() + 10 * 24 * 60 * 60 * 1000)
         const nextMonth = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000)
 
         // Today's todos + overdue todos
@@ -43,14 +43,14 @@ export function useReminderTodos() {
                 return dateA.getTime() - dateB.getTime()
             })
 
-        // Next 7 days (excluding today and overdue)
+        // Next 10 days (excluding today and overdue)
         const weekTodos = todosWithDueDates
             .filter((todo) => {
                 const dueDate = new Date(String(todo.dueDate!))
                 const dueDateOnly = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate())
 
-                // Include tomorrow through next 7 days
-                return dueDateOnly >= tomorrow && dueDateOnly < nextWeek
+                // Include tomorrow through next 10 days
+                return dueDateOnly >= tomorrow && dueDateOnly < next10Days
             })
             .sort((a, b) => {
                 const dateA = new Date(String(a.dueDate!))
