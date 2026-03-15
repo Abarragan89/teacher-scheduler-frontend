@@ -44,7 +44,8 @@ export default function SigninForm() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    email: values.email.toLowerCase().trim()
+                    email: values.email.toLowerCase().trim(),
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
                 }),
                 credentials: "include"
             })
