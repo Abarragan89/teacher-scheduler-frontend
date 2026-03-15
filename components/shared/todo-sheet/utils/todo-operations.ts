@@ -25,7 +25,8 @@ export const toggleTodoCompletion = async (
     todoId: string,
     playSoundComplete: () => void,
     playRemovedSound: () => void,
-    queryClient: QueryClient
+    queryClient: QueryClient,
+    context: string = 'dashboard'
 ) => {
     // Try ['todos'] first, fall back to any flat daily/recurring cache
     const currentData = queryClient.getQueryData<TodoList[]>(['todos'])
@@ -53,29 +54,37 @@ export const toggleTodoCompletion = async (
             console.error('Failed to update todo:', error)
         })
 
-        // Schedule deletion after delay
-        const timeoutId = setTimeout(() => {
-            // Check if todo is still completed before deleting
-            const latestData = queryClient.getQueryData(['todos']) as TodoList[]
-            const latestTodo = findTodo(listId, todoId, latestData)
+        // Only delete todo if we are in todosheet context
+        if (context === 'todosheet') {
+            // Schedule deletion after delay
+            const timeoutId = setTimeout(() => {
+                // Check if todo is still completed before deleting
+                const latestData = queryClient.getQueryData(['todos']) as TodoList[]
+                const latestTodo = findTodo(listId, todoId, latestData)
 
-            if (latestTodo?.completed) {
-                // Mark as deleting
-                updateTodoInAllCaches(queryClient, todoId, t => ({ ...t, deleting: true }))
+                if (latestTodo?.completed) {
+                    // Mark as deleting in cache to trigger animation
+                    queryClient.setQueryData<TodoList[]>(['todos'], (old) => {
+                        if (!old) return old
+                        return old.map(list => ({
+                            ...list,
+                            todos: list.todos.map(t => t.id === todoId ? { ...t, deleting: true } : t),
+                        }))
+                    })
 
-                // Remove from UI after animation
-                playRemovedSound();
-                setTimeout(async () => {
-                    // Clear deleting + pendingRemoval; keep completed: true so calendar shows strike-through
-                    updateTodoInAllCaches(queryClient, todoId, t => ({ ...t, deleting: false, pendingRemoval: false }))
-                    pendingDeletions.delete(todoId)
-                }, 500)
-            }
-        }, 2000)
 
-        // Track the pending deletion
-        pendingDeletions.set(todoId, timeoutId)
-
+                    // Remove from UI after animation
+                    playRemovedSound();
+                    setTimeout(async () => {
+                        // Clear deleting + pendingRemoval; keep completed: true so calendar shows strike-through
+                        updateTodoInAllCaches(queryClient, todoId, t => ({ ...t, deleting: false, pendingRemoval: false }))
+                        pendingDeletions.delete(todoId)
+                    }, 500)
+                }
+            }, 2000)
+            // Track the pending deletion
+            pendingDeletions.set(todoId, timeoutId)
+        }
     } else {
         // Uncheck - cancel pending deletion and mark as incomplete
         const pendingTimeout = pendingDeletions.get(todoId)

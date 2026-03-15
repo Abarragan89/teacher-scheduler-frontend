@@ -242,7 +242,7 @@ export default function FocusedEditingTodoItem({
                 <div className={`shrink-0 pt-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
                     }`}>
                     <button
-                        onClick={() => toggleTodoCompletion(listId, todo.id, playCompleteSound, playTodoRemovedSound, queryClient)}
+                        onClick={() => toggleTodoCompletion(listId, todo.id, playCompleteSound, playTodoRemovedSound, queryClient, context)}
                         className={`shrink-0 hover:cursor-pointer rounded transition-all duration-300 ${todo.deleting
                             ? 'opacity-0 pointer-events-none transform scale-50'
                             : 'transform scale-100'
