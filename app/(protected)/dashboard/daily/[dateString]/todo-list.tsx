@@ -63,7 +63,7 @@ export default function TodoList({ dateString }: TodoListProps) {
             </Sheet>
             {/* Holiday Banner */}
             {holiday && (
-                <div className="mb-6  ml-2 bg-gradient-to-r rounded-lg">
+                <div className="mb-6  ml-2 bg-linear-to-r rounded-lg">
                     <div className="flex items-center gap-3">
                         {holiday.emoji && (
                             <span className="text-2xl">{holiday.emoji}</span>

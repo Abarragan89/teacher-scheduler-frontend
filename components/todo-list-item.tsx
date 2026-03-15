@@ -239,11 +239,11 @@ export default function FocusedEditingTodoItem({
                 }}
             >
                 {/* Checkbox */}
-                <div className={`flex-shrink-0 pt-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
+                <div className={`shrink-0 pt-1 transition-all duration-300 ease-in-out ${todo.deleting ? 'transform scale-75 opacity-0' : 'transform scale-100 opacity-100'
                     }`}>
                     <button
                         onClick={() => toggleTodoCompletion(listId, todo.id, playCompleteSound, playTodoRemovedSound, queryClient)}
-                        className={`flex-shrink-0 hover:cursor-pointer rounded transition-all duration-300 ${todo.deleting
+                        className={`shrink-0 hover:cursor-pointer rounded transition-all duration-300 ${todo.deleting
                             ? 'opacity-0 pointer-events-none transform scale-50'
                             : 'transform scale-100'
                             }`}
@@ -264,7 +264,7 @@ export default function FocusedEditingTodoItem({
                     <div
                         className="cursor-pointer"
                     >
-                        <p className={`text-[15px] font-medium leading-normal rounded px-2 py-[2px] transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
+                        <p className={`text-[15px] font-medium leading-normal rounded px-2 py-0.5 transition-colors ${todo.completed ? 'line-through text-muted-foreground opacity-75' : ''
                             }`}>
                             {todo.text}
                         </p>

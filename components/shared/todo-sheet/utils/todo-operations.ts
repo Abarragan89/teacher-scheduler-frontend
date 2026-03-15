@@ -47,6 +47,12 @@ export const toggleTodoCompletion = async (
         // Mark as complete and pendingRemoval IMMEDIATELY in cache
         updateTodoInAllCaches(queryClient, todoId, t => ({ ...t, completed: true, pendingRemoval: true }))
 
+        // Persist to backend immediately — don't wait for the UI delay
+        const resolvedListId = listId || todo.todoListId || ''
+        clientTodo.updateTodo({ ...todo, completed: true, todoListId: resolvedListId }).catch(error => {
+            console.error('Failed to update todo:', error)
+        })
+
         // Schedule deletion after delay
         const timeoutId = setTimeout(() => {
             // Check if todo is still completed before deleting
@@ -62,15 +68,6 @@ export const toggleTodoCompletion = async (
                 setTimeout(async () => {
                     // Clear deleting + pendingRemoval; keep completed: true so calendar shows strike-through
                     updateTodoInAllCaches(queryClient, todoId, t => ({ ...t, deleting: false, pendingRemoval: false }))
-
-                    // Update backend
-                    try {
-                        const resolvedListId = listId || todo.todoListId || ''
-                        await clientTodo.updateTodo({ ...todo, completed: true, todoListId: resolvedListId })
-                    } catch (error) {
-                        console.error('Failed to update todo:', error)
-                    }
-
                     pendingDeletions.delete(todoId)
                 }, 500)
             }
