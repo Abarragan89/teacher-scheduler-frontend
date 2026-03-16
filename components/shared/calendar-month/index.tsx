@@ -3,7 +3,10 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import useEmblaCarousel from 'embla-carousel-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { clientTodo } from '@/lib/api/services/todos/client'
 import CalendarGrid from './CalendarGrid'
 
 export default function CalendarMonth({ initialMonth }: { initialMonth?: string }) {
@@ -18,14 +21,16 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
     }
 
     const [currentDate, setCurrentDate] = useState(parseInitialDate)
+    const [displayDate, setDisplayDate] = useState(parseInitialDate)
+    const queryClient = useQueryClient()
 
-    // Derive prev/current/next month dates from currentDate
-    const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
-    const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
-    const slides = [prevMonth, currentDate, nextMonth]
+    // Derive 5 slides: -2, -1, 0, +1, +2 months relative to currentDate
+    const slides = [-2, -1, 0, 1, 2].map(
+        offset => new Date(currentDate.getFullYear(), currentDate.getMonth() + offset, 1)
+    )
 
     const [emblaRef, emblaApi] = useEmblaCarousel({
-        startIndex: 1,
+        startIndex: 2,
         loop: false,
         dragFree: false,
         align: 'center',
@@ -40,37 +45,66 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
     // Track whether we're resetting to center silently (to avoid re-triggering onSettle)
     const isResetting = useRef(false)
 
+    // onSelect fires the moment the snap changes (mid-drag) — update header immediately
+    const onSelect = useCallback(() => {
+        if (!emblaApi || isResetting.current) return
+        const index = emblaApi.selectedScrollSnap()
+        const offset = index - 2
+        const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + offset, 1)
+        setDisplayDate(newDate)
+        syncUrl(newDate)
+    }, [emblaApi, currentDate, syncUrl])
+
+    // onSettle triggers the invisible slide reset — no need to syncUrl again
     const onSettle = useCallback(() => {
         if (!emblaApi || isResetting.current) return
         const index = emblaApi.selectedScrollSnap()
-        if (index === 1) return // Already centered, do nothing
+        if (index === 2) return // Already centered, do nothing
 
         isResetting.current = true
-        const newDate = index === 0 ? prevMonth : nextMonth
+        const offset = index - 2
+        const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + offset, 1)
         setCurrentDate(newDate)
-        syncUrl(newDate)
-    }, [emblaApi, prevMonth, nextMonth, syncUrl])
+    }, [emblaApi, currentDate])
 
     // After currentDate changes (slides re-render), silently reset to center slide
     useEffect(() => {
         if (!emblaApi) return
-        // Use requestAnimationFrame to wait for the DOM to settle after re-render
+        setDisplayDate(currentDate) // keep header in sync for button-driven navigation
         const raf = requestAnimationFrame(() => {
-            emblaApi.scrollTo(1, true) // true = instant (no animation)
-            // Give Embla a tick to finish reInit before unlocking
+            emblaApi.scrollTo(2, true) // true = instant (no animation)
             setTimeout(() => { isResetting.current = false }, 50)
         })
         return () => cancelAnimationFrame(raf)
     }, [currentDate, emblaApi])
 
+    // Background-prefetch recurring todos for months just outside the rendered window (±3)
+    useEffect(() => {
+        ;[-3, 3].forEach(offset => {
+            const d = new Date(currentDate.getFullYear(), currentDate.getMonth() + offset, 1)
+            const startDate = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0]
+            const endDate = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0]
+            queryClient.prefetchQuery({
+                queryKey: ['recurringTodos', startDate, endDate],
+                queryFn: () => clientTodo.getRecurringTodosInRange(startDate, endDate),
+                staleTime: 1000 * 60 * 5,
+            })
+        })
+    }, [currentDate, queryClient])
+
     useEffect(() => {
         if (!emblaApi) return
+        emblaApi.on('select', onSelect)
         emblaApi.on('settle', onSettle)
-        return () => { emblaApi.off('settle', onSettle) }
-    }, [emblaApi, onSettle])
+        return () => {
+            emblaApi.off('select', onSelect)
+            emblaApi.off('settle', onSettle)
+        }
+    }, [emblaApi, onSelect, onSettle])
 
     const updateMonth = (date: Date) => {
         setCurrentDate(date)
+        setDisplayDate(date)
         syncUrl(date)
     }
 
@@ -82,19 +116,49 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
         updateMonth(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
     }
 
-    const monthYear = currentDate.toLocaleDateString('en-US', {
-        month: 'long',
-        year: 'numeric',
-    })
+    const MONTHS = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ]
+    const currentYear = displayDate.getFullYear()
+    const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i)
+
+    const handleMonthSelect = (value: string) => {
+        const newDate = new Date(displayDate.getFullYear(), parseInt(value), 1)
+        updateMonth(newDate)
+    }
+
+    const handleYearSelect = (value: string) => {
+        const newDate = new Date(parseInt(value), displayDate.getMonth(), 1)
+        updateMonth(newDate)
+    }
 
     return (
         <div className="w-full max-w-4xl mx-auto">
             {/* Header */}
             <div className="flex items-end justify-between mb-1 mx-2 sm:mx-6 pt-4">
-                <h1 className="text-2xl md:text-3xl font-bold py-1">
-                    {monthYear.split(' ')[0]}
-                    <span className="text-sm text-muted-foreground ml-3">{monthYear.split(' ')[1]}</span>
-                </h1>
+                <div className="flex items-center gap-2">
+                    <Select value={String(displayDate.getMonth())} onValueChange={handleMonthSelect}>
+                        <SelectTrigger className="border-none shadow-none text-2xl md:text-3xl font-bold p-0 h-auto focus:ring-0 w-auto gap-1">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {MONTHS.map((month, i) => (
+                                <SelectItem key={i} value={String(i)}>{month}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Select value={String(displayDate.getFullYear())} onValueChange={handleYearSelect}>
+                        <SelectTrigger className="border-none shadow-none text-sm text-muted-foreground p-0 h-auto focus:ring-0 w-auto gap-1">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {years.map(year => (
+                                <SelectItem key={year} value={String(year)}>{year}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
                 <div className="flex items-end">
                     <div className="mt-2 text-center">
                         <Button variant="ghost" onClick={() => updateMonth(new Date())}>
