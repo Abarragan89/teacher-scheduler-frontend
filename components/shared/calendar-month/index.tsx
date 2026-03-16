@@ -133,9 +133,9 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
     }
 
     return (
-        <div className="mt-10 -px-5">
+        <div className="mt-10">
             {/* Header */}
-            <div className="flex items-end justify-between mb-1 mx-2 sm:mx-6 pt-4">
+            <div className="flex items-end justify-between mb-1 mx-3 sm:mx-1 pt-4">
                 <div className="flex items-center gap-2">
                     <Select value={String(displayDate.getMonth())} onValueChange={handleMonthSelect}>
                         <SelectTrigger className="border-none shadow-none text-2xl md:text-3xl font-bold p-0 h-auto focus:ring-0 w-auto gap-1">

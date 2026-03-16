@@ -12,13 +12,11 @@ export default async function Dashboard({
 
   return (
     <main className='wrapper'>
-
-      <h1 className='h1-bold'>Dashboard</h1>
-      <div className="px-3 sm:px-5 md:px-8 lg:px-20 max-w-5xl mx-auto">
-        <PushNotificationManager />
-      </div>
+      <PushNotificationManager />
       <DashboardContent />
-      <CalendarMonth initialMonth={month} />
+      <div className="-mx-5 sm:mx-0">
+        <CalendarMonth initialMonth={month} />
+      </div>
     </main>
   )
 }

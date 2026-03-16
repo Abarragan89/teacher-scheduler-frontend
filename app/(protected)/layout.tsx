@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 import ClientQueryProvider from '@/components/providers/ClientQueryProvider';
 import PrefetchTodoLists from '@/components/providers/PrefetchTodoLists';
 import { UserProvider } from '@/components/providers/UserProvider';
+import FloatingAddButton from '@/components/shared/header/floating-add-button';
 
 
 export default async function DashboardLayout({
@@ -46,6 +47,7 @@ export default async function DashboardLayout({
               email={authResult?.user?.email || ''}
             />
             {children}
+            <FloatingAddButton />
           </PrefetchTodoLists>
         </UserProvider>
       </ClientQueryProvider>

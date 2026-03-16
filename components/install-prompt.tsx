@@ -199,8 +199,8 @@ function InstallPrompt() {
     const instructions = getInstallInstructions()
 
     return (
-        <div className='print:!hidden ml-0 flex-end'>
-            <Button title='Install App' variant={'link'} onClick={handleInstallClick}>
+        <div className='print:hidden! ml-0 flex-end'>
+            <Button className='ml-4' size={'sm'} title='Install App' onClick={handleInstallClick}>
                 Install App
             </Button>
             <ResponsiveDialog
@@ -213,7 +213,7 @@ function InstallPrompt() {
                     <div className="space-y-3 text-sm mt-4 mb-2">
                         {instructions.steps.map((step, index) => (
                             <div key={index} className="flex items-center gap-3">
-                                <span className="text-lg flex-shrink-0">
+                                <span className="text-lg shrink-0">
                                     {typeof step.icon === 'string' ? step.icon : step.icon}
                                 </span>
                                 <span className="flex-1">{step.text}</span>

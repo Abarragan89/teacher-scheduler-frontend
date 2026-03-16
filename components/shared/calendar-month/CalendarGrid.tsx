@@ -123,17 +123,17 @@ export default function CalendarGrid({ date }: CalendarGridProps) {
     }
 
     return (
-        <div className="grid grid-cols-7 sm:rounded-lg border-y sm:border">
+        <div className="grid grid-cols-7 border-y sm:border rounded-none sm:rounded-sm">
             {/* Day names header */}
             {dayNames.map(day => (
-                <div key={day} className="p-3 text-center text-md font-medium border-b">
+                <div key={day} className="p-3 text-center text-md font-medium border-b border-l bg-card">
                     {day}
                 </div>
             ))}
 
             {/* Empty cells before first day */}
             {Array.from({ length: firstDayOfWeek }, (_, i) => (
-                <div key={`empty-${i}`} className="h-28 md:h-32 border-b" />
+                <div key={`empty-${i}`} className="h-28 md:h-32 border-b border-l" />
             ))}
 
             {/* Calendar days */}

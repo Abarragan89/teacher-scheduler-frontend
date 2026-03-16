@@ -1,54 +1,23 @@
 "use client";
 import React from 'react'
 import { useTheme } from 'next-themes'
-import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { SunMedium, MoonIcon } from 'lucide-react';
-import { NavigationMenuItem } from '@/components/ui/navigation-menu';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
 
 export default function ModeToggle() {
-
     const { theme, setTheme } = useTheme()
-
-    function renderThemeIcon() {
-        switch (theme) {
-            case 'light':
-                return <SunMedium />
-            default:
-                return <MoonIcon />
-
-        }
-    }
+    const isDark = theme === 'dark' || theme === 'system'
 
     return (
-        <NavigationMenuItem>
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button className='hover:cursor-pointer' variant="ghost">{renderThemeIcon()}</Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-fit mr-5">
-                    <ul>
-                        <li>
-                            <Button variant={"ghost"} asChild onClick={() => setTheme("light")} className='hover:cursor-pointer'>
-                                <span className={theme === "light" ? "text-ring" : ""}>
-                                    <SunMedium /> Light
-                                </span>
-                            </Button>
-                        </li>
-                        <li>
-                            <Button variant={"ghost"} asChild onClick={() => setTheme("dark")} className='hover:cursor-pointer'>
-                                <span className={theme === "dark" ? "text-ring" : ""}>
-                                    <MoonIcon /> Dark
-                                </span>
-                            </Button>
-                        </li>
-                    </ul>
-                </PopoverContent>
-            </Popover>
-        </NavigationMenuItem>
+        <div className="flex items-center justify-between w-full gap-3">
+            <div className="flex items-center gap-2 text-sm">
+                {isDark ? <MoonIcon className="w-4 h-4" /> : <SunMedium className="w-4 h-4" />}
+                <span>{isDark ? 'Dark' : 'Light'}</span>
+            </div>
+            <Switch
+                checked={isDark}
+                onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+            />
+        </div>
     )
 }

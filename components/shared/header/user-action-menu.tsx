@@ -8,6 +8,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
+import ModeToggle from './mode-toggle'
+import { Separator } from '@/components/ui/separator'
 
 export default function UserActionMenu({ email }: { email: string }) {
 
@@ -34,8 +36,11 @@ export default function UserActionMenu({ email }: { email: string }) {
                     <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
             </PopoverTrigger>
-            <PopoverContent className='w-[200px] flex flex-col items-center gap-y-3'>
+            <PopoverContent className='w-50 flex flex-col items-center gap-y-3'>
                 <p className='text-sm text-center'>{email.split('@')[0]}</p>
+                <Separator />
+                <ModeToggle />
+                <Separator />
                 <Button onClick={logoutUser} variant={'outline'}>
                     Logout
                 </Button>
