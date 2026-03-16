@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { LayoutDashboard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { TodoSheet } from '../todo-sheet'
-import InstallPrompt from '@/components/install-prompt'
 
 export default function AuthenticatedNavLinks({ email }: { email: string }) {
 

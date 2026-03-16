@@ -12,9 +12,7 @@ function UserVerificationInner() {
 
     const [error, setError] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(true)
-    const [isIOS, setIsIOS] = useState<boolean>(() =>
-        typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent)
-    )
+    const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent)
 
     useEffect(() => {
         if (!token) return
