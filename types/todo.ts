@@ -31,7 +31,9 @@ export interface RecurrencePattern {
     daysOfMonth: number[]      // For monthly recurrence (1-31, -1 for last day)
     nthWeekdayOccurrence: { ordinal: number, weekday: number }        // For monthly recurrence (e.g., Monday=1, Tuesday=2, etc.)
     timeOfDay: string                   // Time of the recurring todo
-    yearlyDate: Date | undefined              // For yearly recurrence
+    yearlyDate: Date | undefined              // For yearly recurrence (local form state only)
+    yearlyDay?: number                        // Day of month from backend (1-31)
+    yearlyMonth?: number                      // Month from backend (1-12)
     timeZone: string               // Time zone for the recurrence
     startDate: Date | undefined,
     endDate: Date | undefined,

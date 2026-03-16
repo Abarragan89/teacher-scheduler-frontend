@@ -45,6 +45,8 @@ export default function AddTodoForm({
         isFormValid,
     } = useTodoForm({ listId, todoId, timeSlot, todo, defaultDueDate })
 
+    console.log('currenttodo', todo)
+
     const inputRef = useRef<HTMLInputElement>(null)
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const queryClient = useQueryClient()

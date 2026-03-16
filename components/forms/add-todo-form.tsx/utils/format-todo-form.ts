@@ -70,6 +70,11 @@ export function toTodoFormData({
           timeOfDay: currentTodo.recurrencePattern.timeOfDay ?? "07:00",
           startDate: currentTodo.recurrencePattern.startDate ? new Date(currentTodo.recurrencePattern.startDate) : new Date(),
           endDate: currentTodo.recurrencePattern.endDate ? new Date(currentTodo.recurrencePattern.endDate) : undefined,
+          yearlyDate: currentTodo.recurrencePattern.yearlyDate
+            ? new Date(currentTodo.recurrencePattern.yearlyDate)
+            : (currentTodo.recurrencePattern.yearlyDay && currentTodo.recurrencePattern.yearlyMonth)
+              ? new Date(2000, currentTodo.recurrencePattern.yearlyMonth - 1, currentTodo.recurrencePattern.yearlyDay)
+              : undefined,
         }
         : defaultRecurrencePattern(formResetPrevState),
   }

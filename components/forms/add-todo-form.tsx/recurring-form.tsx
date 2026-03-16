@@ -360,8 +360,9 @@ export default function RecurringForm({
                                                 setIsYearlyDatePopoverOpen(false)
                                             }}
                                             className="rounded-md bg-transparent w-full p-0"
-                                            captionLayout='dropdown'
-                                            endMonth={new Date(2040, 11)}
+                                            formatters={{
+                                                formatCaption: (date) => date.toLocaleDateString('en-US', { month: 'long' })
+                                            }}
                                         />
                                     </div>
                                 </div>
