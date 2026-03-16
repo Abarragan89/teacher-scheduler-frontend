@@ -70,7 +70,6 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
     // After currentDate changes (slides re-render), silently reset to center slide
     useEffect(() => {
         if (!emblaApi) return
-        setDisplayDate(currentDate) // keep header in sync for button-driven navigation
         const raf = requestAnimationFrame(() => {
             emblaApi.scrollTo(2, true) // true = instant (no animation)
             setTimeout(() => { isResetting.current = false }, 50)
