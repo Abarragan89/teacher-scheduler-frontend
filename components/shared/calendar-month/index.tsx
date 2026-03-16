@@ -1,107 +1,79 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { useCalendarReminders } from '@/lib/hooks/useCalendarReminders'
-import { clientDays } from '@/lib/api/services/days/client'
-import { useRecurringTodos } from '@/lib/hooks/useRecurringTodos'
-import { TodoItem } from '@/types/todo'
+import useEmblaCarousel from 'embla-carousel-react'
+import CalendarGrid from './CalendarGrid'
 
 export default function CalendarMonth({ initialMonth }: { initialMonth?: string }) {
-
-    const router = useRouter()
     const pathname = usePathname()
 
     const parseInitialDate = () => {
         if (initialMonth) {
-            const [y, m] = initialMonth.split('-').map(Number);
-            if (y && m) return new Date(y, m - 1, 1);
+            const [y, m] = initialMonth.split('-').map(Number)
+            if (y && m) return new Date(y, m - 1, 1)
         }
-        return new Date();
+        return new Date()
     }
 
     const [currentDate, setCurrentDate] = useState(parseInitialDate)
-    const [holidays, setHolidays] = useState<Array<{ date: string, name: string, emoji?: string }>>([])
 
-    // Fetched Data to get reminders fo the month
-    const { getRemindersForDate, isLoading } = useCalendarReminders(
-        currentDate.getFullYear(),
-        currentDate.getMonth() + 1 // Convert to 1-indexed month
-    )
+    // Derive prev/current/next month dates from currentDate
+    const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
+    const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+    const slides = [prevMonth, currentDate, nextMonth]
 
-    // Fetch recurring todos for the month
-    const { getRecurringTodoForDate } = useRecurringTodos({
-        startDate: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0],
-        endDate: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split('T')[0]
+    const [emblaRef, emblaApi] = useEmblaCarousel({
+        startIndex: 1,
+        loop: false,
+        dragFree: false,
+        align: 'center',
     })
 
-    // Helper function to get holiday for a specific date
-    const getHolidayForDate = (date: Date): { date: string, name: string, emoji?: string } | null => {
-        const dateString = date.toISOString().split('T')[0]
-        return holidays.find(holiday => holiday.date === dateString) || null
-    }
+    // Sync URL without triggering a Next.js server re-render
+    const syncUrl = useCallback((date: Date) => {
+        const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+        window.history.replaceState(null, '', `${pathname}?month=${month}`)
+    }, [pathname])
+
+    // Track whether we're resetting to center silently (to avoid re-triggering onSettle)
+    const isResetting = useRef(false)
+
+    const onSettle = useCallback(() => {
+        if (!emblaApi || isResetting.current) return
+        const index = emblaApi.selectedScrollSnap()
+        if (index === 1) return // Already centered, do nothing
+
+        isResetting.current = true
+        const newDate = index === 0 ? prevMonth : nextMonth
+        setCurrentDate(newDate)
+        syncUrl(newDate)
+    }, [emblaApi, prevMonth, nextMonth, syncUrl])
+
+    // After currentDate changes (slides re-render), silently reset to center slide
+    useEffect(() => {
+        if (!emblaApi) return
+        // Use requestAnimationFrame to wait for the DOM to settle after re-render
+        const raf = requestAnimationFrame(() => {
+            emblaApi.scrollTo(1, true) // true = instant (no animation)
+            // Give Embla a tick to finish reInit before unlocking
+            setTimeout(() => { isResetting.current = false }, 50)
+        })
+        return () => cancelAnimationFrame(raf)
+    }, [currentDate, emblaApi])
 
     useEffect(() => {
-        async function fetchHolidays() {
-            try {
-                const holidayData = await clientDays.getHoliaysForMonth(
-                    currentDate.getFullYear(),
-                    currentDate.getMonth() + 1
-                )
-                setHolidays(holidayData || [])
-            } catch (error) {
-                console.error('Failed to fetch holidays:', error)
-                setHolidays([])
-            }
-        }
-        fetchHolidays()
-    }, [currentDate])
+        if (!emblaApi) return
+        emblaApi.on('settle', onSettle)
+        return () => { emblaApi.off('settle', onSettle) }
+    }, [emblaApi, onSettle])
 
-
-    // Get the first day of the current month
-    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
-
-    // Get the starting date for the calendar (might be from previous month)
-    const startDate = new Date(firstDayOfMonth)
-    startDate.setDate(startDate.getDate() - firstDayOfMonth.getDay()) // Go back to Sunday
-
-    // Generate calendar days - only current month dates
-    const generateCalendarDays = () => {
-        const days = []
-        const year = currentDate.getFullYear()
-        const month = currentDate.getMonth()
-
-        // Get the number of days in the current month
-        const daysInMonth = new Date(year, month + 1, 0).getDate()
-
-        // Generate only the days for the current month
-        for (let day = 1; day <= daysInMonth; day++) {
-            days.push(new Date(year, month, day))
-        }
-
-        return days
-    }
-
-    const days = generateCalendarDays()
-    const today = new Date()
-
-    // Helper function to get the starting day of the week for the first day of month
-    const getFirstDayOfWeek = () => {
-        const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
-        return firstDayOfMonth.getDay() // 0 = Sunday, 1 = Monday, etc.
-    }
-
-    const firstDayOfWeek = getFirstDayOfWeek()
-
-    // Sync month to URL and update state
     const updateMonth = (date: Date) => {
-        const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        router.replace(`${pathname}?month=${month}`, { scroll: false });
-        setCurrentDate(date);
+        setCurrentDate(date)
+        syncUrl(date)
     }
 
-    // Navigation functions
     const goToPreviousMonth = () => {
         updateMonth(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
     }
@@ -110,130 +82,34 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
         updateMonth(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
     }
 
-    // Handle date click - navigate to daily view
-    const handleDateClick = (date: Date) => {
-        const dateString = date.toISOString().split('T')[0] // Format: YYYY-MM-DD
-        router.push(`/dashboard/daily/${dateString}?view=todos`)
-    }
-
-    // Helper function to check if date is in current month
-    const isCurrentMonth = (date: Date) => {
-        return date.getMonth() === currentDate.getMonth()
-    }
-
-    // Helper function to check if date is today
-    const isToday = (date: Date) => {
-        return date.toDateString() === today.toDateString()
-    }
-
-    // Format month/year display
     const monthYear = currentDate.toLocaleDateString('en-US', {
         month: 'long',
-        year: 'numeric'
+        year: 'numeric',
     })
-
-    // Helper function to get priority color class
-    const getPriorityColor = (priority: number) => {
-        switch (priority) {
-            case 4: return 'bg-red-100 text-red-800 border-red-200' // High
-            case 3: return 'bg-orange-100 text-orange-800 border-orange-200' // Medium
-            case 2: return 'bg-yellow-100 text-yellow-800 border-yellow-200' // Low
-            default: return 'bg-blue-100 text-blue-800 border-blue-200' // None
-        }
-    }
-
-    // Helper function to render todos for a specific date
-    const renderDateTodos = (date: Date) => {
-        const dateString = date.toISOString().split('T')[0] // YYYY-MM-DD
-
-        // Get one time reminders for the date
-        const dayReminders = getRemindersForDate(dateString)
-
-        // Get recurring todos for the date
-        const dayRecurring = getRecurringTodoForDate(dateString)
-
-        // Get patternIds already represented in dayReminders to avoid duplicates
-        const existingPatternIds = new Set(
-            (dayReminders?.reminders || [])
-                .map((t: TodoItem) => t.patternId)
-                .filter(Boolean)
-        )
-
-        console.log('days recurring ', dayRecurring)
-
-        // Only include recurring todos whose pattern isn't already shown
-        const uniqueRecurring = dayRecurring.filter(
-            (todo: TodoItem) => !existingPatternIds.has(todo.patternId)
-        )
-
-        // Combine both regular and recurring todos and without duplicates
-        const allReminders = [...(dayReminders?.reminders || []), ...uniqueRecurring]
-
-        if (!allReminders || allReminders.length === 0) {
-            return null
-        }
-
-        const shouldShowOverflow = allReminders.length > 3
-        const displayReminders = shouldShowOverflow ? allReminders.slice(0, 2) : allReminders.slice(0, 3)
-        const overflowCount = shouldShowOverflow ? allReminders.length - 2 : 0
-
-        return (
-            <div className="mt-1 space-y-1 w-full">
-                {/* Display todos based on new logic: all if ≤3, first 2 if >3 */}
-                {displayReminders.map((reminder: TodoItem) => (
-                    <div
-                        key={reminder.id}
-                        className={`text-[.65rem] sm:text-[.70rem] px-0.5 py-0.3 rounded text-left relative overflow-hidden whitespace-nowrap ${getPriorityColor(reminder.priority)} ${reminder.completed ? 'line-through opacity-50' : ''}`}
-                        title={reminder.text} // Show full text on hover
-                        style={{
-                            maskImage: 'linear-gradient(to right, black 80%, transparent 100%)',
-                            WebkitMaskImage: 'linear-gradient(to right, black 80%, transparent 100%)'
-                        }}
-                    >
-                        {reminder.text}
-                    </div>
-                ))}
-
-                {/* Show overflow count if there are more than 3 todos */}
-                {overflowCount > 0 && (
-                    <div className="text-sm pt-px text-ring text-center">
-                        +{overflowCount}
-                    </div>
-                )}
-            </div>
-        )
-    }
-
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
     return (
         <div className="w-full max-w-4xl mx-auto">
-            {/* Header with navigation */}
+            {/* Header */}
             <div className="flex items-end justify-between mb-1 mx-2 sm:mx-6 pt-4">
-                <h1 className=" text-2xl md:text-3xl font-bold py-1">{monthYear.split(" ")[0]}
-                    <span className='text-sm text-muted-foreground ml-3'>{monthYear.split(" ")[1]}</span>
+                <h1 className="text-2xl md:text-3xl font-bold py-1">
+                    {monthYear.split(' ')[0]}
+                    <span className="text-sm text-muted-foreground ml-3">{monthYear.split(' ')[1]}</span>
                 </h1>
-                {/* Navigation Arrows */}
                 <div className="flex items-end">
-                    {/* Today shortcut button */}
                     <div className="mt-2 text-center">
-                        <Button
-                            variant={'ghost'}
-                            onClick={() => updateMonth(new Date())}
-                        >
+                        <Button variant="ghost" onClick={() => updateMonth(new Date())}>
                             Today
                         </Button>
                     </div>
-
                     <Button
-                        variant={'ghost'}
+                        variant="ghost"
                         onClick={goToPreviousMonth}
                         className="p-2 text-ring rounded-lg transition-colors"
                     >
                         <ChevronLeft className="w-5 h-5" />
                     </Button>
                     <Button
-                        variant={'ghost'}
+                        variant="ghost"
                         onClick={goToNextMonth}
                         className="p-2 text-ring rounded-lg transition-colors"
                     >
@@ -242,56 +118,19 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
                 </div>
             </div>
 
-            {/* Calendar Grid */}
-            <div className="grid grid-cols-7 sm:rounded-lg border-y sm:border sm:mx-5">
-                {/* Day names header */}
-                {dayNames.map(day => (
-                    <div
-                        key={day}
-                        className="p-3 text-center text-md font-medium border-b"
-                    >
-                        {day}
-                    </div>
-                ))}
-                {Array.from({ length: firstDayOfWeek }, (_, index) => (
-                    <div key={`empty-${index}`} className="h-28 md:h-32 border-b" />
-                ))}
-                {/* Calendar days */}
-                {days.map((date, index) => {
-                    const holiday = getHolidayForDate(date)
-
-                    return (
-                        <button
-                            key={index}
-                            onClick={() => handleDateClick(date)}
-                            className={`
-                                flex flex-col items-start px-1 py-1 h-28 md:h-32
-                                ${index < 35 ? 'border-b' : ''} 
-                                ${!isCurrentMonth(date) ? 'text-muted-foreground' : ''}
-                                ${isToday(date) ? '' : ''}
-                                hover:shadow-xl transition-all
-                                overflow-hidden relative
-                            `}
-                            title={holiday ? holiday.name : undefined}
-                        >
-                            {/* Date number with holiday emoji */}
-                            <div className={`self-center flex items-center justify-center relative
-                                ${isToday(date) ? 'bg-ring text-accent rounded-full w-6 h-6' : ''}
-                            `}>
-                                {date.getDate()}
-                                {holiday?.emoji && (
-                                    <span className="absolute top-1 -right-6 text-xs">
-                                        {holiday.emoji}
-                                    </span>
-                                )}
-                            </div>
-
-                            {/* Todo reminders */}
-                            {!isLoading && renderDateTodos(date)}
-
-                        </button>
-                    )
-                })}
+            {/* Embla swipe container */}
+            <div
+                ref={emblaRef}
+                className="overflow-hidden sm:mx-5"
+                style={{ touchAction: 'pan-y' }}
+            >
+                <div className="flex">
+                    {slides.map((slideDate, i) => (
+                        <div key={i} className="flex-[0_0_100%] min-w-0">
+                            <CalendarGrid date={slideDate} />
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     )
