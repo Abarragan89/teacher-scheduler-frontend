@@ -215,7 +215,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
             setIsAddingTodo(false)
         }
     }
-
+console.log("soretedTodoLists:", sortedTodoLists) // Debug log to check the structure of sorted todo lists
     return (
         <div className="space-y-4 mt-4">
             <div className="w-full">
@@ -326,7 +326,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
 
                 <div className='mt-2 flex items-start gap-1 border-b pb-3 mb-2 border-dashed border-muted-foreground/40'>
                     {/* Ghost Checkbox */}
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                         <Circle className="w-5 h-5 text-muted-foreground/50" />
                     </div>
 
@@ -375,7 +375,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 <ScrollArea className="h-[calc(100vh-330px)] w-full">
                     <div className="space-y-0 mr-3 transition-all duration-300 ease-in-out">
                         {/* Dont' show recurring todos in the recurring sheet */}
-                        {sortedCurrentList.todos.filter(todo => !todo.isRecurring).map(todo => (
+                        {sortedCurrentList.todos.map(todo => (
                             <TodoListItem
                                 key={todo.id}
                                 todo={todo}

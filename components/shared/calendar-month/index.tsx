@@ -159,6 +159,8 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
                 .filter(Boolean)
         )
 
+        console.log('days recurring ', dayRecurring)
+
         // Only include recurring todos whose pattern isn't already shown
         const uniqueRecurring = dayRecurring.filter(
             (todo: TodoItem) => !existingPatternIds.has(todo.patternId)

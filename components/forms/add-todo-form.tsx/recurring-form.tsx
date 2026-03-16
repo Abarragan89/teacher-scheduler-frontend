@@ -13,7 +13,7 @@ import { TabsContent } from '@radix-ui/react-tabs'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { clientTodo } from '@/lib/api/services/todos/client'
-import { removeTodoFromAllCaches } from '@/lib/utils/todo-cache'
+import { removeTodoFromAllCaches, removeTodosByPatternIdFromAllCaches } from '@/lib/utils/todo-cache'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
@@ -110,11 +110,12 @@ export default function RecurringForm({
 
     function handleDeleteRecurring(patternId: string) {
         if (!patternId || !dueDate) return
-        removeTodoFromAllCaches(queryClient, todoListId!, todoId!)
         if (formData.editScope === 'future') {
+            removeTodosByPatternIdFromAllCaches(queryClient, patternId)
             clientTodo.deleteAllRecurrences(patternId).catch(() => toast.error('Failed to delete recurring todos'))
             toast.success('All future occurrences deleted')
         } else if (formData.editScope === 'single') {
+            removeTodoFromAllCaches(queryClient, todoListId!, todoId!)
             clientTodo.deleteSingleRecurrence(todoId!, patternId, dueDate!).catch(() => toast.error('Failed to delete todo'))
             toast.success('Todo deleted')
         }

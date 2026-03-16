@@ -36,6 +36,8 @@ export function useCalendarReminders(year: number, month: number) {
                 }))
         )
 
+        console.log('Filtered Todos for Calendar:', allTodosWithDates) // Debug log to check the filtered todos for the calendar
+
         // Group todos by date
         const remindersByDate: Record<string, CalendarReminder[]> = {}
 

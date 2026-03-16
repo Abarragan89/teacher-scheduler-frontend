@@ -266,7 +266,7 @@ export default function AddTodoForm({
                                 uiState={uiState}
                                 setField={setField}
                                 setUIField={setUIField}
-                                todoListId={listId}
+                                todoListId={listId ?? currentTodo?.todoListId}
                                 todoLists={todoLists}
                                 todoId={todoId}
                                 dueDate={todo?.dueDate}

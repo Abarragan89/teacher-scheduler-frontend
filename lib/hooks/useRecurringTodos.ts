@@ -14,6 +14,8 @@ export function useRecurringTodos({ startDate, endDate }: UseRecurringTodosParam
         staleTime: 1000 * 60 * 5, // 5 minutes — no need to refetch unless month changes
     })
 
+    console.log('Recurring Todos for Range:', recurringTodos) // Debug log to check the fetched recurring todos for the calendar
+
     return {
         recurringTodos,
         getRecurringTodoForDate: (date: string) =>

@@ -192,6 +192,33 @@ export function moveUpdatedTodoInAllCaches(
 }
 
 /**
+ * Remove all todos with a given patternId from all caches.
+ * Use for optimistic deletes when deleting all future recurrences of a pattern.
+ */
+export function removeTodosByPatternIdFromAllCaches(
+    queryClient: QueryClient,
+    patternId: string,
+) {
+    queryClient.setQueryData<TodoList[]>(['todos'], (old) => {
+        if (!old) return old
+        return old.map(list => ({
+            ...list,
+            todos: list.todos.filter(t => t.patternId !== patternId),
+        }))
+    })
+
+    queryClient.setQueriesData<DailyTodoItem[]>(
+        { queryKey: ['dailyTodos'], exact: false },
+        (old) => old?.filter(t => t.patternId !== patternId),
+    )
+
+    queryClient.setQueriesData<TodoItem[]>(
+        { queryKey: ['recurringTodos'], exact: false },
+        (old) => old?.filter(t => t.patternId !== patternId),
+    )
+}
+
+/**
  * Inject a newly created todo into the flat caches only (dailyTodos + recurringTodos).
  * Use when you've already handled the ['todos'] update yourself with custom logic.
  */
