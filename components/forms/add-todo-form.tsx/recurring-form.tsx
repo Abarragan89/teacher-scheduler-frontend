@@ -222,7 +222,7 @@ export default function RecurringForm({
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Choose a day to add..." />
                                         </SelectTrigger>
-                                        <SelectContent className='max-h-[350px]'>
+                                        <SelectContent className='max-h-87.5'>
                                             <ScrollArea>
                                                 {Array.from({ length: 31 }, (_, i) => i + 1)
                                                     .filter(day => !recurrencePattern?.daysOfMonth?.includes(day))
@@ -351,7 +351,7 @@ export default function RecurringForm({
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-2" align="start">
                                 <div className="space-y-4">
-                                    <div className='w-[230px] mx-auto min-h-[300px]'>
+                                    <div className='w-57.5 mx-auto min-h-75'>
                                         <Calendar
                                             mode="single"
                                             selected={formData?.recurrencePattern?.yearlyDate}
@@ -426,7 +426,7 @@ export default function RecurringForm({
 
             {/* Start Date and End Date */}
             <div className={`flex-center flex-wrap w-full gap-5${isPatternLocked ? ' opacity-50 pointer-events-none select-none' : ''}`}>
-                <div className='flex-1 min-w-[140px]'>
+                <div className='flex-1 min-w-35'>
                     <Label className="pl-1 pb-1">Starts</Label>
                     <Popover open={isStartDatePopoverOpen} onOpenChange={setIsStartDatePopoverOpen}>
                         <PopoverTrigger asChild>
@@ -443,7 +443,7 @@ export default function RecurringForm({
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-2" align="start">
                             <div className="space-y-4">
-                                <div className='w-[230px] mx-auto min-h-[300px]'>
+                                <div className='w-57.5 mx-auto min-h-75'>
                                     <Calendar
                                         mode="single"
                                         selected={formData?.recurrencePattern?.startDate}
@@ -476,7 +476,7 @@ export default function RecurringForm({
                     </Popover>
                 </div>
 
-                <div className='flex-1 min-w-[140px]'>
+                <div className='flex-1 min-w-35'>
                     <Label className="pl-1 pb-1">Ends<span className='text-xs text-muted-foreground'>(optional)</span></Label>
                     <Popover open={endDatePopoverOpen} onOpenChange={setEndDatePopoverOpen}>
                         <PopoverTrigger asChild>
@@ -493,7 +493,7 @@ export default function RecurringForm({
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-2" align="start">
                             <div className="space-y-4">
-                                <div className='w-[230px] mx-auto min-h-[300px]'>
+                                <div className='w-57.5 mx-auto min-h-75'>
                                     <Calendar
                                         mode="single"
                                         selected={formData.recurrencePattern.endDate}

@@ -196,7 +196,7 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
 
                 {/* Show overflow count if there are more than 3 todos */}
                 {overflowCount > 0 && (
-                    <div className="text-sm pt-[1px] text-ring text-center">
+                    <div className="text-sm pt-px text-ring text-center">
                         +{overflowCount}
                     </div>
                 )}

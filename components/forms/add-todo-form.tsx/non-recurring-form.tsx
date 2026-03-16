@@ -59,7 +59,7 @@ export default function NonRecurringForm({
             {/* Due Date and Priority Row */}
             <div className="flex-between flex-wrap gap-5 xs:gap-x-8  text-sm">
                 {/* Due Date */}
-                <div className="w-full min-w-[180px] flex-2">
+                <div className="w-full min-w-45 flex-2">
                     <Label className='pl-1 pb-1'>Due Date <span className='text-xs opacity-60'>(optional)</span></Label>
                     <Popover open={uiState.isDatePopoverOpen} onOpenChange={(open) => setUIField('isDatePopoverOpen', open)}>
                         <PopoverTrigger asChild>
@@ -75,7 +75,7 @@ export default function NonRecurringForm({
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-2" align="start">
                             <div className="space-y-4">
-                                <div className='w-[230px] mx-auto min-h-[300px]'>
+                                <div className='w-57.5 mx-auto min-h-75'>
                                     <Calendar
                                         mode="single"
                                         captionLayout='dropdown'
@@ -102,7 +102,7 @@ export default function NonRecurringForm({
                 </div>
 
                 {/* Time Selection */}
-                <div className="w-full min-w-[120px] flex-1">
+                <div className="w-full min-w-30 flex-1">
                     <Label htmlFor="time-picker" className="pl-1 pb-1">
                         Time <span className='text-xs opacity-60'>(optional)</span>
                     </Label>
@@ -122,7 +122,7 @@ export default function NonRecurringForm({
             {/* List and Priority Selection */}
             <div className="flex-between flex-wrap gap-5 xs:gap-x-8 text-sm">
                 {/* List Selection */}
-                <div className="w-full min-w-[140px] flex-2">
+                <div className="w-full min-w-35 flex-2">
                     <Label className="pl-1 pb-1">List</Label>
                     <Select value={formData.selectedListId} onValueChange={(value) => setField('selectedListId', value)} disabled={uiState.isCreating}>
                         <Button variant='outline' asChild>
@@ -150,7 +150,7 @@ export default function NonRecurringForm({
                 </div>
 
                 {/* Priority */}
-                <div className="w-full min-w-[120px] flex-1 text-sm">
+                <div className="w-full min-w-30 flex-1 text-sm">
                     <Label className="pl-1 pb-1">Priority <span className='text-xs opacity-60'>(optional)</span></Label>
                     <Popover open={uiState.isPriorityPopoverOpen} onOpenChange={(open) => setUIField('isPriorityPopoverOpen', open)}>
                         <PopoverTrigger asChild>
