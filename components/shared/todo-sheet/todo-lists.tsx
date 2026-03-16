@@ -215,7 +215,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
             setIsAddingTodo(false)
         }
     }
-console.log("soretedTodoLists:", sortedTodoLists) // Debug log to check the structure of sorted todo lists
+    console.log("soretedTodoLists:", sortedTodoLists) // Debug log to check the structure of sorted todo lists
     return (
         <div className="space-y-4 mt-4">
             <div className="w-full">
@@ -344,7 +344,7 @@ console.log("soretedTodoLists:", sortedTodoLists) // Debug log to check the stru
                                     setNewTodoText('')
                                 }
                                 if (e.key === 'Enter' && !e.shiftKey) {
-                                    // e.preventDefault()
+                                    e.preventDefault()
                                     addTodoItem()
                                 }
                             }}

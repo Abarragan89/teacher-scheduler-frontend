@@ -11,12 +11,14 @@ export default async function Dashboard({
   const { month } = await searchParams;
 
   return (
-    <main>
+    <main className='wrapper'>
+
+      <h1 className='h1-bold'>Dashboard</h1>
       <div className="px-3 sm:px-5 md:px-8 lg:px-20 max-w-5xl mx-auto">
         <PushNotificationManager />
       </div>
-      <CalendarMonth initialMonth={month} />
       <DashboardContent />
+      <CalendarMonth initialMonth={month} />
     </main>
   )
 }

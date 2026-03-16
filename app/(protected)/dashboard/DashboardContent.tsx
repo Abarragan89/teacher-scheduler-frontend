@@ -17,7 +17,7 @@ export default function DashboardContent() {
 
     if (isLoading) {
         return (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
                     <CardHeader>
                         <Skeleton className="h-6 w-32" />
@@ -62,7 +62,7 @@ export default function DashboardContent() {
 
 
     return (
-        <div className="wrapper grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-28">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
             {/* Upcoming Todos by Due Date */}
             <Card>
                 <CardHeader>
@@ -73,9 +73,9 @@ export default function DashboardContent() {
                 </CardHeader>
                 <CardContent>
                     {upcomingTodos.length === 0 ? (
-                        <div className="text-center py-8 text-muted-foreground">
-                            <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                            <p>No upcoming todos with due dates</p>
+                        <div className="text-center text-muted-foreground">
+                            <Calendar className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                            <p>No upcoming todos</p>
                         </div>
                     ) : (
                         <div className="space-y-0">
@@ -101,9 +101,9 @@ export default function DashboardContent() {
                 </CardHeader>
                 <CardContent>
                     {priorityTodos.length === 0 ? (
-                        <div className="text-center py-8 text-muted-foreground">
-                            <Flag className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                            <p>No priority todos found</p>
+                        <div className="text-center text-muted-foreground">
+                            <Flag className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                            <p>No priority todos</p>
                         </div>
                     ) : (
                         <div className="space-y-0">

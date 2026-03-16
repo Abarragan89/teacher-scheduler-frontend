@@ -133,7 +133,7 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
     }
 
     return (
-        <div className="w-full max-w-4xl mx-auto">
+        <div className="mt-10 -px-5">
             {/* Header */}
             <div className="flex items-end justify-between mb-1 mx-2 sm:mx-6 pt-4">
                 <div className="flex items-center gap-2">
@@ -184,7 +184,7 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
             {/* Embla swipe container */}
             <div
                 ref={emblaRef}
-                className="overflow-hidden sm:mx-5"
+                className="overflow-hidden"
                 style={{ touchAction: 'pan-y' }}
             >
                 <div className="flex">
