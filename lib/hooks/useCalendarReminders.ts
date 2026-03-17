@@ -15,6 +15,8 @@ export interface DayReminders {
 export function useCalendarReminders(year: number, month: number) {
     const { data: todoLists, isLoading, error } = useTodoLists()
 
+    console.log('todoLists in useCalendarReminders:', todoLists)
+
     const calendarData = useMemo(() => {
         if (!todoLists) return {}
 
@@ -42,9 +44,8 @@ export function useCalendarReminders(year: number, month: number) {
         const remindersByDate: Record<string, CalendarReminder[]> = {}
 
         allTodosWithDates.forEach(todo => {
-            // const d = new Date(String(todo.dueDate!))
-            // const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-            const dateKey = todo.dueDate!.toString().split('T')[0]
+            const d = new Date(String(todo.dueDate!))
+            const dateKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
             
             if (!remindersByDate[dateKey]) {
                 remindersByDate[dateKey] = []

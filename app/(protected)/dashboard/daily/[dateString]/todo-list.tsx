@@ -46,6 +46,14 @@ export default function TodoList({ dateString }: TodoListProps) {
         setOpenAddTodoModal(true)
     }
 
+    function getDefaultDueDate() {
+        const [hourStr, period] = currentTimeSlot.split(' ')
+        let hour = parseInt(hourStr)
+        if (period === 'PM' && hour !== 12) hour += 12
+        if (period === 'AM' && hour === 12) hour = 0
+        return new Date(`${dateString}T${String(hour).padStart(2, '0')}:00:00`)
+    }
+
     return (
         <>
 
@@ -56,7 +64,7 @@ export default function TodoList({ dateString }: TodoListProps) {
                     </SheetHeader>
                     <ScrollArea className='h-[85vh]'>
                         <AddTodoForm
-                            defaultDueDate={new Date(`${dateString}T${currentTimeSlot.split(" ")[0].padStart(2, '0')}:00:00`)}
+                            defaultDueDate={getDefaultDueDate()}
                         />
                     </ScrollArea>
                 </SheetContent>
