@@ -67,16 +67,22 @@ export default function AddTodoForm({
     }, [formData.text])
 
 
-    function combineDateAndTime(date: Date | undefined, time: string): string | null {
-        if (!date) return null
+function combineDateAndTime(date: Date | undefined, time: string): string | null {
+    if (!date) return null
 
-        const combined = new Date(date)
-        const [hours, minutes] = time.split(':').map(Number)
-        combined.setHours(hours, minutes, 0, 0)
+    const [hours, minutes] = time.split(':').map(Number)
 
-        // Convert to ISO string (UTC)
-        return combined.toISOString()
-    }
+    const combined = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(), // use local date parts, not UTC
+        hours,
+        minutes,
+        0, 0
+    )
+
+    return combined.toISOString()
+}
 
     const handleSubmit = async (e: React.FormEvent) => {
 
