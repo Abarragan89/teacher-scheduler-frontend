@@ -22,9 +22,11 @@ import { useViewDateRange } from '@/lib/hooks/useViewDateRange'
 
 interface CurrentListProps {
     todoLists: TodoList[]
+    setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+    isModalOpen: boolean
 }
 
-export default function TodoLists({ todoLists }: CurrentListProps) {
+export default function TodoLists({ todoLists, setIsModalOpen, isModalOpen }: CurrentListProps) {
     const queryClient = useQueryClient()
     const { viewStartDate, viewEndDate } = useViewDateRange()
 
@@ -39,7 +41,6 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     const defaultIndex = sortedTodoLists.findIndex(list => list.isDefault)
     const [currentListIndex, setCurrentListIndex] = useState(defaultIndex >= 0 ? defaultIndex : 0);
     const [focusedText, setFocusedText] = useState<string>('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [newListName, setNewListName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const [sortBy, setSortBy] = useState<'priority' | 'due-date' | 'created'>('created');
@@ -217,7 +218,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
     }
 
     return (
-        <div className="space-y-4 mt-4">
+        <div className="mt-4">
             <div className="w-full">
                 {/* The Carousel itself */}
                 <Carousel
@@ -249,16 +250,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                         ))}
                     </CarouselContent>
                     {/* Buttons Underneath, Right-Aligned */}
-                    <div className="flex-between mt-4 gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-sm border-dashed text-muted-foreground hover:text-foreground shrink-0"
-                            onClick={() => setIsModalOpen(true)}
-                        >
-                            <Plus className="w-4 h-4 mr-1" />
-                            New List
-                        </Button>
+                    <div className="flex-end mt-4 gap-2">
                         <div className='space-x-5'>
                             <CarouselPrevious className="static translate-y-0 translate-x-0" />
                             <CarouselNext className="static translate-y-0 translate-x-0" />
@@ -269,7 +261,7 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
 
             <Separator />
             {/* Current List Table */}
-            <div className='mt-9'>
+            <div className='mt-5'>
                 <div className="flex-between">
                     <BareInput
                         className="font-bold text-lg md:text-xl bg-transparent border-none p-0"
@@ -292,7 +284,6 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                 {/* Sort Buttons */}
                 <div className="flex-between">
                     <div className='flex items-center gap-x-3'>
-                        <Label className="text-xs text-muted-foreground">Sort by:</Label>
                         <Button
                             onClick={() => setSortBy('created')}
                             className={`hover:cursor-pointer p-0 font-bold
@@ -319,6 +310,15 @@ export default function TodoLists({ todoLists }: CurrentListProps) {
                             variant={'link'}
                         >
                             Due Date
+                        </Button>
+                        <Button
+                            onClick={() => setSortBy('due-date')}
+                            className={`hover:cursor-pointer p-0 font-bold
+                            ${sortBy === 'due-date' ? '' : 'text-muted-foreground'}    
+                        `}
+                            variant={'link'}
+                        >
+                            Completed
                         </Button>
                     </div>
                 </div>

@@ -7,14 +7,17 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import { ListTodo } from "lucide-react"
+import { ListTodo, Plus } from "lucide-react"
 import TodoLists from "./todo-lists"
 import { useTodoLists } from "@/lib/hooks/useTodoLists"
 import { TodoList } from "@/types/todo"
+import { useState } from "react"
 
 export function TodoSheet() {
 
     const { data: allLists = [] } = useTodoLists();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
 
     return (
         <Sheet>
@@ -25,11 +28,22 @@ export function TodoSheet() {
                 </Button>
             </SheetTrigger>
             <SheetContent className="p-5" tabIndex={-1}>
-                <SheetHeader>
+                <SheetHeader className="flex">
                     <SheetTitle>ToDo Lists</SheetTitle>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full pr-1 text-sm border-dashed text-muted-foreground hover:text-foreground shrink-0"
+                        onClick={() => setIsModalOpen(true)}
+                    >
+                        <Plus className="w-4 h-4" />
+                        New List
+                    </Button>
                 </SheetHeader>
                 <TodoLists
                     todoLists={allLists as TodoList[]}
+                    setIsModalOpen={setIsModalOpen}
+                    isModalOpen={isModalOpen}
                 />
             </SheetContent>
         </Sheet>
