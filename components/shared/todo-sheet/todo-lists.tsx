@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { BareInput } from '@/components/ui/bare-bones-input'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Plus, BookmarkCheckIcon, Circle } from 'lucide-react'
+import { Plus, BookmarkCheckIcon, Circle, Info } from 'lucide-react'
 import { TodoState, updateTodoListTitle, handleTodoListTitleBlur, handleTodoListTitleFocus } from './utils/todo-list-operations'
 import { getSortFunction, SortBy } from './utils/todo-sorting'
 import { ResponsiveDialog } from '@/components/responsive-dialog'
@@ -43,7 +43,7 @@ export default function TodoLists({ todoLists, setIsModalOpen, isModalOpen }: Cu
     const [focusedText, setFocusedText] = useState<string>('');
     const [newListName, setNewListName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
-    const [sortBy, setSortBy] = useState<'priority' | 'due-date' | 'created'>('created');
+    const [sortBy, setSortBy] = useState<'priority' | 'due-date' | 'created' | 'completed'>('created');
     const [showAddTodoForm, setShowAddTodoForm] = useState<boolean>(false);
     const [newTodoText, setNewTodoText] = useState<string>('');
     const [isAddingTodo, setIsAddingTodo] = useState<boolean>(false);
@@ -61,18 +61,30 @@ export default function TodoLists({ todoLists, setIsModalOpen, isModalOpen }: Cu
 
     const currentList = sortedTodoLists[currentListIndex]
 
-    // Use the memoized sort function from utils
-    const sortFunction = useMemo(() => getSortFunction(sortBy as SortBy), [sortBy])
+    // Use the memoized sort function from utils (only for non-completed views)
+    const sortFunction = useMemo(
+        () => sortBy !== 'completed' ? getSortFunction(sortBy as SortBy) : null,
+        [sortBy]
+    )
 
     // Memoize the sorted current list
-    // Hide todos that are completed and no longer in their undo window (pendingRemoval cleared)
     const sortedCurrentList = useMemo(() => {
         if (!currentList) return currentList
+        if (sortBy === 'completed') {
+            // Completed view: show all completed todos (including those animating out via pendingUncompletion)
+            return {
+                ...currentList,
+                todos: currentList.todos.filter(todo =>
+                    (todo.completed && !todo.pendingRemoval) || todo.pendingUncompletion
+                )
+            }
+        }
+        // Normal view: hide completed todos (except those still in the 2s undo window)
         return {
             ...currentList,
-            todos: sortFunction(currentList.todos.filter(todo => !todo.completed || todo.pendingRemoval))
+            todos: sortFunction!(currentList.todos.filter(todo => !todo.completed || todo.pendingRemoval))
         }
-    }, [currentList, sortFunction])
+    }, [currentList, sortFunction, sortBy])
 
 
     // Create state object for todo operations
@@ -312,9 +324,9 @@ export default function TodoLists({ todoLists, setIsModalOpen, isModalOpen }: Cu
                             Due Date
                         </Button>
                         <Button
-                            onClick={() => setSortBy('due-date')}
+                            onClick={() => setSortBy('completed')}
                             className={`hover:cursor-pointer p-0 font-bold
-                            ${sortBy === 'due-date' ? '' : 'text-muted-foreground'}    
+                            ${sortBy === 'completed' ? '' : 'text-muted-foreground'}    
                         `}
                             variant={'link'}
                         >
@@ -324,50 +336,59 @@ export default function TodoLists({ todoLists, setIsModalOpen, isModalOpen }: Cu
                 </div>
 
 
-                <div className='mt-2 flex items-start gap-1 border-b pb-3 mb-2 border-dashed border-muted-foreground/40'>
-                    {/* Ghost Checkbox */}
-                    <div className="shrink-0">
-                        <Circle className="w-5 h-5 text-muted-foreground/50" />
-                    </div>
-
-                    {showAddTodoForm ? (
-                        /* Expanded input form */
-                        <input
-                            ref={addTodoInputRef}
-                            className="w-full px-2 leading-normal text-[15px] bg-transparent border-none  border-muted resize-none overflow-hidden focus:outline-none focus:ring-0 placeholder:text-muted-foreground/60"
-                            placeholder="Add todo..."
-                            value={newTodoText}
-                            onChange={(e) => setNewTodoText(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Escape') {
-                                    setShowAddTodoForm(false)
-                                    setNewTodoText('')
-                                }
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault()
-                                    addTodoItem()
-                                }
-                            }}
-                            onBlur={() => {
-                                if (newTodoText.trim()) {
-                                    addTodoItem()
-                                } else {
-                                    setShowAddTodoForm(false)
-                                }
-                            }}
-                            disabled={isAddingTodo}
-                            autoFocus
-                        />
-                    ) : (
-                        /* Ghost state */
-                        <p
-                            className="text-[15px] w-full font-medium leading-normal rounded px-2 transition-colors text-muted-foreground/60 hover:cursor-text"
-                            onClick={() => setShowAddTodoForm(true)}
-                        >
-                            Add todo...
+                {sortBy === 'completed' ? (
+                    <div className='mt-2 flex items-start gap-2 border-b pb-3 mb-2 border-dashed border-muted-foreground/40'>
+                        <Info className="w-4 h-4 shrink-0 mt-0.5 text-muted-foreground/60" />
+                        <p className="text-[13px] leading-snug text-destructive-foreground/80">
+                            Completed todos are automatically deleted 10 days after completion.
                         </p>
-                    )}
-                </div>
+                    </div>
+                ) : (
+                    <div className='mt-2 flex items-start gap-1 border-b pb-3 mb-2 border-dashed border-muted-foreground/40'>
+                        {/* Ghost Checkbox */}
+                        <div className="shrink-0">
+                            <Circle className="w-5 h-5 text-muted-foreground/50" />
+                        </div>
+
+                        {showAddTodoForm ? (
+                            /* Expanded input form */
+                            <input
+                                ref={addTodoInputRef}
+                                className="w-full px-2 leading-normal text-[15px] bg-transparent border-none  border-muted resize-none overflow-hidden focus:outline-none focus:ring-0 placeholder:text-muted-foreground/60"
+                                placeholder="Add todo..."
+                                value={newTodoText}
+                                onChange={(e) => setNewTodoText(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Escape') {
+                                        setShowAddTodoForm(false)
+                                        setNewTodoText('')
+                                    }
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault()
+                                        addTodoItem()
+                                    }
+                                }}
+                                onBlur={() => {
+                                    if (newTodoText.trim()) {
+                                        addTodoItem()
+                                    } else {
+                                        setShowAddTodoForm(false)
+                                    }
+                                }}
+                                disabled={isAddingTodo}
+                                autoFocus
+                            />
+                        ) : (
+                            /* Ghost state */
+                            <p
+                                className="text-[15px] w-full font-medium leading-normal rounded px-2 transition-colors text-muted-foreground/60 hover:cursor-text"
+                                onClick={() => setShowAddTodoForm(true)}
+                            >
+                                Add todo...
+                            </p>
+                        )}
+                    </div>
+                )}
 
 
 

@@ -12,6 +12,7 @@ export interface TodoItem {
     createdAt?: string   // For sorting by creation date
     deleting?: boolean       // For smooth deletion animation
     pendingRemoval?: boolean  // True during the undo window (2s) + animation, before final cache cleanup
+    pendingUncompletion?: boolean  // True during the collapse animation when unchecking from completed view
     isNew?: boolean      // For new item slide-in animation
     slideDown?: boolean  // For existing items slide-down animation
     editScope?: 'single' | 'future' // For recurring todos, indicates if edit applies to single occurrence or all future occurrences

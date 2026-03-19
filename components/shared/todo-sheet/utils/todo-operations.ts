@@ -86,21 +86,41 @@ export const toggleTodoCompletion = async (
             pendingDeletions.set(todoId, timeoutId)
         }
     } else {
-        // Uncheck - cancel pending deletion and mark as incomplete
         const pendingTimeout = pendingDeletions.get(todoId)
-        if (pendingTimeout) {
-            clearTimeout(pendingTimeout)
-            pendingDeletions.delete(todoId)
+
+        if (pendingTimeout || todo.pendingRemoval) {
+            // Still in the 2s undo window — cancel the pending deletion and restore immediately
+            if (pendingTimeout) {
+                clearTimeout(pendingTimeout)
+                pendingDeletions.delete(todoId)
+            }
+            updateTodoInAllCaches(queryClient, todoId, t => ({ ...t, completed: false, deleting: false, pendingRemoval: false }))
+
+            const resolvedListId = listId || todo.todoListId || ''
+            clientTodo.updateTodo({ ...todo, completed: false, todoListId: resolvedListId }).catch(error => {
+                console.error('Failed to uncheck todo:', error)
+            })
+        } else {
+            // Stable completed todo (e.g. from the completed view) — animate out then restore
+            playRemovedSound()
+
+            updateTodoInAllCaches(queryClient, todoId, t => ({ ...t, deleting: true, pendingUncompletion: true }))
+
+            const resolvedListId = listId || todo.todoListId || ''
+            clientTodo.updateTodo({ ...todo, completed: false, todoListId: resolvedListId }).catch(error => {
+                console.error('Failed to uncheck todo:', error)
+            })
+
+            setTimeout(() => {
+                updateTodoInAllCaches(queryClient, todoId, t => ({
+                    ...t,
+                    completed: false,
+                    deleting: false,
+                    pendingRemoval: false,
+                    pendingUncompletion: false,
+                }))
+            }, 500)
         }
-
-        // Mark as incomplete IMMEDIATELY in cache
-        updateTodoInAllCaches(queryClient, todoId, t => ({ ...t, completed: false, deleting: false, pendingRemoval: false }))
-
-        // Backend API call (don't await)
-        const resolvedListId = listId || todo.todoListId || ''
-        clientTodo.updateTodo({ ...todo, completed: false, todoListId: resolvedListId }).catch(error => {
-            console.error('Failed to uncheck todo:', error)
-        })
     }
 }
 
