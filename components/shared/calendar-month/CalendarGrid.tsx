@@ -134,7 +134,7 @@ export default function CalendarGrid({ date }: CalendarGridProps) {
 
             {/* Empty cells before first day */}
             {Array.from({ length: firstDayOfWeek }, (_, i) => (
-                <div key={`empty-${i}`} className="h-28 md:h-32 border-b border-l" />
+                <div key={`empty-${i}`} className="h-28 md:h-32 border-b" />
             ))}
 
             {/* Calendar days */}
