@@ -8,7 +8,7 @@ import {
 import { Calendar } from '@/components/ui/calendar'
 import { clientDays } from '@/lib/api/services/days/client'
 import { toast } from "sonner"
-import { formatDateDisplay } from '@/lib/utils'
+import { formatDateDisplay } from '@/lib/utils/date-formater'
 import { Copy } from 'lucide-react'
 
 export default function MoveSchedulePopover({
@@ -43,7 +43,7 @@ export default function MoveSchedulePopover({
                     title='Copy Schedule'
                     className='p-0 hover:cursor-pointer hover:underline text-muted-foreground/80 hover:text-ring'
                 >
-                    <Copy /> 
+                    <Copy />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className='space-y-1 ml-5 p-2'>

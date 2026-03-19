@@ -7,6 +7,14 @@ function getListName(queryClient: QueryClient, listId: string): string {
     return lists?.find(l => l.id === listId)?.listName ?? ''
 }
 
+// Extract the local date string (YYYY-MM-DD) from a dueDate value.
+// Uses local Date methods so UTC timestamps like "2026-03-17T02:00:00Z"
+// resolve to the correct local date (e.g. "2026-03-16" for UTC-7 users).
+function localDateStr(dueDate: string): string {
+    const d = new Date(dueDate)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 /**
  * Patch a single todo by ID in all caches.
  * Use for field-level updates that don't change the todo's date or list (e.g. completion toggle).
@@ -55,7 +63,7 @@ export function addTodoToAllCaches(
         )
     })
 
-    const dueDateStr = todo.dueDate ? todo.dueDate.toString().split('T')[0] : null
+    const dueDateStr = todo.dueDate ? localDateStr(todo.dueDate.toString()) : null
     if (dueDateStr) {
         const dailyEntries = queryClient.getQueriesData<DailyTodoItem[]>({ queryKey: ['dailyTodos'] })
         for (const [key, data] of dailyEntries) {
@@ -163,7 +171,7 @@ export function moveUpdatedTodoInAllCaches(
     })
 
     // Flat daily caches: remove old entry, re-insert only in the matching date bucket
-    const dueDateStr = newTodo.dueDate ? newTodo.dueDate.toString().split('T')[0] : null
+    const dueDateStr = newTodo.dueDate ? localDateStr(newTodo.dueDate.toString()) : null
     const dailyEntries = queryClient.getQueriesData<DailyTodoItem[]>({ queryKey: ['dailyTodos'] })
     for (const [key, data] of dailyEntries) {
         if (!data) continue

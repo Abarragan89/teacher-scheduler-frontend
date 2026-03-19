@@ -19,7 +19,7 @@ export default function TodoList({ dateString }: TodoListProps) {
     const [holiday, setHoliday] = useState<{ date: string, name: string, emoji?: string } | null>(null)
     const [openAddTodoModal, setOpenAddTodoModal] = useState<boolean>(false);
     const [currentTimeSlot, setCurrentTimeSlot] = useState<string>('')
-
+    
     // Fetch holiday for this specific date
     useEffect(() => {
         async function fetchHolidayForDate() {

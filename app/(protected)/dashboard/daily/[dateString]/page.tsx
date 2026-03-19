@@ -1,6 +1,6 @@
 import DailyScheduleAccordion from '@/components/shared/daily-schedule-accordion';
 import { serverDays } from '@/lib/api/services/days/server';
-import { formatDateDisplay } from '@/lib/utils';
+import { formatDateDisplay } from '@/lib/utils/date-formater';
 import React from 'react'
 import { DayData } from '@/types/day';
 import TodoList from './todo-list';

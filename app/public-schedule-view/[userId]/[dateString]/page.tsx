@@ -1,5 +1,5 @@
 import { serverDays } from "@/lib/api/services/days/server";
-import { formatDateDisplay } from "@/lib/utils";
+import { formatDateDisplay } from "@/lib/utils/date-formater";
 import { DayData } from "@/types/day";
 import PublicViewAccordion from "../../public-view-accordion";
 import Header from "@/components/shared/header";

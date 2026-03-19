@@ -15,7 +15,7 @@ import { AccordionState } from './utils/types'
 import { toggleTaskCompletion, updateTaskTitle, handleTaskBlur, handleTaskFocus } from './utils/task-operations'
 import { handleTaskTitleKeyDown } from './utils/keyboard-handlers'
 import { TimePicker } from "./time-picker"
-import { formatTime } from "@/lib/utils"
+import { formatTime } from "@/lib/utils/date-formater"
 import useSound from 'use-sound'
 
 

@@ -66,22 +66,22 @@ export default function AddTodoForm({
     }, [formData.text])
 
 
-function combineDateAndTime(date: Date | undefined, time: string): string | null {
-    if (!date) return null
+    function combineDateAndTime(date: Date | undefined, time: string): string | null {
+        if (!date) return null
 
-    const [hours, minutes] = time.split(':').map(Number)
+        const [hours, minutes] = time.split(':').map(Number)
 
-    const combined = new Date(
-        date.getFullYear(),
-        date.getMonth(),
-        date.getDate(), // use local date parts, not UTC
-        hours,
-        minutes,
-        0, 0
-    )
+        const combined = new Date(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(), // use local date parts, not UTC
+            hours,
+            minutes,
+            0, 0
+        )
 
-    return combined.toISOString()
-}
+        return combined.toISOString()
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
 
@@ -92,7 +92,9 @@ function combineDateAndTime(date: Date | undefined, time: string): string | null
 
         let newTodo: TodoItem
         try {
-            const dueDateISO = combineDateAndTime(formData.dueDate, formData.time)
+
+            const effectiveTime = formData.isRecurring ? formData.recurrencePattern.timeOfDay : formData.time
+            const dueDateISO = combineDateAndTime(formData.dueDate, effectiveTime)
             // IF editing existing todo
             if (currentTodo) {
                 const updatedTodo: TodoItem = {
@@ -108,12 +110,14 @@ function combineDateAndTime(date: Date | undefined, time: string): string | null
 
                 // Update existing todo
                 newTodo = await clientTodo.updateTodo(updatedTodo)
-                moveUpdatedTodoInAllCaches(queryClient, formData.selectedListId, newTodo)
-                // Virtual todos have a different id than newTodo.id, so moveUpdatedTodoInAllCaches
-                // can't find and remove them — strip the virtual entry explicitly
                 if (currentTodo.id.startsWith('virtual_')) {
                     removeTodoFromAllCaches(queryClient, formData.selectedListId, currentTodo.id)
                 }
+
+                moveUpdatedTodoInAllCaches(queryClient, formData.selectedListId, newTodo)
+                // injectTodoIntoFlatCaches(queryClient, formData.selectedListId, newTodo)
+                // Virtual todos have a different id than newTodo.id, so moveUpdatedTodoInAllCaches
+                // can't find and remove them — strip the virtual entry explicitly
             } else {
 
                 // If recurring, may return array of todos

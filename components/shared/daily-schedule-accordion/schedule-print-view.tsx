@@ -1,4 +1,4 @@
-import { formatTime } from '@/lib/utils'
+import { formatTime } from '@/lib/utils/date-formater'
 import { Schedule } from '@/types/day'
 import React from 'react'
 

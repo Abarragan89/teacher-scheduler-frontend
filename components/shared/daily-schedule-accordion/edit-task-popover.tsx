@@ -13,7 +13,7 @@ import { SingleTaskView } from '@/components/single-task-view'
 import { Task } from '@/types/tasks'
 import { AccordionState } from './utils/types'
 import { toast } from 'sonner'
-import { formatDateDisplay } from '@/lib/utils'
+import { formatDateDisplay } from '@/lib/utils/date-formater'
 
 export default function EditTaskPopover({
     task,

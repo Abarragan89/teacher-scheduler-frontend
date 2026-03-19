@@ -67,7 +67,9 @@ export function toTodoFormData({
       currentTodo?.recurrencePattern
         ? {
           ...currentTodo.recurrencePattern,
-          timeOfDay: currentTodo.recurrencePattern.timeOfDay ?? "07:00",
+          // Use the occurrence's dueDate time if available, so the time input
+          // reflects what was actually saved rather than the pattern default
+          timeOfDay: time || currentTodo.recurrencePattern.timeOfDay || "07:00",
           startDate: currentTodo.recurrencePattern.startDate ? new Date(currentTodo.recurrencePattern.startDate) : new Date(),
           endDate: currentTodo.recurrencePattern.endDate ? new Date(currentTodo.recurrencePattern.endDate) : undefined,
           yearlyDate: currentTodo.recurrencePattern.yearlyDate

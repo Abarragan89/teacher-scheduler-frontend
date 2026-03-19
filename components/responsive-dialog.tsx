@@ -12,7 +12,7 @@ import {
     DrawerTitle,
 } from '@/components/ui/drawer';
 
-import { useMediaQuery } from '@/hooks/user-media-query';
+import { useMediaQuery } from '@/lib/hooks/user-media-query';
 
 export function ResponsiveDialog({
     children,

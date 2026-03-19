@@ -1,7 +1,7 @@
 import { TodoItem } from "@/types/todo";
 import { useQuery } from "@tanstack/react-query";
 import { clientTodo } from "../api/services/todos/client";
-import { toLocalDateString } from "../utils";
+import { toLocalDateString } from "../utils/date-formater";
 
 interface UseRecurringTodosParams {
     startDate: string;

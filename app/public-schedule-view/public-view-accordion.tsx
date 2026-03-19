@@ -10,7 +10,7 @@ import SchedulePrintView from '@/components/shared/daily-schedule-accordion/sche
 import OutlineItemIndicator from '@/components/shared/daily-schedule-accordion/outline-item-indicator'
 import { SingleTaskView } from '@/components/single-task-view'
 import { AccordionState } from '@/components/shared/daily-schedule-accordion/utils/types'
-import { formatTime } from '@/lib/utils'
+import { formatTime } from '@/lib/utils/date-formater'
 import YesterdayTomorrowNav from '@/components/shared/daily-schedule-accordion/yesterday-tomorrow-nav'
 
 export default function PublicViewAccordion({

@@ -5,7 +5,7 @@ import { useCalendarReminders } from '@/lib/hooks/useCalendarReminders'
 import { clientDays } from '@/lib/api/services/days/client'
 import { useRecurringTodos } from '@/lib/hooks/useRecurringTodos'
 import { TodoItem } from '@/types/todo'
-import { toLocalDateString } from '@/lib/utils'
+import { toLocalDateString } from '@/lib/utils/date-formater'
 
 interface CalendarGridProps {
     date: Date
@@ -79,7 +79,7 @@ export default function CalendarGrid({ date }: CalendarGridProps) {
         router.push(`/dashboard/daily/${dateString}?view=todos`)
     }
 
-    const renderDateTodos = (d: Date) => {                          
+    const renderDateTodos = (d: Date) => {
         const dateString = toLocalDateString(d)
         const dayReminders = getRemindersForDate(dateString)
         const dayRecurring = getRecurringTodoForDate(dateString)

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Task } from '@/types/tasks'
 import { AccordionState } from './shared/daily-schedule-accordion/utils/types'
 import { toggleOutlineItemCompletion } from './shared/daily-schedule-accordion/utils/outline-operations'
-import { formatTime } from '@/lib/utils'
+import { formatTime } from '@/lib/utils/date-formater'
 import useSound from 'use-sound'
 
 interface FullScreenTaskViewProps {
