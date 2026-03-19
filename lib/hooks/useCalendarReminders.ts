@@ -15,8 +15,6 @@ export interface DayReminders {
 export function useCalendarReminders(year: number, month: number) {
     const { data: todoLists, isLoading, error } = useTodoLists()
 
-    console.log('todoLists in useCalendarReminders:', todoLists)
-
     const calendarData = useMemo(() => {
         if (!todoLists) return {}
 
@@ -37,8 +35,6 @@ export function useCalendarReminders(year: number, month: number) {
                     deleting: (todo as any).deleting || false
                 }))
         )
-
-        console.log('Filtered Todos for Calendar:', allTodosWithDates) // Debug log to check the filtered todos for the calendar
 
         // Group todos by date
         const remindersByDate: Record<string, CalendarReminder[]> = {}

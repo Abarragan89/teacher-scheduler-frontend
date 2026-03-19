@@ -1,6 +1,7 @@
 import { TodoItem } from "@/types/todo";
 import { useQuery } from "@tanstack/react-query";
 import { clientTodo } from "../api/services/todos/client";
+import { toLocalDateString } from "../utils";
 
 interface UseRecurringTodosParams {
     startDate: string;
@@ -14,14 +15,14 @@ export function useRecurringTodos({ startDate, endDate }: UseRecurringTodosParam
         staleTime: 1000 * 60 * 5, // 5 minutes — no need to refetch unless month changes
     })
 
-    console.log('Recurring Todos for Range:', recurringTodos) // Debug log to check the fetched recurring todos for the calendar
-
     return {
         recurringTodos,
         getRecurringTodoForDate: (date: string) =>
-            recurringTodos.filter((todo: TodoItem) =>
-                todo.dueDate?.toString().split('T')[0] === date
-            ),
+            recurringTodos.filter((todo: TodoItem) => {
+                if (!todo.dueDate) return false
+                const todoLocalDate = toLocalDateString(new Date(todo.dueDate)) // converts UTC instant to local date
+                return todoLocalDate === date
+            }),
         isLoading,
         error
     }

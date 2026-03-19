@@ -5,6 +5,7 @@ import { useCalendarReminders } from '@/lib/hooks/useCalendarReminders'
 import { clientDays } from '@/lib/api/services/days/client'
 import { useRecurringTodos } from '@/lib/hooks/useRecurringTodos'
 import { TodoItem } from '@/types/todo'
+import { toLocalDateString } from '@/lib/utils'
 
 interface CalendarGridProps {
     date: Date
@@ -53,7 +54,7 @@ export default function CalendarGrid({ date }: CalendarGridProps) {
     }, [date])
 
     const getHolidayForDate = (d: Date) => {
-        const dateString = d.toISOString().split('T')[0]
+        const dateString = toLocalDateString(d)
         return holidays.find(h => h.date === dateString) || null
     }
 
@@ -78,8 +79,8 @@ export default function CalendarGrid({ date }: CalendarGridProps) {
         router.push(`/dashboard/daily/${dateString}?view=todos`)
     }
 
-    const renderDateTodos = (d: Date) => {
-        const dateString = d.toISOString().split('T')[0]
+    const renderDateTodos = (d: Date) => {                          
+        const dateString = toLocalDateString(d)
         const dayReminders = getRemindersForDate(dateString)
         const dayRecurring = getRecurringTodoForDate(dateString)
 

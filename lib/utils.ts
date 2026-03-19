@@ -24,3 +24,6 @@ export function formatTime(time: string): string {
   h = h % 12 || 12;
   return `${h}:${minute} ${ampm}`;
 }
+
+export const toLocalDateString = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
