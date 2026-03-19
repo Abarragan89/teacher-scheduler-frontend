@@ -89,7 +89,6 @@ export default function AddTodoForm({
         if (!formData.text.trim()) return
         setUIField?.('isCreating', true)
 
-
         let newTodo: TodoItem
         try {
 
@@ -113,11 +112,9 @@ export default function AddTodoForm({
                 if (currentTodo.id.startsWith('virtual_')) {
                     removeTodoFromAllCaches(queryClient, formData.selectedListId, currentTodo.id)
                 }
-
-                moveUpdatedTodoInAllCaches(queryClient, formData.selectedListId, newTodo)
-                // injectTodoIntoFlatCaches(queryClient, formData.selectedListId, newTodo)
                 // Virtual todos have a different id than newTodo.id, so moveUpdatedTodoInAllCaches
                 // can't find and remove them — strip the virtual entry explicitly
+                moveUpdatedTodoInAllCaches(queryClient, formData.selectedListId, newTodo)
             } else {
 
                 // If recurring, may return array of todos

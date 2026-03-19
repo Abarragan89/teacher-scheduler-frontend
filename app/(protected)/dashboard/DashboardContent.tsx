@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import TodoListItem from '@/components/todo-list-item'
 import { TodoItem as BaseTodoItem } from '@/types/todo'
 import { useUser } from '@/components/providers/UserProvider'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 interface DashboardTodoItem extends BaseTodoItem {
     listName?: string
@@ -91,23 +92,25 @@ export default function DashboardContent() {
                             Upcoming Todos
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="max-h-80 overflow-y-auto">
-                        {upcomingTodos.length === 0 ? (
-                            <div className="text-center text-muted-foreground py-2">
-                                <Calendar className="w-10 h-10 mx-auto mb-3 opacity-50" />
-                                <p>No upcoming todos</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-0">
-                                {upcomingTodos.map((todo: DashboardTodoItem) => (
-                                    <TodoListItem
-                                        key={todo.id}
-                                        todo={todo}
-                                        listId={findListIdForTodo(todo.id) || ''}
-                                    />
-                                ))}
-                            </div>
-                        )}
+                    <CardContent className='pr-0'>
+                        <ScrollArea className="h-80 pr-6">
+                            {upcomingTodos.length === 0 ? (
+                                <div className="text-center text-muted-foreground py-2">
+                                    <Calendar className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                                    <p>No upcoming todos</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-0">
+                                    {upcomingTodos.map((todo: DashboardTodoItem) => (
+                                        <TodoListItem
+                                            key={todo.id}
+                                            todo={todo}
+                                            listId={findListIdForTodo(todo.id) || ''}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </ScrollArea>
                     </CardContent>
                 </Card>
 
@@ -121,23 +124,25 @@ export default function DashboardContent() {
                             Priority Todos
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="max-h-80 overflow-y-auto">
-                        {priorityTodos.length === 0 ? (
-                            <div className="text-center text-muted-foreground py-2">
-                                <Flag className="w-10 h-10 mx-auto mb-3 opacity-50" />
-                                <p>No priority todos</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-0">
-                                {priorityTodos.map((todo: DashboardTodoItem) => (
-                                    <TodoListItem
-                                        key={todo.id}
-                                        todo={todo}
-                                        listId={findListIdForTodo(todo.id) || ''}
-                                    />
-                                ))}
-                            </div>
-                        )}
+                    <CardContent className='pr-0'>
+                        <ScrollArea className="h-80 pr-6">
+                            {priorityTodos.length === 0 ? (
+                                <div className="text-center text-muted-foreground py-2">
+                                    <Flag className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                                    <p>No priority todos</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-0">
+                                    {priorityTodos.map((todo: DashboardTodoItem) => (
+                                        <TodoListItem
+                                            key={todo.id}
+                                            todo={todo}
+                                            listId={findListIdForTodo(todo.id) || ''}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </ScrollArea>
                     </CardContent>
                 </Card>
             </div>
