@@ -18,13 +18,22 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
             const [y, m] = initialMonth.split('-').map(Number)
             if (y && m) return new Date(y, m - 1, 1)
         }
-        const now = new Date()
-        console.log('parseInitialDate called:', now.toString(), 'day:', now.getDay())
-        return now
+        return new Date(1970, 0, 1) // placeholder — will be replaced on client
     }
 
     const [currentDate, setCurrentDate] = useState(parseInitialDate)
     const [displayDate, setDisplayDate] = useState(parseInitialDate)
+
+    // Need this useEffect to ensure it runs only only client and uses correct timezone. 
+    useEffect(() => {
+        if (!initialMonth) {
+            const now = new Date()
+            setCurrentDate(now)
+            setDisplayDate(now)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
     const queryClient = useQueryClient()
 
     // Derive 5 slides: -2, -1, 0, +1, +2 months relative to currentDate
