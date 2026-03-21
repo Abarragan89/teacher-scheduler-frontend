@@ -93,7 +93,7 @@ export default function DashboardContent() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className='pr-0'>
-                        <ScrollArea className="h-80 pr-6">
+                        <ScrollArea className="h-48 pr-6">
                             {upcomingTodos.length === 0 ? (
                                 <div className="text-center text-muted-foreground py-2">
                                     <Calendar className="w-10 h-10 mx-auto mb-3 opacity-50" />
@@ -125,7 +125,7 @@ export default function DashboardContent() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className='pr-0'>
-                        <ScrollArea className="h-80 pr-6">
+                        <ScrollArea className="h-48 pr-6">
                             {priorityTodos.length === 0 ? (
                                 <div className="text-center text-muted-foreground py-2">
                                     <Flag className="w-10 h-10 mx-auto mb-3 opacity-50" />
