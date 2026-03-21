@@ -24,9 +24,15 @@ const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 export default function CalendarGrid({ date }: CalendarGridProps) {
     const router = useRouter()
-    const today = new Date()
+
+    const [today, setToday] = useState<Date | null>(null)
+
+    useEffect(() => {
+        setToday(new Date()) // runs only in browser
+    }, [])
 
     const [holidays, setHolidays] = useState<Array<{ date: string; name: string; emoji?: string }>>([])
+
 
     const { getRemindersForDate, isLoading } = useCalendarReminders(
         date.getFullYear(),
@@ -34,8 +40,8 @@ export default function CalendarGrid({ date }: CalendarGridProps) {
     )
 
     const { getRecurringTodoForDate } = useRecurringTodos({
-        startDate: new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0],
-        endDate: new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split('T')[0],
+        startDate: toLocalDateString(new Date(date.getFullYear(), date.getMonth(), 1)),
+        endDate: toLocalDateString(new Date(date.getFullYear(), date.getMonth() + 1, 0)),
     })
 
     useEffect(() => {
@@ -72,10 +78,13 @@ export default function CalendarGrid({ date }: CalendarGridProps) {
     const days = generateCalendarDays()
     const firstDayOfWeek = new Date(date.getFullYear(), date.getMonth(), 1).getDay()
 
-    const isToday = (d: Date) => d.toDateString() === today.toDateString()
+    const isToday = (d: Date) => {
+        if (!today) return false
+        return d.toDateString() === today.toDateString()
+    }
 
     const handleDateClick = (d: Date) => {
-        const dateString = d.toISOString().split('T')[0]
+        const dateString = toLocalDateString(d)
         router.push(`/dashboard/daily/${dateString}?view=todos`)
     }
 
