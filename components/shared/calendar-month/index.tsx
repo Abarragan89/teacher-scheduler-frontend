@@ -18,7 +18,9 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
             const [y, m] = initialMonth.split('-').map(Number)
             if (y && m) return new Date(y, m - 1, 1)
         }
-        return new Date()
+        const now = new Date()
+        console.log('parseInitialDate called:', now.toString(), 'day:', now.getDay())
+        return now
     }
 
     const [currentDate, setCurrentDate] = useState(parseInitialDate)
