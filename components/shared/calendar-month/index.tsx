@@ -8,6 +8,7 @@ import useEmblaCarousel from 'embla-carousel-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { clientTodo } from '@/lib/api/services/todos/client'
 import CalendarGrid from './CalendarGrid'
+import { toLocalDateString } from '@/lib/utils/date-formater'
 
 export default function CalendarMonth({ initialMonth }: { initialMonth?: string }) {
     const pathname = usePathname()
@@ -81,8 +82,8 @@ export default function CalendarMonth({ initialMonth }: { initialMonth?: string 
     useEffect(() => {
         ;[-3, 3].forEach(offset => {
             const d = new Date(currentDate.getFullYear(), currentDate.getMonth() + offset, 1)
-            const startDate = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0]
-            const endDate = new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0]
+            const startDate = toLocalDateString(new Date(d.getFullYear(), d.getMonth(), 1))
+            const endDate = toLocalDateString(new Date(d.getFullYear(), d.getMonth() + 1, 0))
             queryClient.prefetchQuery({
                 queryKey: ['recurringTodos', startDate, endDate],
                 queryFn: () => clientTodo.getRecurringTodosInRange(startDate, endDate),
