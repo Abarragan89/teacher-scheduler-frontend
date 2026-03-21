@@ -25,7 +25,13 @@ const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 export default function CalendarGrid({ date }: CalendarGridProps) {
     const router = useRouter()
 
-    const [today] = useState<Date>(() => new Date())
+    const [today, setToday] = useState<Date | null>(null)
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setToday(new Date()) 
+    }, [])
+
     const [holidays, setHolidays] = useState<Array<{ date: string; name: string; emoji?: string }>>([])
 
 
