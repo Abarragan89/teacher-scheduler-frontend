@@ -54,8 +54,8 @@ export const toggleTodoCompletion = async (
             console.error('Failed to update todo:', error)
         })
 
-        // Only delete todo if we are in todosheet context
-        if (context === 'todosheet') {
+        // Only delete todo if we are in todosheet or priority context
+        if (context === 'todosheet' || context === 'dashboard') {
             // Schedule deletion after delay
             const timeoutId = setTimeout(() => {
                 // Check if todo is still completed before deleting
