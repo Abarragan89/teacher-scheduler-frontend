@@ -30,5 +30,14 @@ export const clientDays = {
 
         if (!response.ok) throw new Error('Failed to move schedule to date');
         return response.json();
+    },
+
+    async updateDayNotes(dayId: string, notes: object[]) {
+        const response = await clientFetch('/days/update-notes', {
+            method: 'PUT',
+            body: JSON.stringify({ dayId, notes }),
+        });
+        if (!response.ok) throw new Error('Failed to update notes');
+        return response.json();
     }
 };

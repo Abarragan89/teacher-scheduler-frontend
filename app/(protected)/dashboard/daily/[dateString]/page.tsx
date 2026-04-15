@@ -6,6 +6,7 @@ import { DayData } from '@/types/day';
 import TodoList from './todo-list';
 import YesterdayTomorrowNav from '@/components/shared/daily-schedule-accordion/yesterday-tomorrow-nav';
 import Link from 'next/link';
+import DailyNotesView from './daily-notes-view';
 
 interface pageProps {
     params: Promise<{
@@ -68,7 +69,12 @@ export default async function page({ params, searchParams }: pageProps) {
                             currentDay={currentDay.dayDate.replace(/-/g, "/")}
                         />
                     )}
-                    {view === 'notes' && <p>These are the Notes</p>}
+                    {view === 'notes' && (
+                        <DailyNotesView
+                            dayId={currentDay.id}
+                            initialNotes={currentDay.notes}
+                        />
+                    )}
                 </div>
             </div>
         </main>
